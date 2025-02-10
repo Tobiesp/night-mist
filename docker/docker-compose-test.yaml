@@ -19,8 +19,8 @@ services:
       POSTGRES_USER: example_user
       POSTGRES_DB: example_db
 
-    volumes:
-      - ./data:/var/lib/postgresql/data
+    # volumes:
+    #   - ./data:/var/lib/postgresql/data
 
   adminer:
     image: adminer
