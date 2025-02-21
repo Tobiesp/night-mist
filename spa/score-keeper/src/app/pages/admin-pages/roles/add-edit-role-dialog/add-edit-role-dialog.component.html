@@ -1,0 +1,57 @@
+<div>
+    <h1 *ngIf="data.type == 'add'" mat-dialog-title>Add Role</h1>
+    <h1 *ngIf="data.type == 'edit'" mat-dialog-title>Edit Role</h1>
+    <form [formGroup]="roleForm" (ngSubmit)="onConfirm()">
+        <div style="flex: 1 1 auto;" class="p-4">
+            <mat-form-field class="full-field-width">
+                <mat-label>Role Name</mat-label>
+                <input type="text"
+                        matInput 
+                        #input 
+                        placeholder="Role Name" 
+                        aria-label="role-name"
+                        formControlName="rolename" />
+                <div
+                    *ngIf="roleForm.controls['rolename'].invalid && (roleForm.controls['rolename'].dirty || roleForm.controls['rolename'].touched)">
+                    <div *ngIf="roleForm.controls['rolename'].errors?.['required']" class="text-bold-red-500">Username is required.</div>
+                </div>
+            </mat-form-field>
+            
+            <mat-form-field class="full-field-width">
+                <mat-label>Privileges</mat-label>
+                <mat-chip-grid #chipGrid aria-label="Privilege selection">
+                    @for (priv of privileges(); track $index) {
+                      <mat-chip-row (removed)="remove(priv)">
+                        {{priv}}
+                        <button matChipRemove [attr.aria-label]="'remove ' + priv">
+                          <mat-icon>cancel</mat-icon>
+                        </button>
+                      </mat-chip-row>
+                    }
+                  </mat-chip-grid>
+                <input type="text"
+                        placeholder="Pick a privilege"
+                        aria-label="Privileges"
+                        matInput
+                        [formControl]="privAutoCtrl"
+                        [matChipInputFor]="chipGrid"
+                        [matAutocomplete]="auto"
+                        [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                        (matChipInputTokenEnd)="add($event)">
+                <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete"  (optionSelected)="selected($event)">
+                    @for (option of filteredOptions | async; track option) {
+                    <mat-option [value]="option">{{option}}</mat-option>
+                    }
+                </mat-autocomplete>
+                <div
+                    *ngIf="invalidPrivileges">
+                    <div class="text-bold-red-500">Privileges are required.</div>
+                </div>
+                </mat-form-field>
+        </div>
+        <div mat-dialog-actions style="position: absolute; bottom: 0; width: 100%;">
+            <button mat-button (click)="onCancel()">Cancel</button>
+            <button mat-button (click)="onConfirm()" type="submit">Confirm</button>
+        </div>
+    </form> 
+</div>

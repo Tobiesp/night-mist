@@ -1,0 +1,16 @@
+<mat-drawer-container [hasBackdrop]="true" autosize style="position: absolute;right: 0px;left: 0px;bottom: 0px;top: 0px;">
+    <mat-drawer #drawer mode="push">
+        <ul>
+            <li>
+                <button *ngIf="showMenu('home')" mat-button (click)="navigateTo('/home')">Home</button>
+            </li>
+            <li>
+                <button *ngIf="showMenu('admin')" mat-button (click)="navigateTo('/admin')">Admin</button>
+            </li>
+        </ul>
+    </mat-drawer>
+    <mat-drawer-content style="height: 100%;">
+        <app-menu-header [title]="title" (toggleMenu)="handleMenuEvent($event)"></app-menu-header>
+        <router-outlet />
+    </mat-drawer-content>
+</mat-drawer-container>

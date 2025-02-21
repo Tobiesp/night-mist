@@ -1,0 +1,17 @@
+::ng-deep .success {
+    --mat-mdc-snack-bar-button-color: #fff;
+    --mdc-snackbar-container-color: #405E21;
+    --mdc-snackbar-supporting-text-color: #fff;
+}
+
+::ng-deep .info {
+    --mat-mdc-snack-bar-button-color: #fff;
+    --mdc-snackbar-container-color: #58585A;
+    --mdc-snackbar-supporting-text-color: #fff;
+}
+
+::ng-deep .error {
+    --mat-mdc-snack-bar-button-color: #fff;
+    --mdc-snackbar-container-color: #B2292E;
+    --mdc-snackbar-supporting-text-color: #fff;
+}

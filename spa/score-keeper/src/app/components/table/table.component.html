@@ -1,0 +1,93 @@
+<div class="relative flex flex-col w-full h-full bg-white shadow-md rounded-xl bg-clip-border">
+    <div class="relative mx-4 mt-4 overflow-hidden bg-white rounded-none bg-clip-border">
+        <div class="flex flex-col justify-between gap-8 mb-4 md:flex-row md:items-center">
+            <div *ngIf="title">
+                <h5 class="font-sans text-xl antialiased font-semibold leading-snug tracking-normal">
+                    {{ title }}
+                </h5>
+            </div>
+            <div class="flex w-full gap-2 shrink-0 md:w-max">
+                <div class="w-full md:w-72">
+                    <div *ngIf="config.searchable" class="relative h-10 w-full min-w-[200px]">
+                        <div
+                            class="absolute grid w-5 h-5 top-2/4 right-3 -translate-y-2/4 place-items-center text-blue-gray-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" aria-hidden="true" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z">
+                                </path>
+                            </svg>
+                        </div>
+                        <input
+                            class="peer h-full w-full rounded-[7px] border border-blue-gray-200 border-t-transparent bg-transparent px-3 py-2.5 !pr-9 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 focus:border-2 focus:border-gray-900 focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50"
+                            [(ngModel)]="filterValue" (input)="applyFilter()" placeholder="Search..." />
+                        <label
+                            class="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none !overflow-visible truncate text-[11px] font-normal leading-tight text-gray-500 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-blue-gray-200 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-blue-gray-200 after:transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:leading-[3.75] peer-placeholder-shown:text-blue-gray-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-gray-900 peer-focus:before:border-t-2 peer-focus:before:border-l-2 peer-focus:before:!border-gray-900 peer-focus:after:border-t-2 peer-focus:after:border-r-2 peer-focus:after:!border-gray-900 peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
+                            Search
+                        </label>
+                    </div>
+                </div>
+                <button *ngIf="config.tableActions.addRow" 
+                    class="w-32 h-10 text-sm font-sans font-normal text-white rounded-lg active-button"
+                    aria-label="Add Row"
+                    (click)="rowAction('addRowEvent', {})">
+                    <mat-icon>add</mat-icon>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="p-6 px-0 overflow-scroll">
+        <table class="w-full text-left table-auto min-w-max" matSort>
+            <thead>
+                <tr>
+                    <ng-container *ngFor="let column of config.columns; let i = index">
+                        <th *ngIf="!column.hidden" class="p-4 border-y table-header"
+                            [ngStyle]="{ 'width': column.width.toString() + 'px', 'text-align': 'center' }"
+                            [mat-sort-header]="column.field.toString()"
+                            [sortActionDescription]="'Sort by ' + column.name">
+                            <p
+                                class="font-sans text-sm antialiased font-normal leading-none table-header text-center">
+                                <ng-container>
+                                    {{ column.name || column.field }} 
+                                </ng-container>
+                            </p>
+                        </th>
+                    </ng-container>
+                    <th *ngIf="config.tableActions.rowActions && config.tableActions.rowActions.length > 0"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <div *ngIf="data?.length == 0" class="tw-my-2">
+                    <p class="tw-text-center tw-justify-center">No data available</p>
+                </div>
+                <tr *ngFor="let row of data; let i = index"
+                    [ngClass]="{'table-odd-row': i % 2 !== 0, 'table-even-row': i % 2 === 0}" 
+                    (click)="rowAction('selectRowEvent', row)">
+                    <ng-container *ngFor="let column of config.columns; let j = index">
+                        <td *ngIf="!column.hidden" 
+                        class="p-4 border-b tw-justify-center"
+                        [ngStyle]="{ 'width': column.width.toString() + 'px', 'text-align': 'center' }">
+                            <p class="font-sans text-sm antialiased font-normal leading-normal">
+                                <ng-container>
+                                    {{ row[column.field] }}
+                                </ng-container>
+                            </p>
+                        </td>
+                    </ng-container>
+                    <td *ngIf="config.tableActions.rowActions && config.tableActions.rowActions.length > 0" 
+                        class="p-4 border-b" 
+                        [ngStyle]="{ 'width': '100px', 'text-align': 'center' }">
+                        <ng-container *ngFor="let action of config.tableActions.rowActions">
+                            <button class="tw-underline" (click)="rowAction(action.event, row)" style="margin-right: 5px;">
+                                {{ action.title }}
+                                <mat-icon *ngIf="action.icon">{{ action.icon }}</mat-icon>
+                            </button>
+                        </ng-container>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div *ngIf="config.pagable" class="flex items-center justify-between p-4 border-t">
+        <mat-paginator [pageSize]="config.pageSize" showFirstLastButtons (page)="handlePageEvent($event)"></mat-paginator>
+    </div>

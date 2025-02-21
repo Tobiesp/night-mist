@@ -1,0 +1,23 @@
+/* You can add global styles to this file, and also import other style files */
+@import 'theme.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .btn-primary {
+        @apply bg-blue-500 text-white font-bold py-2 px-4 rounded;
+    }
+    .btn-secondary {
+        @apply bg-gray-500 text-white font-bold py-2 px-4 rounded;
+    }
+}
+
+@layer utilities {
+    .content-auto {
+        content-visibility: auto;
+    }
+    .scroll-m-2 {
+        scroll-margin: 0.5rem;
+    }
+}

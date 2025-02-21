@@ -1,0 +1,6 @@
+::ng-deep .dark-theme .app-heading {
+  color: #b3ccd0;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: xx-large;
+}
