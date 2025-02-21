@@ -23,12 +23,8 @@ export class AppComponent {
     }
     switch (menuName) {
       case 'home':
-        return this.authService.isAuthorized(['student_read']);;
+        return this.authService.isAuthorized(['student_read', 'student_write']);;
       case 'admin':
-        return this.authService.isAuthorized(['admin']);
-      case 'users':
-        return this.authService.isAuthorized(['admin']);
-      case 'roles':
         return this.authService.isAuthorized(['admin']);
       case 'points':
         return this.authService.isAuthorized(['admin', 'points']);

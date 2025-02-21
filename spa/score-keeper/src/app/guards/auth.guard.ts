@@ -14,11 +14,7 @@ export class AuthGuard implements CanActivate {
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     const allowedPriviledges = next.data['priviledges'] as string[];
-    this.logger.debug(`Checking if user is authorized with priviledges: ${allowedPriviledges.join(', ')}`);
-    this.logger.debug(`User is logged in: ${this.authService.isLoggedIn()}`);
-    this.logger.debug(`User has data: ${JSON.stringify(next.data)}`);
     if (!this.authService.isLoggedIn()) {
-      this.logger.debug('User is not logged in');
       this.router.navigate(['/login']);
       return false;
     }
@@ -26,9 +22,8 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    this.logger.debug('User is not authorized');
     // Redirect to the login page or some other route
-    this.router.navigate(['/login']);
+    this.router.navigate(['/403']);
     return false;
   }
 }

@@ -162,7 +162,6 @@ export class RolesComponent {
   dataSource: RoleDataSource
 
   constructor(
-    private adminService: AdminService, 
     public dialog: MatDialog,
     logger: LoggerService,
     roleService: RoleService) {

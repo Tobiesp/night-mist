@@ -33,15 +33,27 @@ import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTabsModule } from '@angular/material/tabs';
 import { UsersComponent } from './pages/admin-pages/users/users.component';
+import { PointsEarnedComponent } from './pages/points-earned/points-earned.component';
+import { PointsSpentComponent } from './pages/points-spent/points-spent.component';
+import { ReporterComponent } from './pages/reporter/reporter.component';
+import { EventsComponent } from './pages/events/events.component';
+import { AccessDeniedPageComponent } from './pages/access-denied-page/access-denied-page.component';
+import { PageNotFound } from './pages/page-not-found-component/page-not-found-component.component';
 
 @NgModule({
     declarations: [
+        AppComponent,
         AdminComponent,
         UsersComponent,
         RolesComponent,
-        AppComponent,
         HomeComponent,
+        PointsEarnedComponent,
+        PointsSpentComponent,
+        ReporterComponent,
+        EventsComponent,
         LoginComponent,
+        AccessDeniedPageComponent,
+        PageNotFound,
         HeadingComponent,
         SnackbarComponent,
         TableComponent,

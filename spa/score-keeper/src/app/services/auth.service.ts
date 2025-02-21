@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { LoggerService } from './logger.service';
-import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
+import { BaseServiceService } from './base-service.service';
 
 export interface User {
   username: string;
@@ -18,12 +18,12 @@ export interface LoginResponse {
 @Injectable({
   providedIn: 'root'
 })
-export class AuthService {
-  private baseUrl = environment.baseUrl;
+export class AuthService extends BaseServiceService {
 
   constructor(private logger: LoggerService,
     private router: Router
   ) {
+    super();
   }
 
   login(username: string, password: string): Observable<LoginResponse> {

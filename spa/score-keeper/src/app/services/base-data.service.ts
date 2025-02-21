@@ -1,14 +1,12 @@
 import { Injectable } from '@angular/core';
 import { LoggerService } from './logger.service';
 import { Observable } from 'rxjs';
+import { BaseServiceService } from './base-service.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export abstract class BaseDataService<T> {
-  constructor(
-    logger: LoggerService,
-  ) { }
+export abstract class BaseDataService<T> extends BaseServiceService {
 
   /*
    * Abstract methods to get all the data.
