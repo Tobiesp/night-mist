@@ -29,8 +29,8 @@ yarn-error.log
 .history/*
 
 # Miscellaneous
-.angular/cache
-.sass-cache/
+/spa/score-keeper/.angular/cache
+/spa/score-keeper/.sass-cache/
 /spa/score-keeper/connect.lock
 /spa/score-keeper/coverage
 libpeerconnection.log
