@@ -1,0 +1,6 @@
+FROM node:23-alpine
+WORKDIR /app
+COPY ./spa/score-keeper ./
+RUN npm install
+RUN npm run build
+CMD ["npm", "run", "start"]

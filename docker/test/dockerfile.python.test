@@ -1,0 +1,6 @@
+FROM python:3.13-alpine
+WORKDIR /app
+COPY ./webapp ./
+RUN pip install uv
+RUN uv sync --project ./pyproject.toml
+CMD ["uv", "run" ,"main.py"]
