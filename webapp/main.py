@@ -1,15 +1,7 @@
-import pathlib
-import time
+from app._app import main as app_main
 
 def main():
-    static_path = pathlib.Path(__file__).parent / "static"
-    print(f"Static path: {static_path}")
-    for f in static_path.walk():
-        print(f)
-    print("Hello from webapp!")
-    while True:
-        print("Running...")
-        time.sleep(1)
+    app_main()
 
 
 if __name__ == "__main__":

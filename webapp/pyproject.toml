@@ -6,5 +6,10 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "Flask",
+    "Flask-Principal",
+    "Flask-Migrate",
+    "Flask-Login",
     "Flask-SQLAlchemy",
+    "Psycopg2",
+    "Werkzeug",
 ]
