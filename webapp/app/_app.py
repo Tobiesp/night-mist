@@ -2,7 +2,7 @@ from flask import Flask
 from flask_login import LoginManager, current_user
 
 from app import SQL_DB
-from app._env import parse
+from app._env import Config, parse
 from app.models.users_model import User
 from app.repositories import database_repository
 from flask_principal import Principal, identity_loaded, UserNeed, RoleNeed
@@ -10,10 +10,13 @@ from flask_principal import Principal, identity_loaded, UserNeed, RoleNeed
 
 def create_app() -> Flask:
     app = Flask(__name__)
-    app.config.from_object(parse())
+    config: Config = parse()
+    app.config.from_object(config)
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     create_db(app)
+
+    create_initial_admin(config.ADMIN_INITIAL_PASSWORD)
 
     import_blueprints(app)
 
@@ -63,6 +66,21 @@ def create_db(app: Flask) -> None:
 
     with app.app_context():
         SQL_DB.create_all()
+
+
+def create_initial_admin(password: str) -> None:
+    datastore = database_repository.DatabaseRepository(SQL_DB)
+    admin = datastore.get_user_by_username('skadmin')
+    if admin is None:
+        admin = User()
+        admin.username = 'skadmin'
+        admin.set_password(password)
+        admin.firstname = 'Score-Keeper'
+        admin.lastname = 'Admin'
+        admin.email = 'admin@user.com'
+        admin.role = datastore.get_role_by_name('admin')
+        datastore.create_user(admin)
+
 
 def main():
     app = create_app()
