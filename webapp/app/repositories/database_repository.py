@@ -19,6 +19,12 @@ class DatabaseRepository:
             self.db = db
         else:
             raise Exception("This class is a singleton! Use the instance method to get the instance of the class.")
+        
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.db.session.close()
 
     def get_all_privleges(self) -> list[Privilege]:
         return self.db.session.query(Privilege).all()
