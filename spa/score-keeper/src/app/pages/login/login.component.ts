@@ -2,8 +2,13 @@ import { Component, ViewChild } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { LoggerService } from '../../services/logger.service';
-import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { SnackbarComponent } from '../../components/snackbar/snackbar.component';
+import { MatDialog } from '@angular/material/dialog';
+import { Role } from '../../services/admin/role.service';
+import { AddEditRoleDialogComponent } from '../admin-pages/roles/add-edit-role-dialog/add-edit-role-dialog.component';
+import { ForgotPasswordDialogComponent } from './forgot-password-dialog/forgot-password-dialog.component';
+import { SignupDialogComponent } from './signup-dialog/signup-dialog.component';
 
 @Component({
   selector: 'app-login',
@@ -20,13 +25,14 @@ export class LoginComponent {
     private authService: AuthService,
     private router: Router,
     private logger: LoggerService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    public dialog: MatDialog,
   ) { }
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required]]
     });
   }
 
@@ -51,6 +57,64 @@ export class LoginComponent {
       this.logger.error('Form is invalid');
       this.logger.error(JSON.stringify(this.loginForm.errors));
     } 
+  }
+
+  openSignupDialog(): void {
+    const dialogRef = this.dialog.open(SignupDialogComponent, {
+      width: '250px',
+      height: '400px',
+      data: { }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result !== null) {
+        const data = result;
+        if (data) {
+          this.authService.signup(data['username'], data['email'], data['password']).subscribe({
+            next: () => {
+              this.snackbar!.message = 'User created';
+              this.snackbar!.level = 'info';
+              this.snackbar!.openSnackBar();
+            },
+            error: (err) => {
+              this.logger.error(err);
+              this.snackbar!.message = 'Error creating user';
+              this.snackbar!.level = 'error';
+              this.snackbar!.openSnackBar();
+            }
+          });
+        }
+      }
+    });
+  }
+
+  openForgotPasswordDialog(): void {
+    const dialogRef = this.dialog.open(ForgotPasswordDialogComponent, {
+      width: '250px',
+      height: '400px',
+      data: { }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result !== null) {
+        const data = result;
+        if (data) {
+          this.authService.forgotPassword(data['username'], data['email']).subscribe({
+            next: () => {
+              this.snackbar!.message = 'Password reset email sent';
+              this.snackbar!.level = 'info';
+              this.snackbar!.openSnackBar();
+            },
+            error: (err) => {
+              this.logger.error(err);
+              this.snackbar!.message = 'Error sending password reset email';
+              this.snackbar!.level = 'error';
+              this.snackbar!.openSnackBar();
+          }
+        });
+        }
+      }
+    });
   }
 
 }

@@ -84,4 +84,20 @@ export class AuthService extends BaseServiceService {
     if (user.priviledges.includes('admin')) return true;
     return user.priviledges.some(priviledge => allowedPriviledges.includes(priviledge));
   }
+
+  public forgotPassword(username: string, email: string): Observable<Object> {
+    return new Observable<Object>(observer => {
+      this.logger.info(`User ${username} requested password reset. Sending email to ${username} with reset instructions`);
+      observer.next({});
+      observer.complete();
+    });
+  }
+
+  public signup(username: string, email: string, password: string): Observable<Object> {
+    return new Observable<Object>(observer => {
+      this.logger.info(`User ${username} signed up with email ${email} and password ${password}`);
+      observer.next({});
+      observer.complete();
+    });
+  }
 }

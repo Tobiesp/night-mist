@@ -5,8 +5,20 @@ from app.models.roles_model import Role
 from app.models.users_model import User
 
 class DatabaseRepository:
+
+    _instance = None
+
+    @classmethod
+    def instance(cls, db: SQLAlchemy):
+        if cls._instance is None:
+            cls._instance = cls(db)
+        return cls._instance
+
     def __init__(self, db: SQLAlchemy):
-        self.db = db
+        if self._instance is None:
+            self.db = db
+        else:
+            raise Exception("This class is a singleton! Use the instance method to get the instance of the class.")
 
     def get_all_privleges(self) -> list[Privilege]:
         return self.db.session.query(Privilege).all()
@@ -46,6 +58,9 @@ class DatabaseRepository:
     
     def get_role_by_name(self, name: str) -> Role:
         return self.db.session.query(Role).filter_by(name=name).first()
+    
+    def get_user_by_email(self, email: str) -> User:
+        return self.db.session.query(User).filter_by(email=email).first()
     
     def get_all_users(self) -> list[User]:
         return self.db.session.query(User).all()

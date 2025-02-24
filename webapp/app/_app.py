@@ -16,7 +16,10 @@ def create_app() -> Flask:
 
     create_db(app)
 
+    create_initial_roles()
     create_initial_admin(config.ADMIN_INITIAL_PASSWORD)
+
+    create_email_servant()
 
     import_blueprints(app)
 
@@ -27,7 +30,7 @@ def create_app() -> Flask:
 
     @login_manager.user_loader
     def load_user(userid):
-        datastore = database_repository.DatabaseRepository(SQL_DB)
+        datastore = database_repository.DatabaseRepository(None)
         # Return an instance of the User model
         return datastore.get_user_by_id(userid)
     
@@ -49,6 +52,8 @@ def create_app() -> Flask:
         # identity with the roles that the user provides
         if hasattr(current_user, 'role'):
             role = current_user.role
+            if role is None:
+                return
             for privilege in role.privileges:
                 identity.provides.add(RoleNeed(privilege.name))
     
@@ -69,7 +74,7 @@ def create_db(app: Flask) -> None:
 
 
 def create_initial_admin(password: str) -> None:
-    datastore = database_repository.DatabaseRepository(SQL_DB)
+    datastore = database_repository.DatabaseRepository.instance(SQL_DB)
     admin = datastore.get_user_by_username('skadmin')
     if admin is None:
         admin = User()
@@ -80,6 +85,34 @@ def create_initial_admin(password: str) -> None:
         admin.email = 'admin@user.com'
         admin.role = datastore.get_role_by_name('admin')
         datastore.create_user(admin)
+
+
+def create_initial_roles() -> None:
+    datastore = database_repository.DatabaseRepository(SQL_DB)
+    privileges = [
+        'admin',
+        'student_read',
+        'student_write',
+        'point_read',
+        'point_write',
+        'event_read',
+        'event_write',
+        'reporter_read',
+        'reporter_write'
+        ]
+    for privilege in privileges:
+        if datastore.get_privilege_by_name(privilege) is None:
+            datastore.create_privilege(privilege)
+    
+    admin = datastore.get_role_by_name('admin')
+    if admin is None:
+        admin = datastore.create_role('admin')
+        admin.privileges = datastore.get_privilege_by_name('admin')
+        datastore.update_role(admin)
+
+
+def create_email_servant() -> None:
+    EMAIL_SERVANT = None
 
 
 def main():

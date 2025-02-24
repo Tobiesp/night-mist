@@ -1,3 +1,4 @@
+from typing import Optional
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
@@ -12,7 +13,7 @@ class User(UserMixin, BaseTable):
     lastname = SQL_DB.Column(SQL_DB.String(100), nullable=False)
     email = SQL_DB.Column(SQL_DB.String(200), unique=True, nullable=False)
     password_hash = SQL_DB.Column(SQL_DB.String(200), nullable=False)
-    role: Role = SQL_DB.relationship('Role', back_populates='users')
+    role: Optional[Role] = SQL_DB.relationship('Role', back_populates='users')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
