@@ -5,6 +5,18 @@
                 <button *ngIf="showMenu('home')" mat-button (click)="navigateTo('/home')">Home</button>
             </li>
             <li>
+                <button *ngIf="showMenu('points-earn')" mat-button (click)="navigateTo('/points-earned')">Points Earned</button>
+            </li>
+            <li>
+                <button *ngIf="showMenu('points-spend')" mat-button (click)="navigateTo('/points-spent')">Points Spent</button>
+            </li>
+            <li>
+                <button *ngIf="showMenu('events')" mat-button (click)="navigateTo('/events')">Events</button>
+            </li>
+            <li>
+                <button *ngIf="showMenu('reporter')" mat-button (click)="navigateTo('/reporter')">Reporter</button>
+            </li>
+            <li>
                 <button *ngIf="showMenu('admin')" mat-button (click)="navigateTo('/admin')">Admin</button>
             </li>
         </ul>

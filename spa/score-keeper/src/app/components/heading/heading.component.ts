@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-heading',
@@ -6,13 +6,15 @@ import { Component, Input, OnInit, ViewChild } from '@angular/core';
   styleUrl: './heading.component.css',
   standalone: false
 })
-export class HeadingComponent implements OnInit {
+export class HeadingComponent {
   @Input() text: string = '';
   @Input() size: 'small' | 'medium' | 'large' = 'medium';
-  @ViewChild("h1") h1!: HTMLElement;
 
-  ngOnInit(): void {
-    this.h1.style.fontSize = this.size === 'small' ? '1.5rem' : this.size === 'medium' ? '2rem' : '3rem';
-  }
+  headingStyles = {
+    'font-size': this.size === 'small' ? '1.5rem' : this.size === 'medium' ? '2rem' : '3rem',
+    'font-family': "'DM Sans', sans-serif",
+    'font-weight': 700,
+  };
+
 
 }

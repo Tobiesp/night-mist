@@ -1,11 +1,11 @@
 <mat-toolbar>
-    <button mat-icon-button aria-label="Main menu" (click)="toggleMenuAction()">
+    <button *ngIf="authservice.isLoggedIn()" mat-icon-button aria-label="Main menu" (click)="toggleMenuAction()">
         <mat-icon>menu</mat-icon>
     </button>
     <img style="width: 28px;" src="main-icon.png" />
     <span>{{title}}</span>
     <span class="menu-spacer"></span>
-    <button mat-icon-button class="favorite-icon" aria-label="Person menu items" [matMenuTriggerFor]="menu">
+    <button *ngIf="authservice.isLoggedIn()" mat-icon-button class="favorite-icon" aria-label="Person menu items" [matMenuTriggerFor]="menu">
         <mat-icon>person</mat-icon>
     </button>
     <mat-menu #menu="matMenu">

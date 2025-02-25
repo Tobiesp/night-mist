@@ -26,12 +26,14 @@ export class AppComponent {
         return this.authService.isAuthorized(['student_read', 'student_write']);;
       case 'admin':
         return this.authService.isAuthorized(['admin']);
-      case 'points':
-        return this.authService.isAuthorized(['admin', 'points']);
       case 'points-earn':
         return this.authService.isAuthorized(['admin', 'points']);
       case 'points-spend':
         return this.authService.isAuthorized(['admin', 'points']);
+      case 'events':
+        return this.authService.isAuthorized(['admin', 'events']);
+      case 'reporter':
+        return this.authService.isAuthorized(['admin', 'reporter']);
       default:
         return false;
     }

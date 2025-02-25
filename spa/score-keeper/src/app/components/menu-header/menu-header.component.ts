@@ -1,8 +1,7 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { LoggerService } from '../../services/logger.service';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
-import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-menu-header',
@@ -10,14 +9,13 @@ import { MatIcon } from '@angular/material/icon';
   styleUrl: './menu-header.component.css',
   standalone: false,
 })
-export class MenuHeaderComponent implements OnInit {
-
-  hideMenu: boolean = false;
+export class MenuHeaderComponent {
   authservice: AuthService;
   logger: LoggerService;
   router: Router;
   @Input() title: string = '';
   @Output() toggleMenu = new EventEmitter<boolean>()
+  hideMenu: boolean = false;
   
   constructor(
     authService: AuthService,
@@ -30,14 +28,8 @@ export class MenuHeaderComponent implements OnInit {
     logger.debug('MenuHeaderComponent created');
   }
 
-  ngOnInit(): void {
-    this.hideMenu = !this.authservice.isLoggedIn();
-    this.logger.debug(`User logged in: ${this.authservice.isLoggedIn()}; hide menu: ${this.hideMenu}`);
-  }
-
   logout(): void {
     this.authservice.logout();
-    this.hideMenu = true;
     this.router.navigate(['/login']);
   }
 
@@ -45,5 +37,4 @@ export class MenuHeaderComponent implements OnInit {
     this.hideMenu = !this.hideMenu;
     this.toggleMenu.emit(this.hideMenu);
   }
-
 }

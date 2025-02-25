@@ -70,7 +70,6 @@ export class AuthService extends BaseServiceService {
 
   public isLoggedIn(): boolean {
     if (this.currentUserValue) {
-      this.logger.debug(`User ${this.currentUserValue.username} is logged in`);
       return true;
     }
     return false;
@@ -78,9 +77,7 @@ export class AuthService extends BaseServiceService {
 
   public isAuthorized(allowedPriviledges: string[]): boolean {
     const user = this.currentUserValue;
-    this.logger.debug(`User state: ${JSON.stringify(user)}`);
     if (!user) return false;
-    this.logger.debug(`User Admin: ${user.priviledges.includes('admin')}`);
     if (user.priviledges.includes('admin')) return true;
     return user.priviledges.some(priviledge => allowedPriviledges.includes(priviledge));
   }
