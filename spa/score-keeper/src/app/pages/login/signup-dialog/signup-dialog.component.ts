@@ -1,11 +1,43 @@
 import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-signup-dialog',
-  imports: [],
   templateUrl: './signup-dialog.component.html',
-  styleUrl: './signup-dialog.component.css'
+  styleUrls: ['./signup-dialog.component.css'],
+  standalone: false
 })
 export class SignupDialogComponent {
+  signupForm!: FormGroup;
 
+  constructor(
+      public dialogRef: MatDialogRef<SignupDialogComponent>,
+      private fb: FormBuilder) {}
+
+  ngOnInit(): void {
+    this.signupForm = this.fb.group({
+      username: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ['', Validators.required]
+    });
+  }
+
+  onCancel(): void {
+    this.dialogRef.close(null);
+  }
+
+  onConfirm(): void {
+    if (this.signupForm.invalid) {
+      return;
+    }
+    const signupData = {
+      username: this.signupForm.value.username,
+      email: this.signupForm.value.email,
+      password: this.signupForm.value.password,
+      confirmPassword: this.signupForm.value.confirmPassword
+    };
+    this.dialogRef.close(signupData);
+  }
 }

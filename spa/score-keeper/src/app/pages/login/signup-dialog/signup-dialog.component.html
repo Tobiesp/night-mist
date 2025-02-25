@@ -1,1 +1,63 @@
-<p>signup-dialog works!</p>
+<div>
+  <h1 mat-dialog-title>Sign Up</h1>
+  <form [formGroup]="signupForm" (ngSubmit)="onConfirm()">
+    <mat-dialog-content>
+      <p>Sign up with a new account.</p>
+    </mat-dialog-content>
+    <mat-dialog-content>
+      <mat-form-field class="full-field-width">
+        <mat-label>Username</mat-label>
+        <input type="text"
+               matInput 
+               placeholder="Enter your username" 
+               aria-label="username"
+               formControlName="username" />
+        <div *ngIf="signupForm.controls['username'].invalid && (signupForm.controls['username'].dirty || signupForm.controls['username'].touched)">
+          <div *ngIf="signupForm.controls['username'].errors?.['required']" class="bold-red-text">Username is required.</div>
+        </div>
+      </mat-form-field>
+      
+      <mat-form-field class="full-field-width">
+        <mat-label>Email</mat-label>
+        <input type="email"
+               matInput 
+               placeholder="Enter your email" 
+               aria-label="email"
+               formControlName="email" />
+        <div *ngIf="signupForm.controls['email'].invalid && (signupForm.controls['email'].dirty || signupForm.controls['email'].touched)">
+          <div *ngIf="signupForm.controls['email'].errors?.['required']" class="bold-red-text">Email is required.</div>
+          <div *ngIf="signupForm.controls['email'].errors?.['email']" class="bold-red-text">Email format invalid.</div>
+        </div>
+      </mat-form-field>
+
+      <mat-form-field class="full-field-width">
+        <mat-label>Password</mat-label>
+        <input type="password"
+               matInput 
+               placeholder="Enter your password" 
+               aria-label="password"
+               formControlName="password" />
+        <div *ngIf="signupForm.controls['password'].invalid && (signupForm.controls['password'].dirty || signupForm.controls['password'].touched)">
+          <div *ngIf="signupForm.controls['password'].errors?.['required']" class="bold-red-text">Password is required.</div>
+          <div *ngIf="signupForm.controls['password'].errors?.['minlength']" class="bold-red-text">Password must be at least 6 characters long.</div>
+        </div>
+      </mat-form-field>
+
+      <mat-form-field class="full-field-width">
+        <mat-label>Confirm Password</mat-label>
+        <input type="password"
+               matInput 
+               placeholder="Confirm your password" 
+               aria-label="confirmPassword"
+               formControlName="confirmPassword" />
+        <div *ngIf="signupForm.controls['confirmPassword'].invalid && (signupForm.controls['confirmPassword'].dirty || signupForm.controls['confirmPassword'].touched)">
+          <div *ngIf="signupForm.controls['confirmPassword'].errors?.['required']" class="bold-red-text">Confirm Password is required.</div>
+        </div>
+      </mat-form-field>
+    </mat-dialog-content>
+    <mat-dialog-actions class="dialog-actions">
+      <button mat-button (click)="onCancel()">Cancel</button>
+      <button mat-button type="submit">Sign Up</button>
+    </mat-dialog-actions>
+  </form>
+</div>

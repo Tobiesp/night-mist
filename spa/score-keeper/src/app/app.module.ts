@@ -39,6 +39,8 @@ import { ReporterComponent } from './pages/reporter/reporter.component';
 import { EventsComponent } from './pages/events/events.component';
 import { AccessDeniedPageComponent } from './pages/access-denied-page/access-denied-page.component';
 import { PageNotFound } from './pages/page-not-found-component/page-not-found-component.component';
+import { ForgotPasswordDialogComponent } from './pages/login/forgot-password-dialog/forgot-password-dialog.component';
+import { SignupDialogComponent } from './pages/login/signup-dialog/signup-dialog.component';
 
 @NgModule({
     declarations: [
@@ -60,6 +62,8 @@ import { PageNotFound } from './pages/page-not-found-component/page-not-found-co
         ConfirmDialogComponent,
         AddEditRoleDialogComponent,
         MenuHeaderComponent,
+        ForgotPasswordDialogComponent,
+        SignupDialogComponent,
     ],
     imports: [
         BrowserModule,

@@ -61,8 +61,8 @@ export class LoginComponent {
 
   openSignupDialog(): void {
     const dialogRef = this.dialog.open(SignupDialogComponent, {
-      width: '250px',
-      height: '400px',
+      width: '500px',
+      height: '530px',
       data: { }
     });
 
@@ -90,7 +90,7 @@ export class LoginComponent {
 
   openForgotPasswordDialog(): void {
     const dialogRef = this.dialog.open(ForgotPasswordDialogComponent, {
-      width: '250px',
+      width: '500px',
       height: '400px',
       data: { }
     });
