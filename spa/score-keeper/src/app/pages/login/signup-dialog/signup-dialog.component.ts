@@ -10,6 +10,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 })
 export class SignupDialogComponent {
   signupForm!: FormGroup;
+  confirmPasswordValid = true;
 
   constructor(
       public dialogRef: MatDialogRef<SignupDialogComponent>,
@@ -19,7 +20,12 @@ export class SignupDialogComponent {
     this.signupForm = this.fb.group({
       username: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', [
+      Validators.required,
+      Validators.minLength(8),
+      Validators.maxLength(30),
+      Validators.pattern('^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*]).*$')
+      ]],
       confirmPassword: ['', Validators.required]
     });
   }
@@ -30,6 +36,11 @@ export class SignupDialogComponent {
 
   onConfirm(): void {
     if (this.signupForm.invalid) {
+      return;
+    }
+    if (this.signupForm.value.password !== this.signupForm.value.confirmPassword) {
+      this.confirmPasswordValid = false;
+      this.signupForm.controls['confirmPassword'].setErrors({ 'incorrect': true });
       return;
     }
     const signupData = {

@@ -39,7 +39,8 @@
                formControlName="password" />
         <div *ngIf="signupForm.controls['password'].invalid && (signupForm.controls['password'].dirty || signupForm.controls['password'].touched)">
           <div *ngIf="signupForm.controls['password'].errors?.['required']" class="bold-red-text">Password is required.</div>
-          <div *ngIf="signupForm.controls['password'].errors?.['minlength']" class="bold-red-text">Password must be at least 6 characters long.</div>
+          <div *ngIf="signupForm.controls['password'].errors?.['minlength'] || signupForm.controls['password'].errors?.['maxlength']" class="bold-red-text">Password must be at least 8 characters long and shorter then 30.</div>
+          <div *ngIf="signupForm.controls['password'].errors?.['pattern']" class="bold-red-text">Password must contain at least one uppercase letter, one lowercase letter, one number, and one of these symbols [!&#64;#$%^&*].</div>
         </div>
       </mat-form-field>
 
@@ -53,6 +54,7 @@
         <div *ngIf="signupForm.controls['confirmPassword'].invalid && (signupForm.controls['confirmPassword'].dirty || signupForm.controls['confirmPassword'].touched)">
           <div *ngIf="signupForm.controls['confirmPassword'].errors?.['required']" class="bold-red-text">Confirm Password is required.</div>
         </div>
+        <div *ngIf="confirmPasswordValid" class="bold-red-text">Confirm Password must match Password.</div>
       </mat-form-field>
     </mat-dialog-content>
     <mat-dialog-actions class="dialog-actions">

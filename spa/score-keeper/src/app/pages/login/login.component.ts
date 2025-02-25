@@ -5,8 +5,6 @@ import { LoggerService } from '../../services/logger.service';
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { SnackbarComponent } from '../../components/snackbar/snackbar.component';
 import { MatDialog } from '@angular/material/dialog';
-import { Role } from '../../services/admin/role.service';
-import { AddEditRoleDialogComponent } from '../admin-pages/roles/add-edit-role-dialog/add-edit-role-dialog.component';
 import { ForgotPasswordDialogComponent } from './forgot-password-dialog/forgot-password-dialog.component';
 import { SignupDialogComponent } from './signup-dialog/signup-dialog.component';
 
