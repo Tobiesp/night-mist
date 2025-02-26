@@ -18,7 +18,7 @@ export abstract class BaseDataService<T> extends BaseServiceService {
    * Abstract method to get a single item by id.
    * Return an observable of the data.
    */
-  abstract get(id: number): Observable<T>;
+  abstract get(id: string): Observable<T>;
   
   /*
    * Abstract method to create a new item.
@@ -36,7 +36,7 @@ export abstract class BaseDataService<T> extends BaseServiceService {
    * Abstract method to delete an item by id.
    * Return an observable of the data.
    */
-  abstract delete(id: number): Observable<T>;
+  abstract delete(id: string): Observable<T>;
   
   /*
    * Abstract method to query the data.

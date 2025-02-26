@@ -1,96 +1,118 @@
+from __future__ import annotations
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
-from app.models.privileges_model import Privilege
-from app.models.roles_model import Role
-from app.models.users_model import User
+from app.models import BASE
+from app.models.users_model import User, Role, Priviledge
 
 class DatabaseRepository:
 
     _instance = None
+    _app_ = None
+    _db_ = None
 
     @classmethod
-    def instance(cls, db: SQLAlchemy):
+    def instance(cls, app: Flask = None) -> DatabaseRepository:
         if cls._instance is None:
-            cls._instance = cls(db)
+            cls._instance = cls(app)
         return cls._instance
 
-    def __init__(self, db: SQLAlchemy):
+    def __init__(self, app: Flask = None):
         if self._instance is None:
-            self.db = db
-        else:
-            raise Exception("This class is a singleton! Use the instance method to get the instance of the class.")
+            self._db_ = SQLAlchemy(app)
+            self._app_ = app
+            with app.app_context():
+                BASE.metadata.create_all(self._db_.engine)
+                self._db_.session.commit()
         
     def __enter__(self):
         return self
     
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.db.session.close()
+        self._db_.session.close()
 
-    def get_all_privleges(self) -> list[Privilege]:
-        return self.db.session.query(Privilege).all()
+    def get_all_privleges(self) -> list[Priviledge]:
+        with self._app_.app_context():
+            return self._db_.session.query(Priviledge).all()
     
-    def create_privilege(self, name: str) -> Privilege:
-        privilege = Privilege(name=name)
-        self.db.session.add(privilege)
-        self.db.session.commit()
-        return privilege
+    def create_privilege(self, name: str) -> Priviledge:
+        with self._app_.app_context():
+            privilege = Priviledge(priviledge_name=name)
+            self._db_.session.add(privilege)
+            self._db_.session.commit()
+            return privilege
     
-    def get_privilege_by_id(self, id: int) -> Privilege:
-        return self.db.session.query(Privilege).get(id)
+    def get_privilege_by_id(self, id: int) -> Priviledge:
+        with self._app_.app_context():
+            return self._db_.session.query(Priviledge).get(id)
     
-    def get_privilege_by_name(self, name: str) -> Privilege:
-        return self.db.session.query(Privilege).filter_by(name=name).first()
+    def get_privilege_by_name(self, name: str) -> Priviledge:
+        with self._app_.app_context():
+            return self._db_.session.query(Priviledge).filter_by(priviledge_name=name).first()
     
     def get_all_roles(self) -> list[Role]:
-        return self.db.session.query(Role).all()
+        with self._app_.app_context():
+            return self._db_.session.query(Role).all()
     
     def create_role(self, name: str) -> Role:
-        role = Role(name=name)
-        self.db.session.add(role)
-        self.db.session.commit()
-        return role
+        with self._app_.app_context():
+            role = Role(role_name=name)
+            self._db_.session.add(role)
+            self._db_.session.commit()
+            return role
     
     def update_role(self, role: Role) -> Role:
-        self.get_role_by_name(role.name).privileges = role.privileges
-        self.db.session.commit()
-        return role
+        with self._app_.app_context():
+            self.get_role_by_name(role.role_name).priviledges = role.priviledges
+            self._db_.session.commit()
+            return role
     
     def delete_role(self, role: Role) -> None:
-        self.db.session.delete(role)
-        self.db.session.commit()
+        with self._app_.app_context():
+            self._db_.session.delete(role)
+            self._db_.session.commit()
     
     def get_role_by_id(self, id: int) -> Role:
-        return self.db.session.query(Role).get(id)
+        with self._app_.app_context():
+            return self._db_.session.query(Role).get(id)
     
     def get_role_by_name(self, name: str) -> Role:
-        return self.db.session.query(Role).filter_by(name=name).first()
+        with self._app_.app_context():
+            return self._db_.session.query(Role).filter_by(role_name=name).first()
     
     def get_user_by_email(self, email: str) -> User:
-        return self.db.session.query(User).filter_by(email=email).first()
+        with self._app_.app_context():
+            return self._db_.session.query(User).filter_by(email=email).first()
     
     def get_all_users(self) -> list[User]:
-        return self.db.session.query(User).all()
+        with self._app_.app_context():
+            return self._db_.session.query(User).all()
     
     def create_user(self, user: User) -> User:
-        self.db.session.add(user)
-        self.db.session.commit()
-        return user
+        with self._app_.app_context():
+            self._db_.session.add(user)
+            self._db_.session.commit()
+            return user
     
     def update_user(self, user: User) -> User:
-        self.get_user_by_username(user.username).firstname = user.firstname
-        self.get_user_by_username(user.username).lastname = user.lastname
-        self.get_user_by_username(user.username).email = user.email
-        self.get_user_by_username(user.username).role = user.role
-        self.db.session.commit()
-        return
+        with self._app_.app_context():
+            self.get_user_by_username(user.username).firstname = user.firstname
+            self.get_user_by_username(user.username).lastname = user.lastname
+            self.get_user_by_username(user.username).email = user.email
+            self.get_user_by_username(user.username).role = user.role
+            self._db_.session.commit()
+            return
     
     def delete_user(self, user: User) -> None:
-        self.db.session.delete(user)
-        self.db.session.commit
+        with self._app_.app_context():
+            self._db_.session.delete(user)
+            self._db_.session.commit
     
     def get_user_by_id(self, id: int) -> User:
-        return self.db.session.query(User).get(id)
+        with self._app_.app_context():
+            return self._db_.session.query(User).get(id)
     
     def get_user_by_username(self, username: str) -> User:
-        return self.db.session.query(User).filter_by(username=username).first()
-    
+        with self._app_.app_context():
+            return self._db_.session.query(User).filter_by(username=username).first()
+

@@ -1,30 +1,25 @@
 import { Injectable } from '@angular/core';
 import { BaseDataService } from '../base-data.service';
 import { Observable } from 'rxjs';
-
-export interface Role {
-  id: number;
-  role: string;
-  privileges: string[];
-}
+import { Role } from '../auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RoleService extends BaseDataService<Role> {
   TEST_ROLES: Role[] = [
-    { id: 1, role: 'admin', privileges: ['Read', 'Write', 'Execute'] },
-    { id: 2, role: 'user', privileges: ['Read'] },
-    { id: 3, role: 'guest', privileges: ['Read'] },
-    { id: 4, role: 'admin', privileges: ['Read', 'Write', 'Execute'] },
-    { id: 5, role: 'user', privileges: ['Read'] },
-    { id: 6, role: 'guest', privileges: ['Read'] },
-    { id: 7, role: 'admin', privileges: ['Read', 'Write', 'Execute'] },
-    { id: 8, role: 'user', privileges: ['Read'] },
-    { id: 9, role: 'guest', privileges: ['Read'] },
-    { id: 10, role: 'admin', privileges: ['Read', 'Write', 'Execute'] },
-    { id: 11, role: 'user', privileges: ['Read'] },
-    { id: 12, role: 'guest', privileges: ['Read'] },
+    { id: "1", role: 'admin', priviledges: [{name: 'admin', id: '1'}] },
+    { id: "2", role: 'user1', priviledges: [{name: 'student_read', id: '1'}] },
+    { id: "3", role: 'user2', priviledges: [{name: 'student_read', id: '1'}] },
+    { id: "4", role: 'user3', priviledges: [{name: 'student_read', id: '1'}] },
+    { id: "5", role: 'user4', priviledges: [{name: 'student_read', id: '1'}] },
+    { id: "6", role: 'user5', priviledges: [{name: 'student_read', id: '1'}] },
+    { id: "7", role: 'user6', priviledges: [{name: 'student_read', id: '1'}] },
+    { id: "8", role: 'user7', priviledges: [{name: 'student_read', id: '1'}] },
+    { id: "9", role: 'user8', priviledges: [{name: 'student_read', id: '1'}] },
+    { id: "10", role: 'admin2', priviledges: [{name: 'admin', id: '1'}] },
+    { id: "11", role: 'user9', priviledges: [{name: 'student_read', id: '1'}] },
+    { id: "12", role: 'user10', priviledges: [{name: 'student_read', id: '1'}] },
   ];
 
   override getAll(): Observable<Role[]> {
@@ -34,7 +29,7 @@ export class RoleService extends BaseDataService<Role> {
     });
   }
 
-  override get(id: number): Observable<Role> {
+  override get(id: string): Observable<Role> {
     return new Observable<Role>(observer => {
       observer.next(this.TEST_ROLES.find(r => r.id === id));
       observer.complete();
@@ -42,7 +37,7 @@ export class RoleService extends BaseDataService<Role> {
   }
   
   override create(item: Role): Observable<Role> {
-    item.id = this.TEST_ROLES.length + 1;
+    item.id = (this.TEST_ROLES.length + 1).toString();
     this.TEST_ROLES.push(item);
     return new Observable<Role>(observer => {
       observer.next(item);
@@ -59,7 +54,7 @@ export class RoleService extends BaseDataService<Role> {
     });
   }
   
-  override delete(id: number): Observable<Role> {
+  override delete(id: string): Observable<Role> {
     const index = this.TEST_ROLES.findIndex(r => r.id === id);
     const role = this.TEST_ROLES[index];
     this.TEST_ROLES.splice(index, 1);

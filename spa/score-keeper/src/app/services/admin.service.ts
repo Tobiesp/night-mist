@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { LoggerService } from './logger.service';
-import { environment } from '../../environments/environment';
 import { BaseServiceService } from './base-service.service';
+import { Priviledge } from './auth.service';
 
 export interface RolesResponse {
   roles: string[];
@@ -17,18 +17,18 @@ export class AdminService extends BaseServiceService {
     super();
   }
 
-  getAllPrivileges(): Observable<string[]> {
-    return new Observable<string[]>(observer => {
+  getAllPrivileges(): Observable<Priviledge[]> {
+    return new Observable<Priviledge[]>(observer => {
       observer.next([
-        'admin',
-        'event_read',
-        'event_write',
-        'point_read',
-        'point_write',
-        'student_read',
-        'student_write',
-        'reporter_read',
-        'reporter_write',
+        {name: 'admin', id: '1'},
+        {name: 'event_read', id: '1'},
+        {name: 'event_write', id: '1'},
+        {name: 'point_read', id: '1'},
+        {name: 'point_write', id: '1'},
+        {name: 'student_read', id: '1'},
+        {name: 'student_write', id: '1'},
+        {name: 'reporter_read', id: '1'},
+        {name: 'reporter_write', id: '1'},
       ]);
       observer.complete();
     });

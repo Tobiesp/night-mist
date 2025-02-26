@@ -1,7 +1,6 @@
 from flask import Flask
 from flask_login import LoginManager, current_user
 
-from app import SQL_DB
 from app._env import Config, parse
 from app.models.users_model import User
 from app.repositories import database_repository
@@ -12,11 +11,18 @@ def create_app() -> Flask:
     app = Flask(__name__)
     config: Config = parse()
     app.config.from_object(config)
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SQLALCHEMY_DATABASE_URI'] = config.DATABASE_URL
+    app.config['SECRET_KEY'] = config.SECRET_KEY
+    app.config['TESTING'] = config.TESTING
+    app.config['DEBUG'] = config.DEBUG
+    app.config['CSRF_ENABLED'] = config.CSRF_ENABLED
+    app.config['PORT'] = config.PORT
+    app.config['HOST'] = config.HOST
 
     create_db(app)
 
-    create_initial_roles()
+    create_initial_roles(app)
     create_initial_admin(config.ADMIN_INITIAL_PASSWORD)
 
     create_email_servant()
@@ -54,7 +60,7 @@ def create_app() -> Flask:
             role = current_user.role
             if role is None:
                 return
-            for privilege in role.privileges:
+            for privilege in role.priviledges:
                 identity.provides.add(RoleNeed(privilege.name))
     
     return app
@@ -67,14 +73,11 @@ def import_blueprints(app: Flask) -> Flask:
 
 
 def create_db(app: Flask) -> None:
-    SQL_DB.init_app(app)
-
-    with app.app_context():
-        SQL_DB.create_all()
+    database_repository.DatabaseRepository.instance(app)
 
 
 def create_initial_admin(password: str) -> None:
-    datastore = database_repository.DatabaseRepository.instance(SQL_DB)
+    datastore = database_repository.DatabaseRepository.instance()
     admin = datastore.get_user_by_username('skadmin')
     if admin is None:
         admin = User()
@@ -87,8 +90,8 @@ def create_initial_admin(password: str) -> None:
         datastore.create_user(admin)
 
 
-def create_initial_roles() -> None:
-    datastore = database_repository.DatabaseRepository(SQL_DB)
+def create_initial_roles(app: Flask) -> None:
+    datastore = database_repository.DatabaseRepository.instance()
     privileges = [
         'admin',
         'student_read',
@@ -107,7 +110,7 @@ def create_initial_roles() -> None:
     admin = datastore.get_role_by_name('admin')
     if admin is None:
         admin = datastore.create_role('admin')
-        admin.privileges = datastore.get_privilege_by_name('admin')
+        admin.priviledges = [datastore.get_privilege_by_name('admin')]
         datastore.update_role(admin)
 
 

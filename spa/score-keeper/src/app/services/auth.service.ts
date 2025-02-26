@@ -4,15 +4,24 @@ import { LoggerService } from './logger.service';
 import { Router } from '@angular/router';
 import { BaseServiceService } from './base-service.service';
 
-export interface User {
-  username: string;
-  priviledges: string[];
+export interface Priviledge {
+  id: string;
+  name: string;
 }
 
-export interface LoginResponse {
-  token: string;
-  error_code: number;
-  error_message: string;
+export interface Role {
+  id: string;
+  role: string;
+  priviledges: Priviledge[];
+}
+
+export interface User {
+  id?: string;
+  username?: string;
+  firstname?: string;
+  lastname?: string;
+  email?: string;
+  role?: Role;
 }
 
 @Injectable({
@@ -26,21 +35,27 @@ export class AuthService extends BaseServiceService {
     super();
   }
 
-  login(username: string, password: string): Observable<LoginResponse> {
+  login(username: string, password: string): Observable<boolean> {
+    const priviledge = {name: username === 'admin' ? 'admin' : 'student_read', id: '1'};
+    const role: Role = {
+      id: '1',
+      role: username === 'admin' ? 'admin' : 'student',
+      priviledges: [priviledge],
+    };
     const user: User = {
       username: username,
-      priviledges: username === 'admin' ? ['admin', 'user'] : ['user'],
+      role: role,
     };
-    return new Observable<LoginResponse>(observer => {
+    return new Observable<boolean>(observer => {
       if (user) {
-        this.logger.info(`User ${user.username} logged in with roles: ${user.priviledges.join(', ')}`);
+        this.logger.info(`User ${user.username} logged in with role: ${user.role}`);
         this.setAuthState(user);
-        observer.next({ token: '123456', error_code: 0, error_message: '' });
+        observer.next(true);
       }
       else {
         this.logger.error(`User ${username} not found`);
         this.removeAuthState();
-        observer.next({ token: '', error_code: 401, error_message: 'User not found' });
+        observer.next(false);
       }
       observer.complete();
     });
@@ -78,8 +93,9 @@ export class AuthService extends BaseServiceService {
   public isAuthorized(allowedPriviledges: string[]): boolean {
     const user = this.currentUserValue;
     if (!user) return false;
-    if (user.priviledges.includes('admin')) return true;
-    return user.priviledges.some(priviledge => allowedPriviledges.includes(priviledge));
+    if (!user.role?.priviledges) return false;
+    if (user.role?.priviledges.filter(priviledge => priviledge.name === "admin").length > 0) return true;
+    return user.role?.priviledges.some(priviledge => allowedPriviledges.filter(allowed => allowed === priviledge.name).length > 0);
   }
 
   public forgotPassword(username: string, email: string): Observable<Object> {

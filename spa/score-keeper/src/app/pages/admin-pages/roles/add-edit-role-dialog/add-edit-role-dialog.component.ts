@@ -7,7 +7,7 @@ import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
-import { Role } from '../../../../services/admin/role.service';
+import { Priviledge, Role } from '../../../../services/auth.service';
 
 export interface dialogData {
   type: 'add' | 'edit';
@@ -22,13 +22,13 @@ export interface dialogData {
 })
 export class AddEditRoleDialogComponent {
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
-  readonly privileges = signal<string[]>([]);
+  readonly privileges = signal<Priviledge[]>([]);
   readonly announcer = inject(LiveAnnouncer);
   roleForm!: FormGroup;
   role: Role;
   privAutoCtrl = new FormControl('');
-  privilegesOptions: string[] = [];
-  filteredOptions!: Observable<string[]>;
+  privilegesOptions: Priviledge[] = [];
+  filteredOptions!: Observable<Priviledge[]>;
   invalidPrivileges = false;
 
 constructor(
@@ -39,7 +39,7 @@ constructor(
   ) {
     this.role = data?.role;
     this.adminService.getAllPrivileges().subscribe({
-      next: (privileges: string[]) => {
+      next: (privileges: Priviledge[]) => {
         this.privilegesOptions = privileges;
       },
       error: (error: any) => {
@@ -56,23 +56,24 @@ constructor(
       startWith(''),
       map(value => this._filter(value || '')),
     );
-    this.privileges.update(privileges => this.role?.privileges || []);
+    this.privileges.update(privileges => this.role?.priviledges || []);
   }
 
-  private _filter(value: string): string[] {
+  private _filter(value: string): Priviledge[] {
     const filterValue = value.toLowerCase();
 
     return this.privilegesOptions
-          .filter(option => option.toLowerCase().includes(filterValue))
+          .filter(option => option.name.toLowerCase().includes(filterValue))
           .filter(option => !this.privileges().includes(option));
   }
   
   add(event: MatChipInputEvent): void {
     const value = (event.value || '').trim();
+    const p = this.privilegesOptions.find(p => p.name === value);
 
     // Add our privilege
-    if (value) {
-      this.privileges.update(privileges => [...privileges, value]);
+    if (p) {
+      this.privileges.update(privileges => [...privileges, p]);
     }
 
     // Clear the input value
@@ -80,8 +81,12 @@ constructor(
   }
 
   remove(item: string): void {
+    const p = this.privilegesOptions.find(p => p.name === item);
+    if (!p) {
+      return;
+    }
     this.privileges.update(privileges => {
-      const index = privileges.indexOf(item);
+      const index = privileges.indexOf(p);
       if (index < 0) {
         return privileges;
       }
@@ -93,7 +98,11 @@ constructor(
   }
 
   selected(event: MatAutocompleteSelectedEvent): void {
-    this.privileges.update(privileges => [...privileges, event.option.viewValue]);
+    const p = this.privilegesOptions.find(p => p.name === event.option.viewValue);
+    if (!p) {
+      return;
+    }
+    this.privileges.update(privileges => [...privileges, p]);
     this.privAutoCtrl.setValue('');
     event.option.deselect();
   }
@@ -112,7 +121,7 @@ constructor(
       return;
     }
     this.role.role = this.roleForm.value.rolename;
-    this.role.privileges = this.privileges();
+    this.role.priviledges = this.privileges();
     console.log(JSON.stringify(this.role));
     this.dialogRef.close(this.role);
   }

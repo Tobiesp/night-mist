@@ -24,6 +24,8 @@ export abstract class BaseDataSource<T extends Row> {
     abstract updateRow(row: T): void;
     abstract getTotalItemCount(): Promise<number>;
 
+    abstract fieldDisplay(row: T, field: string): string;
+
     setPaginator(paginator: MatPaginator): void {
         this.paginator = paginator;
         if (this.paginator) {
@@ -84,6 +86,17 @@ export class ArrayDataSource<T extends Row> extends BaseDataSource<T> {
 
     async getTotalItemCount(): Promise<number> {
         return Promise.resolve(this.data.length);
+    }
+
+    override fieldDisplay(row: T, field: string): string {
+        const value = row[field];
+        if (value instanceof Date) {
+            return value.toLocaleDateString();
+        }
+        if (value instanceof Array) {
+            return value.join(', ');
+        }
+        return value.toString();
     }
 
     override setPage(page: number, pageSize: number): void {
@@ -250,6 +263,10 @@ export class TableComponent<T extends Row> implements AfterViewInit {
             row: row
         };
         this.tableEvent.emit(eventData);
+    }
+
+    fieldDisplay(row: T, field: string): string {
+        return this.dataSource.fieldDisplay(row, field);
     }
 
 }

@@ -1,10 +1,8 @@
 from typing import Optional
-from flask_sqlalchemy import SQLAlchemy
 
 from app.servant.email_servant import EmailServant
 
 
-SQL_DB = SQLAlchemy()
 EMAIL_SERVANT: Optional[EmailServant] = None
 
 

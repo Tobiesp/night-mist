@@ -108,3 +108,11 @@ def logout():
                           identity=AnonymousIdentity())
 
     return Response(status=200)
+
+
+@auth.route('/current-user')
+def get_current_user():
+    if current_user.is_authenticated:
+        return current_user.username
+    else:
+        return Response(status=401)

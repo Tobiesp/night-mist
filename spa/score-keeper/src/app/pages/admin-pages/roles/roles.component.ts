@@ -1,12 +1,12 @@
 import { Component, Injectable, ViewChild } from '@angular/core';
 import { BaseDataSource, Row, TableComponent, TableOptions } from '../../../components/table/table.component';
-import { AdminService } from '../../../services/admin.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 import { AddEditRoleDialogComponent } from './add-edit-role-dialog/add-edit-role-dialog.component';
-import { Role, RoleService } from '../../../services/admin/role.service';
+import { RoleService } from '../../../services/admin/role.service';
 import { Observable } from 'rxjs';
 import { LoggerService } from '../../../services/logger.service';
+import { Role } from '../../../services/auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -78,6 +78,20 @@ export class RoleDataSource extends BaseDataSource<Role> {
         this.logger.error(`Error sort roles: ${error}`);
       }
     });
+  }
+
+  override fieldDisplay(row: Role, field: string): string {
+    switch (field) {
+      case 'id':
+        return row.id.toString();
+      case 'role':
+        return row.role;
+      case 'privileges':
+        const names = row.priviledges.map(priviledge => priviledge.name);
+        return names.join(', ');
+      default:
+        return '';
+    }
   }
   
   override setPage(page: number, pageSize: number): void {
