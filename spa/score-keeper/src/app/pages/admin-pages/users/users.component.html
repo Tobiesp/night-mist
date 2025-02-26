@@ -1,1 +1,3 @@
-<p>users works!</p>
+<div>
+    <app-table #UserTable [dataSource]="dataSource" [config]="tableOptions" [title]="'Users'" (tableEvent)="handleTableEvent($event)"></app-table>
+</div>

@@ -13,7 +13,7 @@
                         formControlName="rolename" />
                 <div
                     *ngIf="roleForm.controls['rolename'].invalid && (roleForm.controls['rolename'].dirty || roleForm.controls['rolename'].touched)">
-                    <div *ngIf="roleForm.controls['rolename'].errors?.['required']" class="text-bold-red-500">Username is required.</div>
+                    <div *ngIf="roleForm.controls['rolename'].errors?.['required']" class="text-bold-red-500">Role name is required.</div>
                 </div>
             </mat-form-field>
             

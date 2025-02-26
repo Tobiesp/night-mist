@@ -6,7 +6,7 @@ import { AddEditRoleDialogComponent } from './add-edit-role-dialog/add-edit-role
 import { RoleService } from '../../../services/admin/role.service';
 import { Observable } from 'rxjs';
 import { LoggerService } from '../../../services/logger.service';
-import { Role } from '../../../services/auth.service';
+import { Role } from '../../../services/auth/auth.service';
 
 @Injectable({
   providedIn: 'root'

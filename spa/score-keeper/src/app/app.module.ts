@@ -41,6 +41,7 @@ import { AccessDeniedPageComponent } from './pages/access-denied-page/access-den
 import { PageNotFound } from './pages/page-not-found-component/page-not-found-component.component';
 import { ForgotPasswordDialogComponent } from './pages/login/forgot-password-dialog/forgot-password-dialog.component';
 import { SignupDialogComponent } from './pages/login/signup-dialog/signup-dialog.component';
+import { AddEditUserDialogComponent } from './pages/admin-pages/users/add-edit-user-dialog/add-edit-user-dialog/add-edit-user-dialog.component';
 
 @NgModule({
     declarations: [
@@ -64,6 +65,7 @@ import { SignupDialogComponent } from './pages/login/signup-dialog/signup-dialog
         MenuHeaderComponent,
         ForgotPasswordDialogComponent,
         SignupDialogComponent,
+        AddEditUserDialogComponent,
     ],
     imports: [
         BrowserModule,

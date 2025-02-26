@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BaseDataService } from '../base-data.service';
 import { Observable } from 'rxjs';
-import { Role } from '../auth.service';
+import { Role } from '../auth/auth.service';
 
 @Injectable({
   providedIn: 'root'

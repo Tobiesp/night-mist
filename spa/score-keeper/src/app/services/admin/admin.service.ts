@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { LoggerService } from './logger.service';
-import { BaseServiceService } from './base-service.service';
-import { Priviledge } from './auth.service';
+import { LoggerService } from '../logger.service';
+import { BaseServiceService } from '../base-service.service';
+import { Priviledge } from '../auth/auth.service';
 
 export interface RolesResponse {
   roles: string[];

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { LoggerService } from './logger.service';
+import { LoggerService } from '../logger.service';
 import { Router } from '@angular/router';
-import { BaseServiceService } from './base-service.service';
+import { BaseServiceService } from '../base-service.service';
 
 export interface Priviledge {
   id: string;

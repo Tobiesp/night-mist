@@ -1,13 +1,13 @@
 import { Component, inject, Inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { AdminService } from '../../../../services/admin.service';
+import { AdminService } from '../../../../services/admin/admin.service';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { map, Observable, startWith } from 'rxjs';
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
-import { Priviledge, Role } from '../../../../services/auth.service';
+import { Priviledge, Role } from '../../../../services/auth/auth.service';
 
 export interface dialogData {
   type: 'add' | 'edit';

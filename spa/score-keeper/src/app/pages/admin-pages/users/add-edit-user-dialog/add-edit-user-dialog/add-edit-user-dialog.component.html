@@ -1,0 +1,90 @@
+<div>
+    <h1 *ngIf="data.type == 'add'" mat-dialog-title>Add User</h1>
+    <h1 *ngIf="data.type == 'edit'" mat-dialog-title>Edit User</h1>
+    <form [formGroup]="userForm" (ngSubmit)="onConfirm()">
+        <div style="flex: 1 1 auto;" class="p-4">
+
+            <mat-form-field class="full-field-width">
+                <mat-label>Username</mat-label>
+                <input type="text" matInput placeholder="Enter your username" aria-label="username"
+                    formControlName="username" />
+                <div
+                    *ngIf="userForm.controls['username'].invalid && (userForm.controls['username'].dirty || userForm.controls['username'].touched)">
+                    <div *ngIf="userForm.controls['username'].errors?.['required']" class="bold-red-text">Username is required.</div>
+                </div>
+            </mat-form-field>
+
+            <mat-form-field class="full-field-width">
+                <mat-label>Email</mat-label>
+                <input type="email" matInput placeholder="Enter your email" aria-label="email"
+                    formControlName="email" />
+                <div
+                    *ngIf="userForm.controls['email'].invalid && (userForm.controls['email'].dirty || userForm.controls['email'].touched)">
+                    <div *ngIf="userForm.controls['email'].errors?.['required']" class="bold-red-text">Email is required.</div>
+                    <div *ngIf="userForm.controls['email'].errors?.['email']" class="bold-red-text">Email format invalid.</div>
+                </div>
+            </mat-form-field>
+
+            <mat-form-field class="full-field-width">
+                <mat-label>Firstname</mat-label>
+                <input type="text" matInput placeholder="Enter your firstname" aria-label="firstname"
+                    formControlName="firstname" />
+                <div
+                    *ngIf="userForm.controls['firstname'].invalid && (userForm.controls['firstname'].dirty || userForm.controls['firstname'].touched)">
+                    <div *ngIf="userForm.controls['firstname'].errors?.['required']" class="bold-red-text">First name is required.</div>
+                </div>
+            </mat-form-field>
+
+            <mat-form-field class="full-field-width">
+                <mat-label>Lastname</mat-label>
+                <input type="text" matInput placeholder="Enter your lastname" aria-label="lastname"
+                    formControlName="lastname" />
+                <div
+                    *ngIf="userForm.controls['lastname'].invalid && (userForm.controls['lastname'].dirty || userForm.controls['lastname'].touched)">
+                    <div *ngIf="userForm.controls['lastname'].errors?.['required']" class="bold-red-text">Last name is required.</div>
+                </div>
+            </mat-form-field>
+
+            <mat-form-field class="full-field-width">
+                <mat-label>Role</mat-label>
+                <mat-select formControlName="role" placeholder="Select a role">
+                    <mat-option *ngFor="let role of roles" [value]="role.id">{{role.role}}</mat-option>
+                </mat-select>
+                <div
+                    *ngIf="userForm.controls['role'].invalid && (userForm.controls['role'].dirty || userForm.controls['role'].touched)">
+                    <div *ngIf="userForm.controls['role'].errors?.['required']" class="bold-red-text">Role is required.</div>
+                </div>
+            </mat-form-field>
+
+            <mat-form-field *ngIf="type == 'add'" class="full-field-width">
+                <mat-label>Password</mat-label>
+                <input type="password" matInput placeholder="Enter your password" aria-label="password"
+                    formControlName="password" />
+                <div
+                    *ngIf="userForm.controls['password'].invalid && (userForm.controls['password'].dirty || userForm.controls['password'].touched)">
+                    <div *ngIf="userForm.controls['password'].errors?.['required']" class="bold-red-text">Password is required.</div>
+                    <div *ngIf="userForm.controls['password'].errors?.['minlength'] || userForm.controls['password'].errors?.['maxlength']"
+                        class="bold-red-text">Password must be at least 8 characters long and shorter then 30.</div>
+                    <div *ngIf="userForm.controls['password'].errors?.['pattern']" class="bold-red-text">
+                        Password must contain at least one uppercase letter, one lowercase letter, one number, and one of these symbols [!&#64;#$%^&*].
+                    </div>
+                </div>
+            </mat-form-field>
+
+            <mat-form-field *ngIf="type == 'add'" class="full-field-width">
+                <mat-label>Confirm Password</mat-label>
+                <input type="password" matInput placeholder="Confirm your password" aria-label="confirmPassword"
+                    formControlName="confirmPassword" />
+                <div
+                    *ngIf="userForm.controls['confirmPassword'].invalid && (userForm.controls['confirmPassword'].dirty || userForm.controls['confirmPassword'].touched)">
+                    <div *ngIf="userForm.controls['confirmPassword'].errors?.['required']" class="bold-red-text">Confirm Password is required.</div>
+                </div>
+                <div *ngIf="confirmPasswordValid" class="bold-red-text">Confirm Password must match Password.</div>
+            </mat-form-field>
+        </div>
+        <div mat-dialog-actions style="position: absolute; bottom: 0; width: 100%;">
+            <button mat-button (click)="onCancel()">Cancel</button>
+            <button mat-button (click)="onConfirm()" type="submit">Confirm</button>
+        </div>
+    </form>
+</div>
