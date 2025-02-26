@@ -1,5 +1,4 @@
-from pydantic import BaseModel, Field, field_validator, validator
-from typing import Any
+from pydantic import BaseModel, Field, field_validator
 
 class LoginRequest(BaseModel):
     username: str = Field(min_length=4, max_length=100, pattern='^[a-zA-Z0-9_]*$')
