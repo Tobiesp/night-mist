@@ -1,5 +1,9 @@
-from flask import Flask
+from flask import Blueprint, Flask
 from flask_login import LoginManager, current_user
+
+import app.rest as rest_api
+import pkgutil
+import importlib
 
 from app._env import Config, parse
 from app.models.users_model import User
@@ -63,22 +67,18 @@ def create_app() -> Flask:
             for privilege in role.priviledges:
                 identity.provides.add(RoleNeed(privilege.name))
     
-    from app.rest.auth_rest import auth as auth_blueprint
-    app.register_blueprint(auth_blueprint)
-    from app.rest.admin_rest import admin as admin_blueprint
-    app.register_blueprint(admin_blueprint)
-    from app.rest.role_rest import role_api as role_blueprint
-    app.register_blueprint(role_blueprint)
-    from app.rest.user_rest import user_api as user_blueprint
-    app.register_blueprint(user_blueprint)
-    
     return app
 
 
 def import_blueprints(app: Flask) -> Flask:
-    # Import the blueprints here to avoid circular imports
-    from app.rest.auth_rest import auth as auth_blueprint
-    app.register_blueprint(auth_blueprint)
+    package = rest_api
+    for _, module_name, _ in pkgutil.iter_modules(package.__path__):
+        module = importlib.import_module(f'{package.__name__}.{module_name}')
+        for attribute_name in dir(module):
+            attribute = getattr(module, attribute_name)
+            if isinstance(attribute, Blueprint):
+                app.register_blueprint(attribute)
+                break
 
 
 def create_db(app: Flask) -> None:
@@ -118,8 +118,7 @@ def create_initial_roles(app: Flask) -> None:
     
     admin = datastore.get_role_by_name('admin')
     if admin is None:
-        admin = datastore.create_role('admin')
-        admin.priviledges = [datastore.get_privilege_by_name('admin')]
+        admin = datastore.create_role('admin', [datastore.get_privilege_by_name('admin')])
         datastore.update_role(admin)
 
 

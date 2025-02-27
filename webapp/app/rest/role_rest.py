@@ -5,7 +5,7 @@ from app.request_model.role_request import RoleRequest
 from app.response_model.role_response import RoleListResponse, RoleResponse
 
 
-role_api = Blueprint('role', __name__)
+role_api = Blueprint('role_api', __name__)
 
 
 @role_api.route('/roles', methods=['GET'])
@@ -16,7 +16,7 @@ def get_roles():
     return Response(status=200, response=RoleListResponse(roles).get_response())
 
 
-@role_api.route('/roles/<str:role_id>', methods=['GET'])
+@role_api.route('/roles/<string:role_id>', methods=['GET'])
 @admin_permission.require(http_exception=403)
 def get_role(role_id: str):
     database = database_repository.DatabaseRepository.instance()
@@ -47,7 +47,7 @@ def create_role():
     return Response(status=200, response=RoleResponse(role).get_response())
 
 
-@role_api.route('/roles/<str:role_id>', methods=['PUT'])
+@role_api.route('/roles/<string:role_id>', methods=['PUT'])
 @admin_permission.require(http_exception=403)
 def update_role(role_id: str):
     json_data = request.get_json(silent=True) or {}
@@ -72,7 +72,7 @@ def update_role(role_id: str):
     return Response(status=200, response=RoleResponse(role).get_response())
 
 
-@role_api.route('/roles/<str:role_id>', methods=['DELETE'])
+@role_api.route('/roles/<string:role_id>', methods=['DELETE'])
 @admin_permission.require(http_exception=403)
 def delete_role(role_id: str):
     database = database_repository.DatabaseRepository.instance()

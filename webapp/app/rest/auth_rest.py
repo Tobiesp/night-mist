@@ -10,7 +10,7 @@ from app.request_model.signup_request import SignupRequest
 from app.request_model.forgot_password_request import ForgotPasswordRequest
 
 
-auth = Blueprint('auth', __name__)
+auth = Blueprint('auth_api', __name__)
 
 
 @auth.route('/login', methods=['POST'])

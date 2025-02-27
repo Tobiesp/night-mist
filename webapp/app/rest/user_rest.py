@@ -5,7 +5,7 @@ from app.request_model.user_request import UserRequest
 from app.response_model.user_response import UserListResponse, UserResponse
 
 
-user_api = Blueprint('user', __name__)
+user_api = Blueprint('user_api', __name__)
 
 
 @user_api.route('/users', methods=['GET'])
@@ -16,7 +16,7 @@ def get_users():
     return Response(status=200, response=UserListResponse(users).get_response())
 
 
-@user_api.route('/users/<str:user_id>', methods=['GET'])
+@user_api.route('/users/<string:user_id>', methods=['GET'])
 @admin_permission.require(http_exception=403)
 def get_user(user_id: str):
     database = database_repository.DatabaseRepository.instance()
@@ -42,7 +42,7 @@ def create_user():
     return Response(status=200, response=UserResponse(user).get_response())
 
 
-@user_api.route('/users/<str:user_id>', methods=['PUT'])
+@user_api.route('/users/<string:user_id>', methods=['PUT'])
 @admin_permission.require(http_exception=403)
 def update_user(user_id: str):
     json_data = request.get_json(silent=True) or {}
@@ -65,7 +65,7 @@ def update_user(user_id: str):
     return Response(status=200, response=UserResponse(user).get_response())
 
 
-@user_api.route('/users/<str:user_id>', methods=['DELETE'])
+@user_api.route('/users/<string:user_id>', methods=['DELETE'])
 @admin_permission.require(http_exception=403)
 def delete_user(user_id: str):
     database = database_repository.DatabaseRepository.instance()

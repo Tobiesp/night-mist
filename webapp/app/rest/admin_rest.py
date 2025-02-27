@@ -5,7 +5,7 @@ from app.response_model.priviledge_response import PriviledgeListResponse
 from app.models.users_model import admin_permission
 
 
-admin = Blueprint('admin', __name__)
+admin = Blueprint('admin_api', __name__)
 
 
 @admin.route('/priviledges', methods=['GET'])

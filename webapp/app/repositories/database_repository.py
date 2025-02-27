@@ -54,9 +54,10 @@ class DatabaseRepository:
         with self._app_.app_context():
             return self._db_.session.query(Role).all()
     
-    def create_role(self, name: str) -> Role:
+    def create_role(self, name: str, priviledges: list[Priviledge] = []) -> Role:
         with self._app_.app_context():
             role = Role(role_name=name)
+            role.priviledges = priviledges
             self._db_.session.add(role)
             self._db_.session.commit()
             return role
