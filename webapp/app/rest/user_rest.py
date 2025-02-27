@@ -74,4 +74,55 @@ def delete_user(user_id: str):
         return Response(status=404)
     database.delete_user(user)
     return Response(status=200)
+
+
+@user_api.route('/users/query', methods=['GET'])
+@admin_permission.require(http_exception=403)
+def query_users():
+    
+    request_args = request.args or {}
+    filter_value = request_args.get('filter_value') or ''
+    page_num = request_args.get('page_num') or 1
+    page_size = request_args.get('page_size') or 100
+    sort_active = request_args.get('sort_active') or ''
+    sort_direction = request_args.get('sort_direction') or ''
+    database = database_repository.DatabaseRepository.instance()
+    users = []
+    if filter_value == '':
+        users = database.get_all_users()
+    else:
+        users = database.query_users(filter_value)
+    if sort_active != '':
+        if sort_direction == 'asc':
+            users = sorted(users, key=lambda x: getattr(x, sort_active))
+        else:
+            users = sorted(users, key=lambda x: getattr(x, sort_active), reverse=True)
+    start_index = (page_num - 1) * page_size
+    end_index = start_index + page_size
+    users = users[start_index:end_index]
+    return Response(status=200, response=UserListResponse(users).get_response())
+
+
+@user_api.route('/users/<string:user_id>/lock', methods=['POST'])
+@admin_permission.require(http_exception=403)
+def lock_user(user_id: str):
+    database = database_repository.DatabaseRepository.instance()
+    user = database.get_user_by_id(user_id)
+    if user is None:
+        return Response(status=404)
+    user.is_active = False
+    database.update_user(user)
+    return Response(status=200)
+
+
+@user_api.route('/users/<string:user_id>/unlock', methods=['POST'])
+@admin_permission.require(http_exception=403)
+def unlock_user(user_id: str):
+    database = database_repository.DatabaseRepository.instance()
+    user = database.get_user_by_id(user_id)
+    if user is None:
+        return Response(status=404)
+    user.is_active = True
+    database.update_user(user)
+    return Response(status=200)
     

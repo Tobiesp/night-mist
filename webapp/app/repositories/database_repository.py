@@ -88,6 +88,16 @@ class DatabaseRepository:
     def get_all_users(self) -> list[User]:
         with self._app_.app_context():
             return self._db_.session.query(User).all()
+        
+    def query_users(self, filter_value: str) -> list[User]:
+        with self._app_.app_context():
+            return self._db_.session.query(User).filter(
+                (User.username.like(f'%{filter_value}%')) | 
+                (User.email.like(f'%{filter_value}%')) | 
+                (User.lastname.like(f'%{filter_value}%')) | 
+                (User.firstname.like(f'%{filter_value}%')) |
+                (User.role.has(Role.role_name.like(f'%{filter_value}%')))
+                ).all()
     
     def create_user(self, user: User) -> User:
         with self._app_.app_context():
