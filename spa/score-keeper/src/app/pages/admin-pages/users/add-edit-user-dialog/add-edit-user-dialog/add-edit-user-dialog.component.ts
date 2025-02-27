@@ -21,12 +21,11 @@ export interface userDialogData {
 export class AddEditUserDialogComponent {
 readonly separatorKeysCodes: number[] = [ENTER, COMMA];
   readonly privileges = signal<Priviledge[]>([]);
-  readonly announcer = inject(LiveAnnouncer);
   userForm!: FormGroup;
   user: User;
   type = '';
   roles: Role[] = [];
-  confirmPasswordValid = true;
+  confirmPasswordInvalid = false;
 
 constructor(
     public dialogRef: MatDialogRef<AddEditUserDialogComponent>,
@@ -93,7 +92,7 @@ constructor(
       temp_user.id = this.user.id;
     }
     if (this.userForm.value.password !== this.userForm.value.confirmPassword) {
-      this.confirmPasswordValid = false;
+      this.confirmPasswordInvalid = false;
       this.userForm.controls['confirmPassword'].setErrors({ 'incorrect': true });
       return;
     }

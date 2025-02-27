@@ -1,12 +1,12 @@
 import { Component, ViewChild } from '@angular/core';
-import { AuthService } from '../../services/auth/auth.service';
+import { AuthService } from '../../../services/auth/auth.service';
 import { Router } from '@angular/router';
-import { LoggerService } from '../../services/logger.service';
+import { LoggerService } from '../../../services/logger.service';
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
-import { SnackbarComponent } from '../../components/snackbar/snackbar.component';
+import { SnackbarComponent } from '../../../components/snackbar/snackbar.component';
 import { MatDialog } from '@angular/material/dialog';
-import { ForgotPasswordDialogComponent } from './forgot-password-dialog/forgot-password-dialog.component';
-import { SignupDialogComponent } from './signup-dialog/signup-dialog.component';
+import { ForgotPasswordDialogComponent } from '../forgot-password-dialog/forgot-password-dialog.component';
+import { SignupDialogComponent } from '../signup-dialog/signup-dialog.component';
 
 @Component({
   selector: 'app-login',

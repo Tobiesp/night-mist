@@ -4,7 +4,7 @@ import { AppRoutingModule, routes } from './app.routes';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './pages/home/home.component';
 import { AdminComponent } from './pages/admin-pages/admin/admin.component';
-import { LoginComponent } from './pages/login/login.component';
+import { LoginComponent } from './pages/login-pages/login/login.component';
 import { provideRouter, RouterOutlet } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -39,8 +39,8 @@ import { ReporterComponent } from './pages/reporter/reporter.component';
 import { EventsComponent } from './pages/events/events.component';
 import { AccessDeniedPageComponent } from './pages/access-denied-page/access-denied-page.component';
 import { PageNotFound } from './pages/page-not-found-component/page-not-found-component.component';
-import { ForgotPasswordDialogComponent } from './pages/login/forgot-password-dialog/forgot-password-dialog.component';
-import { SignupDialogComponent } from './pages/login/signup-dialog/signup-dialog.component';
+import { ForgotPasswordDialogComponent } from './pages/login-pages/forgot-password-dialog/forgot-password-dialog.component';
+import { SignupDialogComponent } from './pages/login-pages/signup-dialog/signup-dialog.component';
 import { AddEditUserDialogComponent } from './pages/admin-pages/users/add-edit-user-dialog/add-edit-user-dialog/add-edit-user-dialog.component';
 
 @NgModule({

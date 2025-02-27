@@ -227,8 +227,8 @@ export class UsersComponent {
 
   openEditDialog(row: Row): void {
     const dialogRef = this.dialog.open(AddEditUserDialogComponent, {
-      width: '250px',
-      height: '400px',
+      width: '300px',
+      height: '600px',
       data: { type: 'edit', user: row }
     });
 
@@ -244,8 +244,8 @@ export class UsersComponent {
 
   openAddDialog(): void {
     const dialogRef = this.dialog.open(AddEditUserDialogComponent, {
-      width: '250px',
-      height: '400px',
+      width: '300px',
+      height: '675px',
       data: { type: 'add', user: {} }
     });
 

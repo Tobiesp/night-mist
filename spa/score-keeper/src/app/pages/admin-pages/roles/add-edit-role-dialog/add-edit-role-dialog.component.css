@@ -7,3 +7,8 @@
   .full-field-width {
     width: 100%;
   }
+
+  .bold-red-text {
+    color: red;
+    font-weight: bold;
+  }

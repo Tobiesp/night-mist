@@ -79,7 +79,7 @@
                     *ngIf="userForm.controls['confirmPassword'].invalid && (userForm.controls['confirmPassword'].dirty || userForm.controls['confirmPassword'].touched)">
                     <div *ngIf="userForm.controls['confirmPassword'].errors?.['required']" class="bold-red-text">Confirm Password is required.</div>
                 </div>
-                <div *ngIf="confirmPasswordValid" class="bold-red-text">Confirm Password must match Password.</div>
+                <div *ngIf="confirmPasswordInvalid" class="bold-red-text">Confirm Password must match Password.</div>
             </mat-form-field>
         </div>
         <div mat-dialog-actions style="position: absolute; bottom: 0; width: 100%;">

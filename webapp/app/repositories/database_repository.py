@@ -76,11 +76,11 @@ class DatabaseRepository:
         with self._app_.app_context():
             return self._db_.session.query(Role).get(id)
     
-    def get_role_by_name(self, name: str) -> Role:
+    def get_role_by_name(self, name: str) -> Role | None:
         with self._app_.app_context():
             return self._db_.session.query(Role).filter_by(role_name=name).first()
     
-    def get_user_by_email(self, email: str) -> User:
+    def get_user_by_email(self, email: str) -> User | None:
         with self._app_.app_context():
             return self._db_.session.query(User).filter_by(email=email).first()
     
@@ -94,12 +94,15 @@ class DatabaseRepository:
             self._db_.session.commit()
             return user
     
-    def update_user(self, user: User) -> User:
+    def update_user(self, user: User) -> User | None:
         with self._app_.app_context():
-            self.get_user_by_username(user.username).firstname = user.firstname
-            self.get_user_by_username(user.username).lastname = user.lastname
-            self.get_user_by_username(user.username).email = user.email
-            self.get_user_by_username(user.username).role = user.role
+            user = self.get_user_by_username(user.username)
+            if user is None:
+                return None
+            user.firstname = user.firstname
+            user.lastname = user.lastname
+            user.email = user.email
+            user.role = user.role
             self._db_.session.commit()
             return
     
