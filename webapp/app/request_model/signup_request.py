@@ -30,4 +30,6 @@ class SignupRequest(BaseModel):
             raise ValueError('Password must contain at least one digit')
         if not any(char in '!@#$%^&*' for char in value):
             raise ValueError('Password must contain at least one special character')
+        if value != cls.password:
+            raise ValueError('Passwords do not match')
         return value

@@ -63,6 +63,15 @@ def create_app() -> Flask:
             for privilege in role.priviledges:
                 identity.provides.add(RoleNeed(privilege.name))
     
+    from app.rest.auth_rest import auth as auth_blueprint
+    app.register_blueprint(auth_blueprint)
+    from app.rest.admin_rest import admin as admin_blueprint
+    app.register_blueprint(admin_blueprint)
+    from app.rest.role_rest import role_api as role_blueprint
+    app.register_blueprint(role_blueprint)
+    from app.rest.user_rest import user_api as user_blueprint
+    app.register_blueprint(user_blueprint)
+    
     return app
 
 

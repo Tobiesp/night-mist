@@ -30,7 +30,12 @@ def login():
     if user is None:
         abort(403)
 
+    if not user.is_active:
+        abort(403, 'Account Locked. Please contact support')
+
     if not user.check_password(login_request.password):
+        user.add_login_attempt()
+        datastore.update_user(user)
         abort(403)
 
     login_user(user)

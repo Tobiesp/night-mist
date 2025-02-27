@@ -3,12 +3,15 @@ import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
-from sqlalchemy import UUID, Column, DateTime, ForeignKey, String, Table, func
+from sqlalchemy import UUID, Boolean, Column, DateTime, ForeignKey, Integer, String, Table, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from flask_principal import Permission, RoleNeed
 from typing import List
 
 from app.models import BASE
+
+
+MAX_LOGIN_ATTEMPTS = 5
 
 
 admin_permission = Permission(RoleNeed('admin'))
@@ -90,6 +93,9 @@ class User(UserMixin, BASE):
     password_hash = mapped_column(String(200), nullable=False)
     role_id = mapped_column(ForeignKey('roles_table.id'))
     role: Mapped[Role] = relationship(primaryjoin="User.role_id == Role.id", back_populates='users')
+    account_locked = mapped_column(Boolean, default=False)
+    last_login: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=True)
+    login_attempts = mapped_column(Integer, default=0)
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now())
     updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
 
@@ -99,6 +105,28 @@ class User(UserMixin, BASE):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    @property
+    def is_active(self):
+        return not self.account_locked
+    
+    def add_login_attempt(self):
+        self.login_attempts += 1
+        if self.login_attempts >= MAX_LOGIN_ATTEMPTS:
+            self.account_locked = True
+    
+    def reset_login_attempts(self):
+        self.login_attempts = 0
+        self.account_locked = False
+    
+    def __eq__(self, other):
+        if not isinstance(other, User):
+            return False
+        if self is other:
+            return True
+        if self.id is None or other.id is None:
+            return self.username == other.username
+        return self.id == other.id and self.username == other.username
 
     def __repr__(self):
         return f"<User {self.username}>"
