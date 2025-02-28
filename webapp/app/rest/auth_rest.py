@@ -24,7 +24,7 @@ def login():
     except ValueError:
         abort(403)
 
-    datastore = database_repository.DatabaseRepository(None)
+    datastore = database_repository.DatabaseRepository.instance().get_admin_db_repository()
     user = datastore.get_user_by_username(login_request.username)
 
     if user is None:
@@ -59,7 +59,7 @@ def signup():
     except ValueError as ve:
         abort(Response(status=400, response=str(ve)))
 
-    datastore = database_repository.DatabaseRepository(None)
+    datastore = database_repository.DatabaseRepository.instance().get_admin_db_repository()
     user = datastore.get_user_by_username(signup_request.username)
 
     if user is not None:
@@ -87,7 +87,7 @@ def forgot_password():
     except ValueError:
         return Response(status=200)
 
-    datastore = database_repository.DatabaseRepository(None)
+    datastore = database_repository.DatabaseRepository.instance().get_admin_db_repository()
     user = datastore.get_user_by_email(forgot_password_request.email)
 
     if user is None:

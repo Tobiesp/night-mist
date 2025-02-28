@@ -6,7 +6,8 @@ class SignupRequest(BaseModel):
     password: str = Field(min_length=8, max_length=30)
     repeat_password: str = Field(min_length=8, max_length=30)
     email: str = Field(min_length=6, max_length=100, pattern='^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
-    full_name: str = Field(min_length=2, max_length=200)
+    frist_name: str = Field(min_length=2, max_length=100)
+    last_name: str = Field(min_length=2, max_length=100)
 
     @field_validator('password')
     def validate_password(cls, value: str) -> str:

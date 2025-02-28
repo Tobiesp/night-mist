@@ -4,9 +4,7 @@ import uuid
 from app.models import BASE
 from sqlalchemy import UUID, Column, DateTime, ForeignKey, String, Table, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from app.models.event_model import Point, event_student_group_table
 
-from app.models.event_model import Event
     
 
 grade_student_group_table = Table(
@@ -55,14 +53,6 @@ class StudentGroup(BASE):
         secondaryjoin="Grade.id == grade_student_group_table.c.grade_id",
         back_populates="student_groups"
     )
-    events: Mapped[List[Event]] = relationship(
-        "Event",
-        secondary=event_student_group_table,
-        primaryjoin="StudentGroup.id == event_student_group_table.c.student_group_id",
-        secondaryjoin="Event.id == event_student_group_table.c.event_id",
-        back_populates="student_groups"
-    )
-    points: Mapped[List[Point]] = relationship('Point', back_populates='student_group')
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=True, )  # Ensure default value
 
@@ -86,7 +76,7 @@ class Student(BASE):
     grade_id = mapped_column(UUID(as_uuid=True), ForeignKey('grades_table.id'))
     grade = relationship('Grade', back_populates='students')
     student_group_id = mapped_column(UUID(as_uuid=True), ForeignKey('student_groups_table.id'))
-    student_group = relationship('StudentGroup', back_populates='students')
+    student_group = relationship('StudentGroup')
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=True, )  # Ensure default value
 

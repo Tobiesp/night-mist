@@ -11,7 +11,7 @@ user_api = Blueprint('user_api', __name__)
 @user_api.route('/users', methods=['GET'])
 @admin_permission.require(http_exception=403)
 def get_users():
-    database = database_repository.DatabaseRepository.instance()
+    database = database_repository.DatabaseRepository.instance().get_admin_db_repository()
     users = database.get_all_users()
     return Response(status=200, response=UserListResponse(users).get_response())
 
@@ -19,7 +19,7 @@ def get_users():
 @user_api.route('/users/<string:user_id>', methods=['GET'])
 @admin_permission.require(http_exception=403)
 def get_user(user_id: str):
-    database = database_repository.DatabaseRepository.instance()
+    database = database_repository.DatabaseRepository.instance().get_admin_db_repository()
     user = database.get_user_by_id(user_id)
     if user is None:
         return Response(status=404)
@@ -36,7 +36,7 @@ def create_user():
         return Response(status=400, response='Invalid request type')
     except ValueError as ve:
         return Response(status=400, response=str(ve))
-    database = database_repository.DatabaseRepository.instance()
+    database = database_repository.DatabaseRepository.instance().get_admin_db_repository()
     user = database.create_user(user_request.username, user_request.password, user_request.firstname,
                                  user_request.lastname, user_request.email, user_request.role)
     return Response(status=200, response=UserResponse(user).get_response())
@@ -52,7 +52,7 @@ def update_user(user_id: str):
         return Response(status=400, response='Invalid request type')
     except ValueError as ve:
         return Response(status=400, response=str(ve))
-    database = database_repository.DatabaseRepository.instance()
+    database = database_repository.DatabaseRepository.instance().get_admin_db_repository()
     user = database.get_user_by_id(user_id)
     if user is None:
         return Response(status=404)
@@ -68,7 +68,7 @@ def update_user(user_id: str):
 @user_api.route('/users/<string:user_id>', methods=['DELETE'])
 @admin_permission.require(http_exception=403)
 def delete_user(user_id: str):
-    database = database_repository.DatabaseRepository.instance()
+    database = database_repository.DatabaseRepository.instance().get_admin_db_repository()
     user = database.get_user_by_id(user_id)
     if user is None:
         return Response(status=404)
@@ -86,7 +86,7 @@ def query_users():
     page_size = request_args.get('page_size') or 100
     sort_active = request_args.get('sort_active') or ''
     sort_direction = request_args.get('sort_direction') or ''
-    database = database_repository.DatabaseRepository.instance()
+    database = database_repository.DatabaseRepository.instance().get_admin_db_repository()
     users = []
     if filter_value == '':
         users = database.get_all_users()
@@ -106,7 +106,7 @@ def query_users():
 @user_api.route('/users/<string:user_id>/lock', methods=['POST'])
 @admin_permission.require(http_exception=403)
 def lock_user(user_id: str):
-    database = database_repository.DatabaseRepository.instance()
+    database = database_repository.DatabaseRepository.instance().get_admin_db_repository()
     user = database.get_user_by_id(user_id)
     if user is None:
         return Response(status=404)
@@ -118,7 +118,7 @@ def lock_user(user_id: str):
 @user_api.route('/users/<string:user_id>/unlock', methods=['POST'])
 @admin_permission.require(http_exception=403)
 def unlock_user(user_id: str):
-    database = database_repository.DatabaseRepository.instance()
+    database = database_repository.DatabaseRepository.instance().get_admin_db_repository()
     user = database.get_user_by_id(user_id)
     if user is None:
         return Response(status=404)

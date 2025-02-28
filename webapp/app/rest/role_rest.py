@@ -11,7 +11,7 @@ role_api = Blueprint('role_api', __name__)
 @role_api.route('/roles', methods=['GET'])
 @admin_permission.require(http_exception=403)
 def get_roles():
-    database = database_repository.DatabaseRepository.instance()
+    database = database_repository.DatabaseRepository.instance().get_admin_db_repository()
     roles = database.get_all_roles()
     return Response(status=200, response=RoleListResponse(roles).get_response())
 
@@ -19,7 +19,7 @@ def get_roles():
 @role_api.route('/roles/<string:role_id>', methods=['GET'])
 @admin_permission.require(http_exception=403)
 def get_role(role_id: str):
-    database = database_repository.DatabaseRepository.instance()
+    database = database_repository.DatabaseRepository.instance().get_admin_db_repository()
     role = database.get_role_by_id(role_id)
     if role is None:
         return Response(status=404)
@@ -36,7 +36,7 @@ def create_role():
         return Response(status=400, response='Invalid request type')
     except ValueError as ve:
         return Response(status=400, response=str(ve))
-    database = database_repository.DatabaseRepository.instance()
+    database = database_repository.DatabaseRepository.instance().get_admin_db_repository()
     role = database.create_role(role_request.name)
     priviledges = database.get_all_privleges()
     role_priviledges = [p.priviledge_name for p in priviledges]
@@ -57,7 +57,7 @@ def update_role(role_id: str):
         return Response(status=400, response='Invalid request type')
     except ValueError as ve:
         return Response(status=400, response=str(ve))
-    database = database_repository.DatabaseRepository.instance()
+    database = database_repository.DatabaseRepository.instance().get_admin_db_repository()
     role = database.get_role_by_id(role_id)
     if role is None:
         return Response(status=404)
@@ -75,7 +75,7 @@ def update_role(role_id: str):
 @role_api.route('/roles/<string:role_id>', methods=['DELETE'])
 @admin_permission.require(http_exception=403)
 def delete_role(role_id: str):
-    database = database_repository.DatabaseRepository.instance()
+    database = database_repository.DatabaseRepository.instance().get_admin_db_repository()
     role = database.get_role_by_id(role_id)
     if role is None:
         return Response(status=404)
@@ -92,7 +92,7 @@ def query_roles():
     page_size = request_args.get('page_size') or 100
     sort_active = request_args.get('sort_active') or ''
     sort_direction = request_args.get('sort_direction') or ''
-    database = database_repository.DatabaseRepository.instance()
+    database = database_repository.DatabaseRepository.instance().get_admin_db_repository()
     roles = []
     if filter_value == '':
         roles = database.get_all_roles()
@@ -112,6 +112,6 @@ def query_roles():
 @role_api.route('/roles/count', methods=['GET'])
 @admin_permission.require(http_exception=403)
 def count_roles():
-    database = database_repository.DatabaseRepository.instance()
+    database = database_repository.DatabaseRepository.instance().get_admin_db_repository()
     roles = database.get_all_roles()
     return Response(status=200, response=len(roles))

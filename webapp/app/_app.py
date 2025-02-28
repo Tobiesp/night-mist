@@ -1,13 +1,14 @@
 from flask import Blueprint, Flask
 from flask_login import LoginManager, current_user
 
+from app.models.students_model import Grade
 import app.rest as rest_api
 import pkgutil
 import importlib
 
 from app._env import Config, parse
 from app.models.users_model import User
-from app.repositories import database_repository
+from app.repositories import admin_database_repository, database_repository
 from flask_principal import Principal, identity_loaded, UserNeed, RoleNeed
 
 
@@ -24,12 +25,9 @@ def create_app() -> Flask:
     app.config['PORT'] = config.PORT
     app.config['HOST'] = config.HOST
 
-    create_db(app)
+    create_db(app, config)
 
-    create_initial_roles(app)
-    create_initial_admin(config.ADMIN_INITIAL_PASSWORD)
-
-    create_email_servant()
+    create_email_servant(config)
 
     import_blueprints(app)
 
@@ -40,7 +38,7 @@ def create_app() -> Flask:
 
     @login_manager.user_loader
     def load_user(userid):
-        datastore = database_repository.DatabaseRepository(None)
+        datastore = admin_database_repository.AdminDatabaseRepository(None)
         # Return an instance of the User model
         return datastore.get_user_by_id(userid)
     
@@ -81,12 +79,15 @@ def import_blueprints(app: Flask) -> Flask:
                 break
 
 
-def create_db(app: Flask) -> None:
+def create_db(app: Flask, config: Config) -> None:
     database_repository.DatabaseRepository.instance(app)
+    create_initial_roles()
+    create_initial_admin(config.ADMIN_INITIAL_PASSWORD)
+    create_initial_grades()
 
 
 def create_initial_admin(password: str) -> None:
-    datastore = database_repository.DatabaseRepository.instance()
+    datastore = database_repository.DatabaseRepository.instance().get_admin_db_repository()
     admin = datastore.get_user_by_username('skadmin')
     if admin is None:
         admin = User()
@@ -99,8 +100,36 @@ def create_initial_admin(password: str) -> None:
         datastore.create_user(admin)
 
 
-def create_initial_roles(app: Flask) -> None:
-    datastore = database_repository.DatabaseRepository.instance()
+def create_initial_grades() -> None:
+    datastore = database_repository.DatabaseRepository.instance().get_student_db_repository()
+    grades = [
+        'k0',
+        'k1',
+        'k2',
+        'k3',
+        'k4',
+        'k5',
+        '1st',
+        '2nd',
+        '3rd',
+        '4th',
+        '5th',
+        '6th',
+        '7th',
+        '8th',
+        '9th',
+        '10th',
+        '11th',
+        '12th',
+        'graduated'
+    ]
+    for grade in grades:
+        if datastore.get_grade_by_name(grade) is None:
+            datastore.create_grade(Grade(grade_name=grade))
+
+
+def create_initial_roles() -> None:
+    datastore = database_repository.DatabaseRepository.instance().get_admin_db_repository()
     privileges = [
         'admin',
         'student_read',
@@ -122,7 +151,7 @@ def create_initial_roles(app: Flask) -> None:
         datastore.update_role(admin)
 
 
-def create_email_servant() -> None:
+def create_email_servant(config: Config) -> None:
     EMAIL_SERVANT = None
 
 

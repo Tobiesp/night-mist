@@ -120,8 +120,7 @@ class Event(BASE):
         "StudentGroup",
         secondary=event_student_group_table,
         primaryjoin="Event.id == event_student_group_table.c.event_id",
-        secondaryjoin="StudentGroup.id == event_student_group_table.c.student_group_id",
-        back_populates="events"
+        secondaryjoin="StudentGroup.id == event_student_group_table.c.student_group_id"
     )
     point_categories: Mapped[List[PointCategory]] = relationship(
         "PointCategory",
@@ -152,7 +151,7 @@ class EventInstance(BASE):
 
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     event_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('events_table.id'), nullable=False)
-    events: Mapped[Event] = relationship('Event', back_populates='event_instances')
+    event: Mapped[Event] = relationship('Event', primaryjoin='EventInstance.event_id == Event.id')
     event_date = mapped_column(DateTime(timezone=True), nullable=False)
     completed = mapped_column(Boolean, default=False)
     deleted = mapped_column(Boolean, default=False)
