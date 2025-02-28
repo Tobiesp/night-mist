@@ -1,0 +1,101 @@
+from __future__ import annotations
+from typing import List
+import uuid
+from app.models import BASE
+from sqlalchemy import UUID, Column, DateTime, ForeignKey, String, Table, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from app.models.event_model import Point, event_student_group_table
+
+from app.models.event_model import Event
+    
+
+grade_student_group_table = Table(
+    "grade_student_group_table",
+    BASE.metadata,
+    Column("grade_id", ForeignKey("grades_table.id"), primary_key=True),
+    Column("student_group_id", ForeignKey("student_groups_table.id"), primary_key=True),
+)
+
+
+class Grade(BASE):
+    __tablename__ = 'grades_table'
+
+    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    grade_name = mapped_column(String(100), unique=True, nullable=False)
+    students: Mapped[list] = relationship('Student', back_populates='grade')
+    student_groups: Mapped[List[StudentGroup]] = relationship(
+        "StudentGroup",
+        secondary=grade_student_group_table,
+        primaryjoin="Grade.id == grade_student_group_table.c.grade_id",
+        secondaryjoin="StudentGroup.id == grade_student_group_table.c.student_group_id",
+        back_populates="grades"
+    )
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=True, )  # Ensure default value
+
+    def __init__(self, grade_name: str):
+        self.grade_name = grade_name
+
+    def __repr__(self):
+        return f'<Grade {self.grade_name}>'
+    
+    def __eq__(self, other: Grade) -> bool:
+        return self.grade_name == other.grade_name
+    
+
+class StudentGroup(BASE):
+    __tablename__ = 'student_groups_table'
+
+    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    group_name = mapped_column(String(100), unique=True, nullable=False)
+    grades: Mapped[List[Grade]] = relationship(
+        "Grade",
+        secondary=grade_student_group_table,
+        primaryjoin="StudentGroup.id == grade_student_group_table.c.student_group_id",
+        secondaryjoin="Grade.id == grade_student_group_table.c.grade_id",
+        back_populates="student_groups"
+    )
+    events: Mapped[List[Event]] = relationship(
+        "Event",
+        secondary=event_student_group_table,
+        primaryjoin="StudentGroup.id == event_student_group_table.c.student_group_id",
+        secondaryjoin="Event.id == event_student_group_table.c.event_id",
+        back_populates="student_groups"
+    )
+    points: Mapped[List[Point]] = relationship('Point', back_populates='student_group')
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=True, )  # Ensure default value
+
+    def __init__(self, group_name: str, grade_id: UUID):
+        self.group_name = group_name
+        self.grade_id = grade_id
+
+    def __repr__(self):
+        return f'<StudentGroup {self.group_name}>'
+    
+    def __eq__(self, other: StudentGroup) -> bool:
+        return self.group_name == other.group_name
+    
+
+class Student(BASE):
+    __tablename__ = 'students_table'
+
+    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    firstname = mapped_column(String(100), nullable=False)
+    lastname = mapped_column(String(100), nullable=False)
+    grade_id = mapped_column(UUID(as_uuid=True), ForeignKey('grades_table.id'))
+    grade = relationship('Grade', back_populates='students')
+    student_group_id = mapped_column(UUID(as_uuid=True), ForeignKey('student_groups_table.id'))
+    student_group = relationship('StudentGroup', back_populates='students')
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=True, )  # Ensure default value
+
+    @property
+    def student_name(self) -> str:
+        return f"{self.firstname} {self.lastname}"
+    
+    def __repr__(self):
+        return f'<Student {self.student_name}>'
+    
+    def __eq__(self, other: Student) -> bool:
+        return self.student_name == other.student_name

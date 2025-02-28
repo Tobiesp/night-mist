@@ -38,6 +38,8 @@ def login():
         datastore.update_user(user)
         abort(403)
 
+    user.reset_login_attempts()
+    datastore.update_user(user)
     login_user(user)
     # Tell Flask-Principal the identity changed
     identity_changed.send(current_app._get_current_object(),
