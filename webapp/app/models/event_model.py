@@ -35,7 +35,7 @@ class Interval(BaseModel):
 
     @field_validator('repeat')
     def validate_repeat(cls, value: str) -> str:
-        test_value = value.to_lower() if value else ''
+        test_value = value.lower() if value else ''
         if test_value not in ['daily', 'weekly', 'monthly', 'none']:
             raise ValueError('Repeat value must be either daily, weekly, or monthly')
         return value
@@ -43,21 +43,27 @@ class Interval(BaseModel):
     def to_json(self) -> str:
         data = {
             'repeat': self.repeat,
-            'month_day': self.month_day,
-            'week_day': self.week_day,
-            'hour': self.hour,
-            'minute': self.minute
         }
-        return json.dumps(data)
+        if self.repeat == 'monthly':
+            data['month_day'] = self.month_day
+        elif self.repeat == 'weekly':
+            data['week_day'] = self.week_day
+        if self.repeat in ['monthly', 'weekly', 'daily']:
+            data['hour'] = self.hour
+            data['minute'] = self.minute
+            return json.dumps(data)
     
     def from_json(self, data: str) -> Interval:
         json_data = json.loads(data)
-        self.repeat = json_data.get('repeat', 'none')
-        self.month_day = json_data.get('month_day', 0)
-        self.week_day = json_data.get('week_day', 0)
-        self.hour = json_data.get('hour', 0)
-        self.minute = json_data.get('minute', 0)
-        return self
+        if isinstance(json_data, dict):
+            self.repeat = json_data.get('repeat', 'none')
+            self.month_day = json_data.get('month_day', 0)
+            self.week_day = json_data.get('week_day', 0)
+            self.hour = json_data.get('hour', 0)
+            self.minute = json_data.get('minute', 0)
+            return self
+        else:
+            raise ValueError('Invalid JSON data')
     
 
 class Point(BASE):
@@ -138,7 +144,7 @@ class Event(BASE):
         self.event_interval = value.to_json()
 
     def __repr__(self):
-        return f'<Event {self.name}>'
+        return f'<Event {self.event_name}>'
     
 
 class EventInstance(BASE):
