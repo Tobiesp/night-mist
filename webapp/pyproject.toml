@@ -13,4 +13,6 @@ dependencies = [
     "Psycopg2",
     "Werkzeug",
     "pydantic",
+    "flask-limiter",
+    "Flask-Limiter[redis]",
 ]

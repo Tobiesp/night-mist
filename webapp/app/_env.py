@@ -17,6 +17,7 @@ class Config:
     EMAIL_PORT = 465
     EMAIL_USERNAME = ''
     EMAIL_PASSWORD = ''
+    LIMIT_STORAGE = 'memory://'
 
 
 def parse():
@@ -35,6 +36,7 @@ def parse():
     parser.add_argument('--email-port', type=int, help='Email port')
     parser.add_argument('--email-username', type=str, help='Email username')
     parser.add_argument('--email-password', type=str, help='Email password')
+    parser.add_argument('--limit-storage', type=str, help='Limit storage')
     args = parser.parse_args()
     config = Config()
     config.DATABASE_URL = args.database_url or os.environ.get('DATABASE_URL')
@@ -61,4 +63,7 @@ def parse():
     config.EMAIL_PORT = args.email_port or os.environ.get('EMAIL_PORT')
     config.EMAIL_USERNAME = args.email_username or os.environ.get('EMAIL_USERNAME')
     config.EMAIL_PASSWORD = args.email_password or os.environ.get('EMAIL_PASSWORD')
+    config.LIMIT_STORAGE = args.limit_storage or os.environ.get('LIMIT_STORAGE')
+    if config.LIMIT_STORAGE is None:
+        config.LIMIT_STORAGE = 'memory://'  # Default value
     return config

@@ -5,10 +5,10 @@ from app.request_model.user_request import UserRequest
 from app.response_model.user_response import UserListResponse, UserResponse
 
 
-user_api = Blueprint('user_api', __name__)
+user_api = Blueprint('user_api', __name__, url_prefix='/users')
 
 
-@user_api.route('/users', methods=['GET'])
+@user_api.route('/', methods=['GET'])
 @admin_permission.require(http_exception=403)
 def get_users():
     database = database_repository.DatabaseRepository.instance().get_admin_db_repository()
@@ -16,7 +16,7 @@ def get_users():
     return Response(status=200, response=UserListResponse(users).get_response())
 
 
-@user_api.route('/users/<string:user_id>', methods=['GET'])
+@user_api.route('/<string:user_id>/', methods=['GET'])
 @admin_permission.require(http_exception=403)
 def get_user(user_id: str):
     database = database_repository.DatabaseRepository.instance().get_admin_db_repository()
@@ -26,7 +26,7 @@ def get_user(user_id: str):
     return Response(status=200, response=UserResponse(user).get_response())
 
 
-@user_api.route('/users', methods=['POST'])
+@user_api.route('/', methods=['POST'])
 @admin_permission.require(http_exception=403)
 def create_user():
     json_data = request.get_json(silent=True) or {}
@@ -42,7 +42,7 @@ def create_user():
     return Response(status=200, response=UserResponse(user).get_response())
 
 
-@user_api.route('/users/<string:user_id>', methods=['PUT'])
+@user_api.route('/<string:user_id>/', methods=['PUT'])
 @admin_permission.require(http_exception=403)
 def update_user(user_id: str):
     json_data = request.get_json(silent=True) or {}
@@ -65,7 +65,7 @@ def update_user(user_id: str):
     return Response(status=200, response=UserResponse(user).get_response())
 
 
-@user_api.route('/users/<string:user_id>', methods=['DELETE'])
+@user_api.route('/<string:user_id>/', methods=['DELETE'])
 @admin_permission.require(http_exception=403)
 def delete_user(user_id: str):
     database = database_repository.DatabaseRepository.instance().get_admin_db_repository()
@@ -76,7 +76,7 @@ def delete_user(user_id: str):
     return Response(status=200)
 
 
-@user_api.route('/users/query', methods=['GET'])
+@user_api.route('/query/', methods=['GET'])
 @admin_permission.require(http_exception=403)
 def query_users():
     
@@ -103,7 +103,15 @@ def query_users():
     return Response(status=200, response=UserListResponse(users).get_response())
 
 
-@user_api.route('/users/<string:user_id>/lock', methods=['POST'])
+@user_api.route('/count/', methods=['POST'])
+@admin_permission.require(http_exception=403)
+def count_users():
+    database = database_repository.DatabaseRepository.instance().get_admin_db_repository()
+    count = database.get_user_count()
+    return Response(status=200, response={'count': count})
+
+
+@user_api.route('/<string:user_id>/lock/', methods=['POST'])
 @admin_permission.require(http_exception=403)
 def lock_user(user_id: str):
     database = database_repository.DatabaseRepository.instance().get_admin_db_repository()
@@ -115,7 +123,7 @@ def lock_user(user_id: str):
     return Response(status=200)
 
 
-@user_api.route('/users/<string:user_id>/unlock', methods=['POST'])
+@user_api.route('/<string:user_id>/unlock/', methods=['POST'])
 @admin_permission.require(http_exception=403)
 def unlock_user(user_id: str):
     database = database_repository.DatabaseRepository.instance().get_admin_db_repository()

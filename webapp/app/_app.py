@@ -1,6 +1,7 @@
 from flask import Blueprint, Flask
 from flask_login import LoginManager, current_user
 
+from app import set_limter
 from app.models.students_model import Grade
 import app.rest as rest_api
 import pkgutil
@@ -10,6 +11,8 @@ from app._env import Config, parse
 from app.models.users_model import User
 from app.repositories import admin_database_repository, database_repository
 from flask_principal import Principal, identity_loaded, UserNeed, RoleNeed
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 
 def create_app() -> Flask:
@@ -24,6 +27,14 @@ def create_app() -> Flask:
     app.config['CSRF_ENABLED'] = config.CSRF_ENABLED
     app.config['PORT'] = config.PORT
     app.config['HOST'] = config.HOST
+
+    limiter = Limiter(
+        app,
+        key_func=get_remote_address,
+        default_limits=["500 per day", "10 per minute"],
+        storage_uri=config.LIMIT_STORAGE,
+    )
+    set_limter(limiter)
 
     create_db(app, config)
 

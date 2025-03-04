@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import List
 import uuid
 from app.models import BASE
-from sqlalchemy import UUID, Column, DateTime, ForeignKey, String, Table, func
+from sqlalchemy import UUID, Column, DateTime, ForeignKey, String, Table, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
     
@@ -56,16 +56,15 @@ class StudentGroup(BASE):
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=True, )  # Ensure default value
 
-    def __init__(self, group_name: str, grade_id: UUID):
+    def __init__(self, group_name: str, grades: list[Grade] = []):
         self.group_name = group_name
-        self.grade_id = grade_id
+        self.grades = grades
 
     def __repr__(self):
         return f'<StudentGroup {self.group_name}>'
     
     def __eq__(self, other: StudentGroup) -> bool:
         return self.group_name == other.group_name
-    
 
 class Student(BASE):
     __tablename__ = 'students_table'
@@ -73,6 +72,8 @@ class Student(BASE):
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     firstname = mapped_column(String(100), nullable=False)
     lastname = mapped_column(String(100), nullable=False)
+    # restriction that firstname and lastname together must be unique
+    __table_args__ = (UniqueConstraint('firstname', 'lastname', name='unique_student_name'),)
     grade_id = mapped_column(UUID(as_uuid=True), ForeignKey('grades_table.id'))
     grade = relationship('Grade', back_populates='students')
     student_group_id = mapped_column(UUID(as_uuid=True), ForeignKey('student_groups_table.id'))

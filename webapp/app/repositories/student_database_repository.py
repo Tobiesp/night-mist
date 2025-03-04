@@ -38,6 +38,10 @@ class StudentDatabaseRepository:
         with self._app_.app_context():
             return self._db_.session.query(Student).filter((Student.firstname == firstname) & (Student.lastname == lastname)).first()
         
+    def query_students(self, query: str) -> list[Student]:
+        with self._app_.app_context():
+            return self._db_.session.query(Student).filter(Student.firstname.ilike(f'%{query}%') | Student.lastname.ilike(f'%{query}%')).all()
+        
     def update_student(self, student: Student) -> Student:
         with self._app_.app_context():
             s = self.get_student_by_id(student.id)
@@ -101,6 +105,9 @@ class StudentDatabaseRepository:
         
     def delete_group(self, group: StudentGroup) -> None:
         with self._app_.app_context():
+            count = self._db_.session.query(StudentGroup).count()
+            if count == 1:
+                raise Exception('Must have at least one group')
             self._db_.session.delete(group)
             self._db_.session.commit()
 
@@ -136,6 +143,9 @@ class StudentDatabaseRepository:
         
     def delete_grade(self, grade: Grade) -> None:
         with self._app_.app_context():
+            count = self._db_.session.query(Grade).count()
+            if count == 1:
+                raise Exception('Must have at least one grade')
             self._db_.session.delete(grade)
             self._db_.session.commit()
 

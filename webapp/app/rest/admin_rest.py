@@ -8,7 +8,7 @@ from app.models.users_model import admin_permission
 admin = Blueprint('admin_api', __name__)
 
 
-@admin.route('/priviledges', methods=['GET'])
+@admin.route('/priviledges/', methods=['GET'])
 @admin_permission.require(http_exception=403)
 def get_priviledges():
     database = database_repository.DatabaseRepository.instance().get_admin_db_repository()

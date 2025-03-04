@@ -1,4 +1,4 @@
-from app import send_email
+from app import LIMITER, send_email
 from flask import Blueprint, Response, abort, current_app, request, session
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_principal import Identity, AnonymousIdentity, identity_changed
@@ -13,6 +13,7 @@ from app.request_model.forgot_password_request import ForgotPasswordRequest
 auth = Blueprint('auth_api', __name__)
 
 
+@LIMITER.limit("20 per hour")
 @auth.route('/login', methods=['POST'])
 def login():
     json_data = request.get_json(silent=True) or {}
@@ -47,7 +48,7 @@ def login():
 
     return Response(status=200)
 
-
+@LIMITER.limit("4 per hour")
 @auth.route('/signup', methods=['POST'])
 def signup():
     json_data = request.get_json(silent=True) or {}
@@ -76,6 +77,7 @@ def signup():
         abort(403)
 
 
+@LIMITER.limit("4 per hour")
 @auth.route('/forgot-password', methods=['POST'])
 def forgot_password():
     json_data = request.get_json(silent=True) or {}
@@ -117,6 +119,7 @@ def logout():
     return Response(status=200)
 
 
+@LIMITER.limit("20 per hour")
 @auth.route('/current-user')
 def get_current_user():
     if current_user.is_authenticated:
