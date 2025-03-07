@@ -10,4 +10,4 @@ class GradeRequest(BaseModel):
         if self.id:
             self.id = self.id.lower()
             if len(self.id) != 36:
-                raise ValueError("Invalid id")
+                raise ValueError(f"Invalid id: {self.id}")

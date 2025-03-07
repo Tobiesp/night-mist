@@ -3,7 +3,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 
-from app.models.event_model import EventInstance
+from app.models.event_model import EventInstance, Point
 from app.models.point_model import PointEarned, PointSpent, RunningTotal
 from app.models.students_model import Student
 
@@ -45,6 +45,10 @@ class PointDatabaseRepository:
     def get_points_earned_by_event_instance(self, event_instance: EventInstance) -> list[PointEarned]:
         with self._app_.app_context():
             return self._db_.session.query(PointEarned).filter((PointEarned.event_instance == event_instance) & (PointEarned.deleted is False)).all()
+        
+    def get_points_earned_by_point(self, point: Point) -> list[PointEarned]:
+        with self._app_.app_context():
+            return self._db_.session.query(PointEarned).filter((PointEarned.point == point) & (PointEarned.deleted is False)).all()
         
     def update_point_earned(self, point: PointEarned) -> PointEarned:
         with self._app_.app_context():
