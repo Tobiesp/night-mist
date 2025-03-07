@@ -1,6 +1,6 @@
 import datetime
 from flask import Blueprint, Response, request
-from app.models.event_model import Event, EventInstance
+from app.models.event_model import Event
 from app.models.users_model import event_read_permission, event_write_permission, admin_permission
 from app.repositories import database_repository
 from app.request_model.event_request import EventRequest

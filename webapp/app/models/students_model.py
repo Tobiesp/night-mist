@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import List
 import uuid
 from app.models import BASE
-from sqlalchemy import UUID, Column, DateTime, ForeignKey, String, Table, UniqueConstraint, func
+from sqlalchemy import UUID, Boolean, Column, DateTime, ForeignKey, String, Table, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
     
@@ -20,13 +20,14 @@ class Grade(BASE):
 
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     grade_name = mapped_column(String(100), unique=True, nullable=False)
-    students: Mapped[list] = relationship('Student', back_populates='grade')
+    students: Mapped[list] = relationship('Student', back_populates='grade', index=True)
     student_groups: Mapped[List[StudentGroup]] = relationship(
         "StudentGroup",
         secondary=grade_student_group_table,
         primaryjoin="Grade.id == grade_student_group_table.c.grade_id",
         secondaryjoin="StudentGroup.id == grade_student_group_table.c.student_group_id",
-        back_populates="grades"
+        back_populates="grades",
+        index=True
     )
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=True, )  # Ensure default value
@@ -45,7 +46,7 @@ class StudentGroup(BASE):
     __tablename__ = 'student_groups_table'
 
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    group_name = mapped_column(String(100), unique=True, nullable=False)
+    group_name = mapped_column(String(100), unique=True, nullable=False, index=True)
     grades: Mapped[List[Grade]] = relationship(
         "Grade",
         secondary=grade_student_group_table,
@@ -53,6 +54,7 @@ class StudentGroup(BASE):
         secondaryjoin="Grade.id == grade_student_group_table.c.grade_id",
         back_populates="student_groups"
     )
+    deleted = mapped_column(Boolean, default=False)
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=True, )  # Ensure default value
 
@@ -70,8 +72,8 @@ class Student(BASE):
     __tablename__ = 'students_table'
 
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    firstname = mapped_column(String(100), nullable=False)
-    lastname = mapped_column(String(100), nullable=False)
+    firstname = mapped_column(String(100), nullable=False, index=True)
+    lastname = mapped_column(String(100), nullable=False, index=True)
     # restriction that firstname and lastname together must be unique
     __table_args__ = (UniqueConstraint('firstname', 'lastname', name='unique_student_name'),)
     grade_id = mapped_column(UUID(as_uuid=True), ForeignKey('grades_table.id'))

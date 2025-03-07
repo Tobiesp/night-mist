@@ -123,8 +123,8 @@ class Point(BASE):
     student_group_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('student_groups_table.id'), primary_key=True)
     points = mapped_column(Integer, nullable=False, default=0)
     points_interval = mapped_column(String(100), nullable=True)
-    student_group: Mapped[StudentGroup] = relationship('StudentGroup', back_populates='points')
-    point_category: Mapped[PointCategory] = relationship('PointCategory', back_populates='points')
+    student_group: Mapped[StudentGroup] = relationship('StudentGroup', back_populates='points', index=True)
+    point_category: Mapped[PointCategory] = relationship('PointCategory', back_populates='points', index=True)
     deleted = mapped_column(Boolean, default=False)
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=True, )  # Ensure default value
@@ -143,8 +143,8 @@ class PointCategory(BASE):
     __tablename__ = 'point_categories_table'
 
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    category_name = mapped_column(String(100), unique=True, nullable=False)
-    description = mapped_column(String(1024), nullable=True)
+    category_name = mapped_column(String(100), unique=True, nullable=False, index=True)
+    description = mapped_column(String(1024), nullable=True, index=True)
     points: Mapped[List[Point]] = relationship('Point', back_populates='point_category')
     deleted = mapped_column(Boolean, default=False)
     events: Mapped[List[Event]] = relationship(
@@ -152,7 +152,8 @@ class PointCategory(BASE):
         secondary=event_point_category_table,
         primaryjoin="PointCategory.id == event_point_category_table.c.point_category_id",
         secondaryjoin="Event.id == event_point_category_table.c.event_id",
-        back_populates="point_categories"
+        back_populates="point_categories",
+        index=True
     )
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=True, )  # Ensure default value
@@ -162,23 +163,25 @@ class Event(BASE):
     __tablename__ = 'events_table'
 
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    event_name = mapped_column(String(100), unique=True, nullable=False)
+    event_name = mapped_column(String(100), unique=True, nullable=False, index=True)
     event_interval = mapped_column(String(100), nullable=True)
     deleted = mapped_column(Boolean, default=False)
     student_groups: Mapped[List[StudentGroup]] = relationship(
         "StudentGroup",
         secondary=event_student_group_table,
         primaryjoin="Event.id == event_student_group_table.c.event_id",
-        secondaryjoin="StudentGroup.id == event_student_group_table.c.student_group_id"
+        secondaryjoin="StudentGroup.id == event_student_group_table.c.student_group_id", 
+        index=True
     )
     point_categories: Mapped[List[PointCategory]] = relationship(
         "PointCategory",
         secondary=event_point_category_table,
         primaryjoin="Event.id == event_point_category_table.c.event_id",
         secondaryjoin="PointCategory.id == event_point_category_table.c.point_category_id",
-        back_populates="events"
+        back_populates="events", 
+        index=True
     )
-    event_instances: Mapped[List[EventInstance]] = relationship('EventInstance', back_populates='events')
+    event_instances: Mapped[List[EventInstance]] = relationship('EventInstance', back_populates='events', index=True)
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=True, )  # Ensure default value
 
@@ -200,7 +203,7 @@ class EventInstance(BASE):
 
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     event_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('events_table.id'), nullable=False)
-    event: Mapped[Event] = relationship('Event', primaryjoin='EventInstance.event_id == Event.id')
+    event: Mapped[Event] = relationship('Event', primaryjoin='EventInstance.event_id == Event.id', index=True)
     event_date = mapped_column(DateTime(timezone=True), nullable=False)
     completed = mapped_column(Boolean, default=False)
     deleted = mapped_column(Boolean, default=False)

@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 
 from app.models.event_model import Event, EventInstance, Point, PointCategory
+from app.models.point_model import PointEarned, PointSpent
 from app.models.students_model import StudentGroup
 
 
@@ -154,6 +155,12 @@ class EventDatabaseRepository:
             pc = self._db_.session.query(PointCategory).filter_by(id=point_category.id).first()
             pc.deleted = True
             self._db_.session.add(pc)
+            for event in pc.events:
+                event.point_categories.remove(pc)
+                self._db_.session.add(event)
+            for point in pc.points:
+                point.deleted = True
+                self._db_.session.add(point)
             self._db_.session.commit()
 
     def purge_point_categories(self) -> None:
@@ -220,6 +227,14 @@ class EventDatabaseRepository:
             ei = self._db_.session.query(EventInstance).filter_by(id=event_instance.id).first()
             ei.deleted = True
             self._db_.session.add(ei)
+            point_earned = self._db_.session.query(PointEarned).filter_by(event_instance_id=event_instance.id).all()
+            for pe in point_earned:
+                pe.deleted = True
+                self._db_.session.add(pe)
+            point_spent = self._db_.session.query(PointSpent).filter_by(event_instance_id=event_instance.id).all()
+            for ps in point_spent:
+                ps.deleted = True
+                self._db_.session.add(ps)
             self._db_.session.commit()
 
     def purge_event_instances(self) -> None:

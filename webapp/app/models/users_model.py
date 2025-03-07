@@ -3,7 +3,7 @@ import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
-from sqlalchemy import UUID, Boolean, Column, DateTime, ForeignKey, Integer, String, Table, func
+from sqlalchemy import UUID, Boolean, Column, DateTime, ForeignKey, Integer, String, Table, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from flask_principal import Permission, RoleNeed
 from typing import List
@@ -37,13 +37,14 @@ class Priviledge(BASE):
     __tablename__ = 'priviledges_table'
 
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    priviledge_name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
+    priviledge_name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False, index=True)
     roles: Mapped[List[Role]] = relationship(
         "Role",
         secondary=role_priviledge_table,
         primaryjoin="Priviledge.id == role_priviledge_table.c.priviledge_id",
         secondaryjoin="Role.id == role_priviledge_table.c.role_id",
-        back_populates="priviledges"
+        back_populates="priviledges", 
+        index=True
     )
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=True, )  # Ensure default value
@@ -59,7 +60,7 @@ class Role(BASE):
     __tablename__ = 'roles_table'
 
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    role_name = mapped_column(String(100), unique=True, nullable=False)
+    role_name = mapped_column(String(100), unique=True, nullable=False, index=True)
     priviledges: Mapped[List[Priviledge]] = relationship(
         "Priviledge",
         secondary=role_priviledge_table,
@@ -70,7 +71,8 @@ class Role(BASE):
     users: Mapped[List[User]] = relationship(
         "User",
         primaryjoin="Role.id == User.role_id",
-        back_populates='role'
+        back_populates='role', 
+        index=True
     )
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now())
     updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
@@ -86,13 +88,17 @@ class User(UserMixin, BASE):
     __tablename__ = 'users_table'
     
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    username = mapped_column(String(100), unique=True, nullable=False)
+    username = mapped_column(String(100), unique=True, nullable=False, index=True)
     firstname = mapped_column(String(100), nullable=False)
     lastname = mapped_column(String(100), nullable=False)
-    email = mapped_column(String(200), unique=True, nullable=False)
+    # unique constraint on combination of firstname and lastname
+    __table_args__ = (
+        UniqueConstraint('firstname', 'lastname', name='unique_name'),
+    )
+    email = mapped_column(String(200), unique=True, nullable=False, index=True)
     password_hash = mapped_column(String(200), nullable=False)
     role_id = mapped_column(ForeignKey('roles_table.id'))
-    role: Mapped[Role] = relationship(primaryjoin="User.role_id == Role.id", back_populates='users')
+    role: Mapped[Role] = relationship(primaryjoin="User.role_id == Role.id", back_populates='users', index=True)
     account_locked = mapped_column(Boolean, default=False)
     last_login: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=True)
     login_attempts = mapped_column(Integer, default=0)

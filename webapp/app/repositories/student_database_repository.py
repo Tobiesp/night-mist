@@ -3,6 +3,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 
+from app.models.event_model import Event, Point
 from app.models.students_model import Grade, Student, StudentGroup
 
 
@@ -85,7 +86,7 @@ class StudentDatabaseRepository:
         
     def get_all_groups(self) -> list[str]:
         with self._app_.app_context():
-            return self._db_.session.query(StudentGroup).distinct().all()
+            return self._db_.session.query(StudentGroup).where(StudentGroup.deleted is False).all()
         
     def create_group(self, group: StudentGroup) -> StudentGroup:
         with self._app_.app_context():
@@ -100,7 +101,7 @@ class StudentDatabaseRepository:
         
     def get_group_by_name(self, name: str) -> StudentGroup:
         with self._app_.app_context():
-            return self._db_.session.query(StudentGroup).filter(StudentGroup.group_name == name).first()
+            return self._db_.session.query(StudentGroup).filter((StudentGroup.group_name == name) & (StudentGroup.deleted is False)).first()
         
     def update_group(self, group: StudentGroup) -> StudentGroup:
         with self._app_.app_context():
@@ -112,10 +113,24 @@ class StudentDatabaseRepository:
         
     def delete_group(self, group: StudentGroup) -> None:
         with self._app_.app_context():
-            count = self._db_.session.query(StudentGroup).count()
+            count = self._db_.session.query(StudentGroup).where(StudentGroup.deleted is False).count()
             if count == 1:
                 raise Exception('Must have at least one group')
-            self._db_.session.delete(group)
+            group.deleted = True
+            self._db_.session.add(group)
+            for event in self._db_.session.query(Event).filter(group in Event.student_groups).all():
+                event.student_groups.remove(group)
+                self._db_.session.add(event)
+            for point in self._db_.session.query(Point).filter(Point.student_group == group).all():
+                point.deleted = True
+                self._db_.session.add(point)
+            self._db_.session.commit()
+
+    def prune_groups(self) -> None:
+        with self._app_.app_context():
+            groups = self._db_.session.query(StudentGroup).where(StudentGroup.deleted is True).all()
+            for group in groups:
+                self._db_.session.delete(group)
             self._db_.session.commit()
 
     def get_group_count(self) -> int:
