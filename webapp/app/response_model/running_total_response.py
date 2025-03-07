@@ -17,3 +17,12 @@ class RunningTotalResponse():
             'student_id': self.student_id,
             'total_points': self.total_points,
         }
+    
+
+class RunningTotalListResponse():
+    
+    def __init__(self, running_totals: list[RunningTotal]):
+        self.running_totals = running_totals
+
+    def get_response(self) -> list[dict]:
+        return [RunningTotalResponse(running_total).get_response() for running_total in self.running_totals]

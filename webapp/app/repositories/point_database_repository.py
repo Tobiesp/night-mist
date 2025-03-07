@@ -127,9 +127,15 @@ class PointDatabaseRepository:
         with self._app_.app_context():
             return self._db_.session.query(func.count(PointSpent.id)).where(PointSpent.deleted is False).scalar()
         
-    def calculate_running_total_by_student(self, student: Student) -> int:
+    def update_running_total_by_student(self, student: Student) -> int:
         with self._app_.app_context():
-            return self._db_.session.query(func.sum(PointEarned.point.points) - func.sum(PointSpent.points)).filter((PointEarned.student == student) & (PointEarned.deleted is False) & (PointSpent.student == student) & (PointSpent.deleted is False)).scalar()
+            earned = self._db_.session.query(func.sum(PointEarned.point.points)).filter((PointEarned.student == student) & (PointEarned.deleted is False)).scalar()
+            spent = self._db_.session.query(func.sum(PointSpent.points)).filter((PointSpent.student == student) & (PointSpent.deleted is False)).scalar()
+            total = earned - spent
+            r = self.get_running_total_by_student(student)
+            r.total_points = total
+            self._db_.session.commit()
+            return total
         
     def get_all_running_totals(self) -> list[RunningTotal]:
         with self._app_.app_context():
