@@ -26,7 +26,7 @@ def get_role(role_id: str):
     return Response(status=200, response=RoleResponse(role).get_response())
 
 
-@role_api.route('', methods=['POST'])
+@role_api.route('/', methods=['POST'])
 @admin_permission.require(http_exception=403)
 def create_role():
     json_data = request.get_json(silent=True) or {}

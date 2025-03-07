@@ -70,6 +70,10 @@ def update_user(user_id: str):
 def delete_user(user_id: str):
     database = database_repository.DatabaseRepository.instance().get_admin_db_repository()
     user = database.get_user_by_id(user_id)
+    if user.role.role_name == 'admin':
+        admin_users = database.get_users_by_role('admin')
+        if len(admin_users) == 1:
+            return Response(status=400, response='Cannot delete the last admin user')
     if user is None:
         return Response(status=404)
     database.delete_user(user)
@@ -79,7 +83,6 @@ def delete_user(user_id: str):
 @user_api.route('/query/', methods=['GET'])
 @admin_permission.require(http_exception=403)
 def query_users():
-    
     request_args = request.args or {}
     filter_value = request_args.get('filter_value') or ''
     page_num = request_args.get('page_num') or 1
@@ -118,6 +121,14 @@ def lock_user(user_id: str):
     user = database.get_user_by_id(user_id)
     if user is None:
         return Response(status=404)
+    if user.role.role_name == 'admin':
+        role_users = database.get_users_by_role('admin')
+        if len(role_users) == 1:
+            return Response(status=400, response='Cannot lock the only admin user')
+        else:
+            accounts_locked_count = sum([1 for user in role_users if user.is_active is False])
+            if accounts_locked_count == len(role_users) - 1:
+                return Response(status=400, response='Cannot lock the last active admin user')
     user.is_active = False
     database.update_user(user)
     return Response(status=200)

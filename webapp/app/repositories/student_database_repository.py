@@ -1,3 +1,4 @@
+import uuid
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
@@ -30,9 +31,10 @@ class StudentDatabaseRepository:
             self._db_.session.commit()
             return student
         
-    def get_student_by_id(self, id: int) -> Student:
+    def get_student_by_id(self, id: str) -> Student:
+        uuid_id = uuid.UUID(id)
         with self._app_.app_context():
-            return self._db_.session.query(Student).get(id)
+            return self._db_.session.query(Student).get(uuid_id)
         
     def get_student_by_name(self, firstname: str, lastname: str) -> Student:
         with self._app_.app_context():
@@ -61,20 +63,24 @@ class StudentDatabaseRepository:
         with self._app_.app_context():
             return self._db_.session.query(func.count(Student.id)).scalar()
         
-    def get_student_count_by_group(self, group: str) -> int:
+    def get_students_by_group(self, group_name: str) -> list[Student]:
         with self._app_.app_context():
-            return self._db_.session.query(func.count(Student.id)).filter(Student.student_group == group).scalar()
-        
-    def get_student_count_by_grade(self, grade: int) -> int:
-        with self._app_.app_context():
-            return self._db_.session.query(func.count(Student.id)).filter(Student.grade == grade).scalar()
-        
-    def get_students_by_group(self, group: str) -> list[Student]:
-        with self._app_.app_context():
+            group = self.get_group_by_name(group_name)
             return self._db_.session.query(Student).filter(Student.student_group == group).all()
         
-    def get_students_by_grade(self, grade: int) -> list[Student]:
+    def get_students_by_grade(self, grade_name: str) -> list[Student]:
         with self._app_.app_context():
+            grade = self.get_grade_by_name(grade_name)
+            return self._db_.session.query(Student).filter(Student.grade == grade).all()
+        
+    def get_students_by_group_id(self, id: str) -> list[Student]:
+        with self._app_.app_context():
+            group = self.get_group_by_id(id)
+            return self._db_.session.query(Student).filter(Student.student_group == group).all()
+        
+    def get_students_by_grade_id(self, id: str) -> list[Student]:
+        with self._app_.app_context():
+            grade = self.get_grade_by_id(id)
             return self._db_.session.query(Student).filter(Student.grade == grade).all()
         
     def get_all_groups(self) -> list[str]:
@@ -87,9 +93,10 @@ class StudentDatabaseRepository:
             self._db_.session.commit()
             return group
         
-    def get_group_by_id(self, id: int) -> StudentGroup:
+    def get_group_by_id(self, id: str) -> StudentGroup:
+        uuid_id = uuid.UUID(id)
         with self._app_.app_context():
-            return self._db_.session.query(StudentGroup).get(id)
+            return self._db_.session.query(StudentGroup).get(uuid_id)
         
     def get_group_by_name(self, name: str) -> StudentGroup:
         with self._app_.app_context():
@@ -125,9 +132,10 @@ class StudentDatabaseRepository:
             self._db_.session.commit()
             return grade
         
-    def get_grade_by_id(self, id: int) -> Grade:
+    def get_grade_by_id(self, id: str) -> Grade:
+        uuid_id = uuid.UUID(id)
         with self._app_.app_context():
-            return self._db_.session.query(Grade).get(id)
+            return self._db_.session.query(Grade).get(uuid_id)
         
     def get_grade_by_name(self, name: str) -> Grade:
         with self._app_.app_context():

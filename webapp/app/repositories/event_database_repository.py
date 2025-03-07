@@ -1,3 +1,5 @@
+import datetime
+import uuid
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
@@ -23,7 +25,7 @@ class EventDatabaseRepository:
 
     def get_all_events(self) -> list[Event]:
         with self._app_.app_context():
-            return self._db_.session.query(Event).all()
+            return self._db_.session.query(Event).where(Event.deleted is False).all()
         
     def create_event(self, event: Event) -> Event:
         with self._app_.app_context():
@@ -31,13 +33,14 @@ class EventDatabaseRepository:
             self._db_.session.commit()
             return event
         
-    def get_event_by_id(self, id: int) -> Event:
+    def get_event_by_id(self, id: str) -> Event:
+        uuid_id = uuid.UUID(id)
         with self._app_.app_context():
-            return self._db_.session.query(Event).get(id)
+            return self._db_.session.query(Event).get(uuid_id)
         
     def get_event_by_name(self, name: str) -> Event:
         with self._app_.app_context():
-            return self._db_.session.query(Event).filter_by(event_name=name).first()
+            return self._db_.session.query(Event).filter((Event.event_name == name) | (Event.deleted is False)).first()
         
     def update_event(self, event: Event) -> Event:
         with self._app_.app_context():
@@ -66,21 +69,22 @@ class EventDatabaseRepository:
 
     def get_event_count(self) -> int:
         with self._app_.app_context():
-            return self._db_.session.query(func.count(Event.id)).scalar()
+            return self._db_.session.query(func.count(Event.id)).where(Event.deleted is False).scalar()
         
-    def get_all_points(self, event: Event) -> list[Point]:
+    def get_all_points(self) -> list[Point]:
         with self._app_.app_context():
-            return self._db_.session.query(Point).all()
+            return self._db_.session.query(Point).where(Point.deleted is False).all()
         
-    def get_point_by_id(self, id: int) -> Point:
+    def get_point_by_id(self, id: str) -> Point:
+        uuid_id = uuid.UUID(id)
         with self._app_.app_context():
-            return self._db_.session.query(Point).get(id)
+            return self._db_.session.query(Point).get(uuid_id)
         
     def get_point_by_point_category_and_student_group(self, point_category: PointCategory, student_group: StudentGroup) -> Point:
         with self._app_.app_context():
             pc_id = point_category.id
             sg_id = student_group.id
-            return self._db_.session.query(Point).filter((Point.point_category_id == pc_id) & (Point.student_group_id == sg_id)).first()
+            return self._db_.session.query(Point).filter((Point.point_category_id == pc_id) & (Point.student_group_id == sg_id) & (Point.deleted is False)).first()
         
     def create_point(self, point: Point) -> Point:
         with self._app_.app_context():
@@ -101,31 +105,33 @@ class EventDatabaseRepository:
     def delete_point(self, point: Point) -> None:
         with self._app_.app_context():
             p = self._db_.session.query(Point).filter_by(id=point.id).first()
-            self._db_.session.delete(p)
+            p.deleted = True
+            self._db_.session.add(p)
             self._db_.session.commit()
 
     def purge_points(self) -> None:
         with self._app_.app_context():
-            points = self._db_.session.query(Point).all()
+            points = self._db_.session.query(Point).filter_by(deleted=True).all()
             for point in points:
                 self._db_.session.delete(point)
             self._db_.session.commit
 
     def get_point_count(self) -> int:
         with self._app_.app_context():
-            return self._db_.session.query(func.count(Point.id)).scalar()
+            return self._db_.session.query(func.count(Point.id)).filter_by(deleted=False).scalar()
         
     def get_all_point_categories(self) -> list[PointCategory]:
         with self._app_.app_context():
-            return self._db_.session.query(PointCategory).all()
+            return self._db_.session.query(PointCategory).filter_by(deleted=False).all()
         
-    def get_point_category_by_id(self, id: int) -> PointCategory:
+    def get_point_category_by_id(self, id: str) -> PointCategory:
+        uuid_id = uuid.UUID(id)
         with self._app_.app_context():
-            return self._db_.session.query(PointCategory).get(id)
+            return self._db_.session.query(PointCategory).get(uuid_id)
         
     def get_point_category_by_name(self, name: str) -> PointCategory:
         with self._app_.app_context():
-            return self._db_.session.query(PointCategory).filter_by(category_name=name).first()
+            return self._db_.session.query(PointCategory).filter((PointCategory.category_name == name) & (PointCategory.deleted is False)).first()
         
     def create_point_category(self, point_category: PointCategory) -> PointCategory:
         with self._app_.app_context():
@@ -159,28 +165,29 @@ class EventDatabaseRepository:
 
     def get_point_category_count(self) -> int:
         with self._app_.app_context():
-            return self._db_.session.query(func.count(PointCategory.id)).scalar()
+            return self._db_.session.query(func.count(PointCategory.id)).filter_by(deleted=True).scalar()
         
     def get_all_event_instances(self) -> list[EventInstance]:
         with self._app_.app_context():
-            return self._db_.session.query(EventInstance).all()
+            return self._db_.session.query(EventInstance).filter_by(deleted=True).all()
         
-    def get_event_instance_by_id(self, id: int) -> EventInstance:
+    def get_event_instance_by_id(self, id: str) -> EventInstance:
+        uuid_id = uuid.UUID(id)
         with self._app_.app_context():
-            return self._db_.session.query(EventInstance).get(id)
+            return self._db_.session.query(EventInstance).get(uuid_id)
         
-    def get_event_instance_by_event(self, event: Event) -> EventInstance:
+    def get_event_instances_by_event(self, event: Event) -> list[EventInstance]:
         with self._app_.app_context():
-            return self._db_.session.query(EventInstance).filter_by(event=event).first()
+            return self._db_.session.query(EventInstance).filter((EventInstance.event == event) & (EventInstance.deleted is False)).all()
         
     def get_incomplete_event_instances_for_event(self, event: Event) -> list[EventInstance]:
         with self._app_.app_context():
-            return self._db_.session.query(EventInstance).filter((EventInstance.event == event) & (EventInstance.completed is False)).all()
+            return self._db_.session.query(EventInstance).filter((EventInstance.event == event) & (EventInstance.completed is False) & (EventInstance.deleted is False)).all()
         
-    def start_event_instance_for_event(self, event: Event) -> EventInstance:
+    def start_event_instance_for_event(self, event: Event, event_date: datetime) -> EventInstance:
         with self._app_.app_context():
             ei = EventInstance(event=event)
-            ei.event_date = func.now()
+            ei.event_date = event_date
             self._db_.session.add(ei)
             self._db_.session.commit()
             return ei
@@ -201,6 +208,13 @@ class EventDatabaseRepository:
             self._db_.session.commit()
             return event_instance
         
+    def complete_event_instance(self, event_instance: EventInstance) -> EventInstance:
+        with self._app_.app_context():
+            ei = self.get_event_instance_by_id(event_instance.id)
+            ei.completed = True
+            self._db_.session.commit()
+            return ei
+        
     def delete_event_instance(self, event_instance: EventInstance) -> None:
         with self._app_.app_context():
             ei = self._db_.session.query(EventInstance).filter_by(id=event_instance.id).first()
@@ -217,5 +231,8 @@ class EventDatabaseRepository:
 
     def get_event_instance_count(self) -> int:
         with self._app_.app_context():
-            return self._db_.session.query(func.count(EventInstance.id)).scalar()
+            return self._db_.session.query(func.count(EventInstance.id)).filter_by(deleted=True).scalar()
 
+    def get_latest_event_instance(self, event: Event) -> EventInstance:
+        with self._app_.app_context():
+            return self._db_.session.query(EventInstance).filter((EventInstance.event == event) & (EventInstance.deleted is False)).order_by(EventInstance.event_date.desc()).first()

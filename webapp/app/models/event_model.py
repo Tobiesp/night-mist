@@ -1,4 +1,5 @@
 from __future__ import annotations
+import datetime
 import json
 from typing import List
 import uuid
@@ -52,6 +53,19 @@ class Interval(BaseModel):
             data['hour'] = self.hour
             data['minute'] = self.minute
             return json.dumps(data)
+        
+    def to_response(self) -> dict:
+        data = {
+            'repeat': self.repeat,
+        }
+        if self.repeat == 'monthly':
+            data['month_day'] = self.month_day
+        elif self.repeat == 'weekly':
+            data['week_day'] = self.week_day
+        if self.repeat in ['monthly', 'weekly', 'daily']:
+            data['hour'] = self.hour
+            data['minute'] = self.minute
+            return data
     
     def from_json(self, data: str) -> Interval:
         json_data = json.loads(data)
@@ -64,6 +78,42 @@ class Interval(BaseModel):
             return self
         else:
             raise ValueError('Invalid JSON data')
+        
+    def get_next_date(self, check_date: datetime) -> datetime:
+        current_date: datetime = datetime.datetime.now()
+        if self.repeat == 'none':
+            return current_date
+        if check_date >= current_date:
+            return check_date
+        elif self.repeat == 'daily':
+            date = current_date.date()
+            date = date + datetime.timedelta(days=1)
+            return datetime.datetime.combine(date, datetime.time(self.hour, self.minute))
+        elif self.repeat == 'weekly':
+            # Get the next week day
+            if self.week_day == 0:
+                raise ValueError(f'Invalid week day: {self.week_day}')
+            weekday = current_date.weekday() + 1
+            expected_weekday = self.week_day
+            diff_weekday = expected_weekday - weekday if expected_weekday > weekday else 7 - weekday + expected_weekday
+            date = current_date.date() + datetime.timedelta(days=diff_weekday)
+            return datetime.datetime.combine(date, datetime.time(self.hour, self.minute))
+        elif self.repeat == 'monthly':
+            if self.month_day == 0:
+                raise ValueError(f'Invalid month day: {self.month_day}')
+            month_day = current_date.day
+            expected_month_day = self.month_day
+            diff_month_day = expected_month_day - month_day if expected_month_day > month_day else 30 - month_day + expected_month_day
+            date = current_date.date() + datetime.timedelta(days=diff_month_day)
+            return datetime.datetime.combine(date, datetime.time(self.hour, self.minute))
+        else:
+            raise ValueError(f'Invalid repeat value: {self.repeat}')
+        
+    def is_event_passed(self, check_date: datetime) -> bool:
+        return check_date < datetime.datetime.now()
+        
+    def __repr__(self):
+        return f'<Interval: {self.repeat}>'
     
 
 class Point(BASE):
@@ -94,8 +144,7 @@ class PointCategory(BASE):
 
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     category_name = mapped_column(String(100), unique=True, nullable=False)
-    title = mapped_column(String(100), nullable=False)
-    description = mapped_column(String(100), nullable=True)
+    description = mapped_column(String(1024), nullable=True)
     points: Mapped[List[Point]] = relationship('Point', back_populates='point_category')
     deleted = mapped_column(Boolean, default=False)
     events: Mapped[List[Event]] = relationship(

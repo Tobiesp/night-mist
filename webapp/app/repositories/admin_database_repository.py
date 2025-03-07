@@ -1,4 +1,5 @@
 from __future__ import annotations
+import uuid
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
@@ -30,9 +31,10 @@ class AdminDatabaseRepository:
             self._db_.session.commit()
             return privilege
     
-    def get_privilege_by_id(self, id: int) -> Priviledge:
+    def get_privilege_by_id(self, id: str) -> Priviledge:
+        uuid_id = uuid.UUID(id)
         with self._app_.app_context():
-            return self._db_.session.query(Priviledge).get(id)
+            return self._db_.session.query(Priviledge).get(uuid_id)
     
     def get_privilege_by_name(self, name: str) -> Priviledge:
         with self._app_.app_context():
@@ -61,9 +63,10 @@ class AdminDatabaseRepository:
             self._db_.session.delete(role)
             self._db_.session.commit()
     
-    def get_role_by_id(self, id: int) -> Role:
+    def get_role_by_id(self, id: str) -> Role:
+        uuid_id = uuid.UUID(id)
         with self._app_.app_context():
-            return self._db_.session.query(Role).get(id)
+            return self._db_.session.query(Role).get(uuid_id)
     
     def get_role_by_name(self, name: str) -> Role | None:
         with self._app_.app_context():
@@ -76,6 +79,13 @@ class AdminDatabaseRepository:
     def get_all_users(self) -> list[User]:
         with self._app_.app_context():
             return self._db_.session.query(User).all()
+        
+    def get_users_by_role(self, role_name: str) -> list[User]:
+        with self._app_.app_context():
+            user_role = self.get_role_by_name(role_name)
+            if user_role is None:
+                return []
+            return self._db_.session.query(User).filter(User.role == user_role).all()
         
     def query_users(self, filter_value: str) -> list[User]:
         with self._app_.app_context():
@@ -110,9 +120,10 @@ class AdminDatabaseRepository:
             self._db_.session.delete(user)
             self._db_.session.commit
     
-    def get_user_by_id(self, id: int) -> User:
+    def get_user_by_id(self, id: str) -> User:
+        uuid_id = uuid.UUID(id)
         with self._app_.app_context():
-            return self._db_.session.query(User).get(id)
+            return self._db_.session.query(User).get(uuid_id)
     
     def get_user_by_username(self, username: str) -> User:
         with self._app_.app_context():
