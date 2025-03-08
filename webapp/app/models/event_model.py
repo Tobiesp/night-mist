@@ -4,7 +4,7 @@ import json
 from typing import List
 import uuid
 from app.models import BASE
-from sqlalchemy import UUID, Boolean, Column, DateTime, ForeignKey, ForeignKeyConstraint, Integer, String, Table, UniqueConstraint, func
+from sqlalchemy import UUID, Boolean, Column, DateTime, ForeignKey, Integer, String, Table, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pydantic import BaseModel, Field, field_validator
 
