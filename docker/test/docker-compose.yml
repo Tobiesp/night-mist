@@ -20,6 +20,17 @@ services:
       POSTGRES_USER: example_user
       POSTGRES_DB: score_keeper
 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+    # depends_on:
+    #   db:
+    #   condition: service_healthy
+
     # volumes:
     #   - ./data:/var/lib/postgresql/data
 
@@ -29,10 +40,11 @@ services:
       context: ./../../
       dockerfile: docker/test/dockerfile.python.test
       environment:
-        - DATABASE_URL=postgresql://example_user:${DB_PASSWORD}@db:5432/score_keeper
+        - DATABASE_URL=sqlite:///test_database.db
+        # - DATABASE_URL=postgresql://example_user:${DB_PASSWORD}@db:5432/score_keeper
     restart: always
     ports:
-      - 8081:80
+      - 8081:8080
     depends_on:
       - db
 

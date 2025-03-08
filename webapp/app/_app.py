@@ -1,11 +1,8 @@
-from flask import Blueprint, Flask
+from flask import Flask
 from flask_login import LoginManager, current_user
 
 from app import set_limter
 from app.models.students_model import Grade
-import app.rest as rest_api
-import pkgutil
-import importlib
 
 from app._env import Config, parse
 from app.models.users_model import User
@@ -18,15 +15,13 @@ from flask_limiter.util import get_remote_address
 def create_app() -> Flask:
     app = Flask(__name__)
     config: Config = parse()
-    app.config.from_object(config)
     # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SQLALCHEMY_DATABASE_URI'] = config.DATABASE_URL
     app.config['SECRET_KEY'] = config.SECRET_KEY
     app.config['TESTING'] = config.TESTING
     app.config['DEBUG'] = config.DEBUG
     app.config['CSRF_ENABLED'] = config.CSRF_ENABLED
-    app.config['PORT'] = config.PORT
-    app.config['HOST'] = config.HOST
+    app.config['SERVER_NAME'] = f'{config.HOST}:{config.PORT}'
 
     limiter = Limiter(
         get_remote_address,
@@ -80,14 +75,35 @@ def create_app() -> Flask:
 
 
 def import_blueprints(app: Flask) -> Flask:
-    package = rest_api
-    for _, module_name, _ in pkgutil.iter_modules(package.__path__):
-        module = importlib.import_module(f'{package.__name__}.{module_name}')
-        for attribute_name in dir(module):
-            attribute = getattr(module, attribute_name)
-            if isinstance(attribute, Blueprint):
-                app.register_blueprint(attribute)
-                break
+    from app.rest.admin_rest import admin_api
+    app.register_blueprint(admin_api)
+
+    from app.rest.auth_rest import auth_api
+    app.register_blueprint(auth_api)
+
+    from app.rest.event_rest import event_api
+    app.register_blueprint(event_api)
+
+    from app.rest.grade_rest import grade_api
+    app.register_blueprint(grade_api)
+
+    from app.rest.point_category_rest import point_category_api
+    app.register_blueprint(point_category_api)
+
+    from app.rest.point_rest import point_api
+    app.register_blueprint(point_api)
+
+    from app.rest.role_rest import role_api
+    app.register_blueprint(role_api)
+
+    from app.rest.student_group_rest import student_group_api
+    app.register_blueprint(student_group_api)
+
+    from app.rest.student_rest import student_api
+    app.register_blueprint(student_api)
+
+    from app.rest.user_rest import user_api
+    app.register_blueprint(user_api)
 
 
 def create_db(app: Flask, config: Config) -> None:

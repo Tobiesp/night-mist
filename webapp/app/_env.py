@@ -9,7 +9,7 @@ class Config:
     SECRET_KEY = 'this-really-needs-to-be-changed'
     DATABASE_URL = ""
     ADMIN_INITIAL_PASSWORD = 'Adm1n#U$3r'
-    PORT = 5000
+    PORT = 8081
     HOST = 'localhost'
     SSL = False
     EMAIL_FROM = ''
@@ -26,7 +26,7 @@ def parse():
     parser.add_argument('--testing', action='store_true', help='Enable testing mode', default=False)
     parser.add_argument('--secret-key', type=str, help='Secret key')
     parser.add_argument('--csrf-enabled', action='store_true', help='Enable CSRF', default=False)
-    parser.add_argument('--database-url', type=str, required=True, help='Connection Database URL')
+    parser.add_argument('--database-url', type=str, help='Connection Database URL')
     parser.add_argument('--admin-initial-password', type=str, help='Admin initial password')
     parser.add_argument('--port', type=int, help='Port to run the application')
     parser.add_argument('--host', type=str, help='Host to run the application')
@@ -53,7 +53,7 @@ def parse():
         config.ADMIN_INITIAL_PASSWORD = 'Adm1n#U$3r'
     config.PORT = args.port or os.environ.get('PORT')
     if config.PORT is None:
-        config.PORT = 5000
+        config.PORT = 8081
     config.HOST = args.host or os.environ.get('HOST')
     if config.HOST is None:
         config.HOST = 'localhost'

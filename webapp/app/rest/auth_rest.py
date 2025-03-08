@@ -8,13 +8,25 @@ from app.repositories import database_repository
 from app.request_model.login_request import LoginRequest
 from app.request_model.signup_request import SignupRequest
 from app.request_model.forgot_password_request import ForgotPasswordRequest
+from app.response_model.user_response import UserResponse
 
 
-auth = Blueprint('auth_api', __name__)
+auth_api = Blueprint('auth_api', __name__, static_folder='static', static_url_path='')
+
+
+@auth_api.route('/index.html')
+def index():
+    return current_app.send_static_file('index.html')
+
+
+@auth_api.route('/')
+def home():
+    return current_app.send_static_file('index.html')
+    
 
 
 @LIMITER.limit("20 per hour")
-@auth.route('/login', methods=['POST'])
+@auth_api.route('/login', methods=['POST'])
 def login():
     json_data = request.get_json(silent=True) or {}
 
@@ -49,7 +61,7 @@ def login():
     return Response(status=200)
 
 @LIMITER.limit("4 per hour")
-@auth.route('/signup', methods=['POST'])
+@auth_api.route('/signup', methods=['POST'])
 def signup():
     json_data = request.get_json(silent=True) or {}
 
@@ -78,7 +90,7 @@ def signup():
 
 
 @LIMITER.limit("4 per hour")
-@auth.route('/forgot-password', methods=['POST'])
+@auth_api.route('/forgot-password', methods=['POST'])
 def forgot_password():
     json_data = request.get_json(silent=True) or {}
 
@@ -100,7 +112,7 @@ def forgot_password():
     return Response(status=200)
     
 
-@auth.route('/logout')
+@auth_api.route('/logout')
 @login_required
 def logout():
     if not current_user.is_authenticated:
@@ -120,9 +132,9 @@ def logout():
 
 
 @LIMITER.limit("20 per hour")
-@auth.route('/current-user')
+@auth_api.route('/current-user')
 def get_current_user():
     if current_user.is_authenticated:
-        return current_user.username
+        return Response(status=200, response=UserResponse(current_user).get_response())
     else:
         return Response(status=401)
