@@ -29,8 +29,8 @@ def create_app() -> Flask:
     app.config['HOST'] = config.HOST
 
     limiter = Limiter(
-        app,
-        key_func=get_remote_address,
+        get_remote_address,
+        app=app,
         default_limits=["500 per day", "10 per minute"],
         storage_uri=config.LIMIT_STORAGE,
     )
