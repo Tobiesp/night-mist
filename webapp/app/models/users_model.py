@@ -28,8 +28,8 @@ reporter_write_permission = Permission(RoleNeed('reporter_write'), RoleNeed('adm
 role_priviledge_table = Table(
     "role_priviledge_table",
     BASE.metadata,
-    Column("role_id", ForeignKey("roles_table.id"), primary_key=True),
-    Column("priviledge_id", ForeignKey("priviledges_table.id"), primary_key=True),
+    Column("role_id", ForeignKey("roles_table.id"), primary_key=True, index=True),
+    Column("priviledge_id", ForeignKey("priviledges_table.id"), primary_key=True, index=True),
 )
 
 
@@ -43,8 +43,7 @@ class Priviledge(BASE):
         secondary=role_priviledge_table,
         primaryjoin="Priviledge.id == role_priviledge_table.c.priviledge_id",
         secondaryjoin="Role.id == role_priviledge_table.c.role_id",
-        back_populates="priviledges", 
-        index=True
+        back_populates="priviledges"
     )
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=True, )  # Ensure default value
@@ -71,8 +70,7 @@ class Role(BASE):
     users: Mapped[List[User]] = relationship(
         "User",
         primaryjoin="Role.id == User.role_id",
-        back_populates='role', 
-        index=True
+        back_populates='role'
     )
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now())
     updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
@@ -89,16 +87,16 @@ class User(UserMixin, BASE):
     
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     username = mapped_column(String(100), unique=True, nullable=False, index=True)
-    firstname = mapped_column(String(100), nullable=False)
-    lastname = mapped_column(String(100), nullable=False)
+    firstname = mapped_column(String(100), nullable=False, index=True)
+    lastname = mapped_column(String(100), nullable=False, index=True)
     # unique constraint on combination of firstname and lastname
     __table_args__ = (
         UniqueConstraint('firstname', 'lastname', name='unique_name'),
     )
     email = mapped_column(String(200), unique=True, nullable=False, index=True)
     password_hash = mapped_column(String(200), nullable=False)
-    role_id = mapped_column(ForeignKey('roles_table.id'))
-    role: Mapped[Role] = relationship(primaryjoin="User.role_id == Role.id", back_populates='users', index=True)
+    role_id = mapped_column(ForeignKey('roles_table.id'), index=True)
+    role: Mapped[Role] = relationship(primaryjoin="User.role_id == Role.id", back_populates='users')
     account_locked = mapped_column(Boolean, default=False)
     last_login: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=True)
     login_attempts = mapped_column(Integer, default=0)

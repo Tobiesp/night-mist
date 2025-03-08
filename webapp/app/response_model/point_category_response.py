@@ -17,7 +17,6 @@ class PointCategoryResponse():
             'id': self._point_category_.id,
             'category_name': self._point_category_.category_name,
             'description': self._point_category_.description,
-            'points': self._point_category_.points,
         }
     
 
