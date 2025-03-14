@@ -1,5 +1,6 @@
 import unittest
 from datetime import datetime, timedelta
+from app.models.base_db_model import BaseDBModel
 from app.models.event_model import Interval, Event, Point
 from pydantic import ValidationError
 

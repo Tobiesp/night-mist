@@ -1,14 +1,14 @@
 from __future__ import annotations
-import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
-from sqlalchemy import UUID, Boolean, Column, DateTime, ForeignKey, Integer, String, Table, UniqueConstraint, func
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Table, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from flask_principal import Permission, RoleNeed
 from typing import List
 
 from app.models import BASE
+from app.models.base_db_model import BaseDBModel
 
 
 MAX_LOGIN_ATTEMPTS = 5
@@ -33,10 +33,9 @@ role_priviledge_table = Table(
 )
 
 
-class Priviledge(BASE):
+class Priviledge(BaseDBModel, BASE):
     __tablename__ = 'priviledges_table'
 
-    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     priviledge_name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False, index=True)
     roles: Mapped[List[Role]] = relationship(
         "Role",
@@ -45,8 +44,12 @@ class Priviledge(BASE):
         secondaryjoin="Role.id == role_priviledge_table.c.role_id",
         back_populates="priviledges"
     )
-    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=True, )  # Ensure default value
+
+    @staticmethod
+    def query_fields(self):
+        query_fields: list[dict[str, any]] = super().query_fields()
+        query_fields.append({'field': 'priviledge_name', 'model': None})
+        return query_fields
 
     def __init__(self, priviledge_name: str):
         self.priviledge_name = priviledge_name
@@ -55,25 +58,30 @@ class Priviledge(BASE):
         return f'<Privilege {self.priviledge_name}>'
 
 
-class Role(BASE):
+class Role(BaseDBModel, BASE):
     __tablename__ = 'roles_table'
 
-    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     role_name = mapped_column(String(100), unique=True, nullable=False, index=True)
     priviledges: Mapped[List[Priviledge]] = relationship(
         "Priviledge",
         secondary=role_priviledge_table,
         primaryjoin="Role.id == role_priviledge_table.c.role_id",
         secondaryjoin="Priviledge.id == role_priviledge_table.c.priviledge_id",
-        back_populates="roles"
+        back_populates="roles",
+        lazy='immediate'
     )
     users: Mapped[List[User]] = relationship(
         "User",
         primaryjoin="Role.id == User.role_id",
         back_populates='role'
     )
-    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now())
-    updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
+
+    @staticmethod
+    def query_fields(self):
+        query_fields: list[dict[str, any]] = super().query_fields()
+        query_fields.append({'field': 'role_name', 'model': None})
+        query_fields.append({'field': 'priviledges', 'model': Priviledge})
+        return query_fields
 
     def __init__(self, role_name: str):
         self.role_name = role_name
@@ -82,10 +90,9 @@ class Role(BASE):
         return f'<Role {self.role_name}>'
 
 
-class User(UserMixin, BASE):
+class User(BaseDBModel, UserMixin, BASE):
     __tablename__ = 'users_table'
     
-    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     username = mapped_column(String(100), unique=True, nullable=False, index=True)
     firstname = mapped_column(String(100), nullable=False, index=True)
     lastname = mapped_column(String(100), nullable=False, index=True)
@@ -96,12 +103,20 @@ class User(UserMixin, BASE):
     email = mapped_column(String(200), unique=True, nullable=False, index=True)
     password_hash = mapped_column(String(200), nullable=False)
     role_id = mapped_column(ForeignKey('roles_table.id'), index=True)
-    role: Mapped[Role] = relationship(primaryjoin="User.role_id == Role.id", back_populates='users')
+    role: Mapped[Role] = relationship(primaryjoin="User.role_id == Role.id", back_populates='users', lazy='immediate')
     account_locked = mapped_column(Boolean, default=False)
     last_login: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=True)
     login_attempts = mapped_column(Integer, default=0)
-    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now())
-    updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
+
+    @staticmethod
+    def query_fields(self):
+        query_fields: list[dict[str, any]] = super().query_fields()
+        query_fields.append({'field': 'username', 'model': None})
+        query_fields.append({'field': 'firstname', 'model': None})
+        query_fields.append({'field': 'lastname', 'model': None})
+        query_fields.append({'field': 'email', 'model': None})
+        query_fields.append({'field': 'role', 'model': Role})
+        return query_fields
 
     def set_password(self, password):
         print(f'Setting password: {password}')
@@ -113,6 +128,9 @@ class User(UserMixin, BASE):
     @property
     def is_active(self):
         return not self.account_locked
+    
+    def restricted_fields(self):
+        return super().restricted_fields() + ['password_hash'] + ['role_id']
     
     def add_login_attempt(self):
         self.login_attempts += 1

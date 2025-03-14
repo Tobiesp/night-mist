@@ -6,10 +6,11 @@ from app.models.students_model import Grade
 
 from app._env import Config, parse
 from app.models.users_model import User
-from app.repositories import admin_database_repository, database_repository
+from app.repositories import database_repository
 from flask_principal import Principal, identity_loaded, UserNeed, RoleNeed
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_cors import CORS
 
 
 def create_app() -> Flask:
@@ -22,6 +23,8 @@ def create_app() -> Flask:
     app.config['DEBUG'] = config.DEBUG
     app.config['CSRF_ENABLED'] = config.CSRF_ENABLED
     app.config['SERVER_NAME'] = f'{config.HOST}:{config.PORT}'
+
+    CORS(app, supports_credentials=True)
 
     limiter = Limiter(
         get_remote_address,
@@ -44,7 +47,7 @@ def create_app() -> Flask:
 
     @login_manager.user_loader
     def load_user(userid):
-        datastore = admin_database_repository.AdminDatabaseRepository(None)
+        datastore = database_repository.DatabaseRepository.instance().get_admin_db_repository()
         # Return an instance of the User model
         return datastore.get_user_by_id(userid)
     
@@ -55,8 +58,6 @@ def create_app() -> Flask:
         if user is None:
             return
         identity.user = user
-
-        
 
         # Add the UserNeed to the identity
         if hasattr(current_user, 'id'):
@@ -69,7 +70,8 @@ def create_app() -> Flask:
             if role is None:
                 return
             for privilege in role.priviledges:
-                identity.provides.add(RoleNeed(privilege.name))
+                identity.provides.add(RoleNeed(privilege.priviledge_name))
+                print(f'Identity: {identity.provides}')
     
     return app
 
@@ -81,29 +83,45 @@ def import_blueprints(app: Flask) -> Flask:
     from app.rest.auth_rest import auth_api
     app.register_blueprint(auth_api)
 
-    from app.rest.event_rest import event_api
-    app.register_blueprint(event_api)
+    from app.rest.event_rest import EventRestAPI, EventInstanceRestAPI
+    event_api = EventRestAPI()
+    event_instance_api = EventInstanceRestAPI()
+    app.register_blueprint(event_api.blueprint)
+    app.register_blueprint(event_instance_api.blueprint)
 
-    from app.rest.grade_rest import grade_api
-    app.register_blueprint(grade_api)
+    from app.rest.grade_rest import GradeRestAPI
+    grade_api = GradeRestAPI()
+    app.register_blueprint(grade_api.blueprint)
 
-    from app.rest.point_category_rest import point_category_api
-    app.register_blueprint(point_category_api)
+    from app.rest.point_category_rest import PointCategoryRestAPI
+    point_category_api = PointCategoryRestAPI()
+    app.register_blueprint(point_category_api.blueprint)
 
-    from app.rest.point_rest import point_api
-    app.register_blueprint(point_api)
+    from app.rest.point_rest import PointRestAPI, PointEarnedRestAPI, PointSpentRestAPI, RunningTotalRestAPI
+    point_api = PointRestAPI()
+    point_earned_api = PointEarnedRestAPI()
+    point_spent_api = PointSpentRestAPI()
+    running_total_api = RunningTotalRestAPI()
+    app.register_blueprint(point_api.blueprint)
+    app.register_blueprint(point_earned_api.blueprint)
+    app.register_blueprint(point_spent_api.blueprint)
+    app.register_blueprint(running_total_api.blueprint)
 
-    from app.rest.role_rest import role_api
-    app.register_blueprint(role_api)
+    from app.rest.role_rest import RoleRestAPI
+    role_api = RoleRestAPI()
+    app.register_blueprint(role_api.blueprint)
 
-    from app.rest.student_group_rest import student_group_api
-    app.register_blueprint(student_group_api)
+    from app.rest.student_group_rest import GroupRestAPI
+    student_group_api = GroupRestAPI()
+    app.register_blueprint(student_group_api.blueprint)
 
-    from app.rest.student_rest import student_api
-    app.register_blueprint(student_api)
+    from app.rest.student_rest import StudentRestAPI
+    student_api = StudentRestAPI()
+    app.register_blueprint(student_api.blueprint)
 
-    from app.rest.user_rest import user_api
-    app.register_blueprint(user_api)
+    from app.rest.user_rest import UserRestAPI
+    user_api = UserRestAPI()
+    app.register_blueprint(user_api.blueprint)
 
 
 def create_db(app: Flask, config: Config) -> None:
@@ -157,7 +175,7 @@ def create_initial_grades() -> None:
 
 def create_initial_roles() -> None:
     datastore = database_repository.DatabaseRepository.instance().get_admin_db_repository()
-    privileges = [
+    priviledges = [
         'admin',
         'student_read',
         'student_write',
@@ -168,14 +186,13 @@ def create_initial_roles() -> None:
         'reporter_read',
         'reporter_write'
         ]
-    for privilege in privileges:
-        if datastore.get_privilege_by_name(privilege) is None:
-            datastore.create_privilege(privilege)
+    for priviledge in priviledges:
+        if datastore.get_privilege_by_name(priviledge) is None:
+            datastore.create_privilege(priviledge)
     
     admin = datastore.get_role_by_name('admin')
     if admin is None:
-        admin = datastore.create_role('admin', [datastore.get_privilege_by_name('admin')])
-        datastore.update_role(admin)
+        datastore.create_role('admin', [datastore.get_privilege_by_name('admin')])
 
 
 def create_email_servant(config: Config) -> None:
@@ -184,4 +201,4 @@ def create_email_servant(config: Config) -> None:
 
 def main():
     app = create_app()
-    app.run()
+    app.run(debug=app.config['DEBUG'])

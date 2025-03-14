@@ -15,4 +15,12 @@ dependencies = [
     "pydantic",
     "flask-limiter",
     "Flask-Limiter[redis]",
+    "flask-cors",
+    "pytest",
+]
+
+[dependency-groups]
+dev = [
+    "mocker>=1.1.1",
+    "pytest>=8.3.5",
 ]

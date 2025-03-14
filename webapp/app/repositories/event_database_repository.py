@@ -244,6 +244,11 @@ class EventDatabaseRepository:
                 self._db_.session.delete(event_instance)
             self._db_.session.commit()
 
+    def get_event_instance_count_by_event(self, event_id: str) -> int:
+        with self._app_.app_context():
+            event = self.get_event_by_id(event_id)
+            return self._db_.session.query(func.count(EventInstance.id)).filter((EventInstance.event == event) & (EventInstance.deleted is False)).scalar()
+
     def get_event_instance_count(self) -> int:
         with self._app_.app_context():
             return self._db_.session.query(func.count(EventInstance.id)).filter_by(deleted=True).scalar()

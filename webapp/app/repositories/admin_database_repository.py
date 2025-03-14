@@ -47,14 +47,16 @@ class AdminDatabaseRepository:
     def create_role(self, name: str, priviledges: list[Priviledge] = []) -> Role:
         with self._app_.app_context():
             role = Role(role_name=name)
-            role.priviledges = priviledges
             self._db_.session.add(role)
+            priviledges = self._db_.session.query(Priviledge).filter(Priviledge.id.in_([priviledge.id for priviledge in priviledges])).all()
+            role.priviledges = priviledges
             self._db_.session.commit()
             return role
     
     def update_role(self, role: Role) -> Role:
         with self._app_.app_context():
-            self.get_role_by_name(role.role_name).priviledges = role.priviledges
+            priviledges = self._db_.session.query(Priviledge).filter(Priviledge.id.in_([priviledge.id for priviledge in role.priviledges])).all()
+            self.get_role_by_name(role.role_name).priviledges = priviledges
             self._db_.session.commit()
             return role
     
@@ -71,6 +73,10 @@ class AdminDatabaseRepository:
     def get_role_by_name(self, name: str) -> Role | None:
         with self._app_.app_context():
             return self._db_.session.query(Role).filter_by(role_name=name).first()
+        
+    def get_role_count(self) -> int:
+        with self._app_.app_context():
+            return self._db_.session.query(Role).count()
     
     def get_user_by_email(self, email: str) -> User | None:
         with self._app_.app_context():
@@ -113,7 +119,7 @@ class AdminDatabaseRepository:
             user.email = user.email
             user.role = user.role
             self._db_.session.commit()
-            return
+            return user
     
     def delete_user(self, user: User) -> None:
         with self._app_.app_context():
@@ -128,4 +134,8 @@ class AdminDatabaseRepository:
     def get_user_by_username(self, username: str) -> User:
         with self._app_.app_context():
             return self._db_.session.query(User).filter_by(username=username).first()
+        
+    def get_user_count(self) -> int:
+        with self._app_.app_context():
+            return self._db_.session.query(User).count()
 

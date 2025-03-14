@@ -2,12 +2,12 @@ from __future__ import annotations
 import datetime
 import json
 from typing import List
-import uuid
 from app.models import BASE
-from sqlalchemy import UUID, Boolean, Column, DateTime, ForeignKey, Integer, String, Table, UniqueConstraint, func
+from sqlalchemy import UUID, Boolean, Column, DateTime, ForeignKey, Integer, String, Table, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pydantic import BaseModel, Field, field_validator
 
+from app.models.base_db_model import BaseDBModel
 from app.models.students_model import StudentGroup
     
 
@@ -105,6 +105,11 @@ class Interval(BaseModel):
             expected_month_day = self.month_day
             diff_month_day = expected_month_day - month_day if expected_month_day > month_day else 30 - month_day + expected_month_day
             date = current_date.date() + datetime.timedelta(days=diff_month_day)
+            # Check month day is valid
+            while date.day < expected_month_day:
+                date = date + datetime.timedelta(days=1)
+            while date.day > expected_month_day:
+                date = date - datetime.timedelta(days=1)
             return datetime.datetime.combine(date, datetime.time(self.hour, self.minute))
         else:
             raise ValueError(f'Invalid repeat value: {self.repeat}')
@@ -116,20 +121,17 @@ class Interval(BaseModel):
         return f'<Interval: {self.repeat}>'
     
 
-class Point(BASE):
+class Point(BaseDBModel, BASE):
     __tablename__ = 'points_table'
 
-    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     point_category_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('point_categories_table.id'), primary_key=True)
     student_group_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('student_groups_table.id'), primary_key=True)
     __table_args__ = (UniqueConstraint('point_category_id', 'student_group_id', name='point_category_student_group_uc'),)
-    points = mapped_column(Integer, nullable=False, default=0)
-    points_interval = mapped_column(String(100), nullable=True)
-    student_group: Mapped[StudentGroup] = relationship('StudentGroup', primaryjoin='Point.student_group_id == StudentGroup.id')
-    point_category: Mapped[PointCategory] = relationship('PointCategory', primaryjoin='Point.point_category_id == PointCategory.id')
-    deleted = mapped_column(Boolean, default=False)
-    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=True, )  # Ensure default value
+    points: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    points_interval: Mapped[str] = mapped_column(String(100), nullable=True)
+    student_group: Mapped[StudentGroup] = relationship('StudentGroup', primaryjoin='Point.student_group_id == StudentGroup.id', lazy='immediate')
+    point_category: Mapped[PointCategory] = relationship('PointCategory', primaryjoin='Point.point_category_id == PointCategory.id', lazy='immediate')
+    deleted: Mapped[bool] = mapped_column(Boolean, default=False)
 
     @property
     def interval(self) -> Interval:
@@ -140,39 +142,56 @@ class Point(BASE):
     def interval(self, value: Interval):
         self.points_interval = value.to_json()
 
+    @staticmethod
+    def query_fields(self):
+        query_fields: list[dict[str, any]] = super().query_fields()
+        query_fields.append({'field': 'point_category', 'model': PointCategory})
+        query_fields.append({'field': 'student_group', 'model': StudentGroup})
+        return query_fields
 
-class PointCategory(BASE):
+
+class PointCategory(BaseDBModel, BASE):
     __tablename__ = 'point_categories_table'
 
-    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    category_name = mapped_column(String(100), unique=True, nullable=False, index=True)
-    description = mapped_column(String(1024), nullable=True)
-    deleted = mapped_column(Boolean, default=False)
-    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=True, )  # Ensure default value
+    category_name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False, index=True)
+    description: Mapped[str] = mapped_column(String(1024), nullable=True)
+    deleted: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    @staticmethod
+    def query_fields(self):
+        query_fields: list[dict[str, any]] = super().query_fields()
+        query_fields.append({'field': 'category_name', 'model': None})
+        return query_fields
 
 
-class Event(BASE):
+class Event(BaseDBModel, BASE):
     __tablename__ = 'events_table'
 
-    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    event_name = mapped_column(String(100), unique=True, nullable=False, index=True)
-    event_interval = mapped_column(String(100), nullable=True)
-    deleted = mapped_column(Boolean, default=False)
+    event_name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False, index=True)
+    event_interval: Mapped[str] = mapped_column(String(100), nullable=True)
+    deleted: Mapped[bool] = mapped_column(Boolean, default=False)
     student_groups: Mapped[List[StudentGroup]] = relationship(
         "StudentGroup",
         secondary=event_student_group_table,
         primaryjoin="Event.id == event_student_group_table.c.event_id",
-        secondaryjoin="StudentGroup.id == event_student_group_table.c.student_group_id"
+        secondaryjoin="StudentGroup.id == event_student_group_table.c.student_group_id", 
+        lazy='immediate'
     )
     point_categories: Mapped[List[PointCategory]] = relationship(
         "PointCategory",
         secondary=event_point_category_table,
         primaryjoin="Event.id == event_point_category_table.c.event_id",
-        secondaryjoin="PointCategory.id == event_point_category_table.c.point_category_id"
+        secondaryjoin="PointCategory.id == event_point_category_table.c.point_category_id", 
+        lazy='immediate'
     )
-    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=True, )  # Ensure default value
+
+    @staticmethod
+    def query_fields(self):
+        query_fields: list[dict[str, any]] = super().query_fields()
+        query_fields.append({'field': 'event_name', 'model': None})
+        query_fields.append({'field': 'student_groups', 'model': StudentGroup})
+        query_fields.append({'field': 'point_categories', 'model': PointCategory})
+        return query_fields
 
     @property
     def interval(self) -> Interval:
@@ -187,14 +206,17 @@ class Event(BASE):
         return f'<Event {self.event_name}>'
     
 
-class EventInstance(BASE):
+class EventInstance(BaseDBModel, BASE):
     __tablename__ = 'event_instances_table'
 
-    id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     event_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('events_table.id'), nullable=False, index=True)
-    event: Mapped[Event] = relationship('Event', primaryjoin='EventInstance.event_id == Event.id')
-    event_date = mapped_column(DateTime(timezone=True), nullable=False)
-    completed = mapped_column(Boolean, default=False)
-    deleted = mapped_column(Boolean, default=False)
-    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=True, )  # Ensure default value
+    event: Mapped[Event] = relationship('Event', primaryjoin='EventInstance.event_id == Event.id', lazy='immediate')
+    event_date: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False)
+    completed: Mapped[bool] = mapped_column(Boolean, default=False)
+    deleted: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    @staticmethod
+    def query_fields(self):
+        query_fields: list[dict[str, any]] = super().query_fields()
+        query_fields.append({'field': 'event', 'model': Event})
+        return query_fields

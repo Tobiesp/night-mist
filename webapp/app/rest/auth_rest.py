@@ -35,7 +35,7 @@ def login():
     except TypeError:
         abort(400)
     except ValueError:
-        abort(403)
+        abort(400)
 
     datastore = database_repository.DatabaseRepository.instance().get_admin_db_repository()
     user = datastore.get_user_by_username(login_request.username)
@@ -58,7 +58,7 @@ def login():
     identity_changed.send(current_app._get_current_object(),
                             identity=Identity(user.id))
 
-    return Response(status=200)
+    return UserResponse(user).get_response()
 
 @LIMITER.limit("4 per hour")
 @auth_api.route('/signup', methods=['POST'])
@@ -135,6 +135,6 @@ def logout():
 @auth_api.route('/current-user')
 def get_current_user():
     if current_user.is_authenticated:
-        return Response(status=200, response=UserResponse(current_user).get_response())
+        return UserResponse(current_user).get_response()
     else:
         return Response(status=401)
