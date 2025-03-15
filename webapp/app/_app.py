@@ -72,6 +72,27 @@ def create_app() -> Flask:
             for privilege in role.priviledges:
                 identity.provides.add(RoleNeed(privilege.priviledge_name))
                 print(f'Identity: {identity.provides}')
+
+    # add exception handling
+    @app.errorhandler(Exception)
+    def handle_exception(e):
+        return {'error': 'Internal server error occured'}, 500 # Internal Server Error
+    
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return {'error': str(e)}, 404 # Not
+    
+    @app.errorhandler(405)
+    def method_not_allowed(e):
+        return {'error': str(e)}, 405 # Method Not Allowed
+    
+    @app.errorhandler(403)
+    def forbidden(e):
+        return {'error': str(e)}, 403 # Forbidden
+    
+    @app.errorhandler(401)
+    def unauthorized(e):
+        return {'error': str(e)}, 401 # Unauthorized
     
     return app
 
