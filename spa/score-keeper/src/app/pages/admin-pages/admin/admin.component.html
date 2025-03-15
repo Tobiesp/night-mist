@@ -6,6 +6,25 @@
         <app-roles></app-roles>
     </mat-tab>
     <mat-tab label="General">
-        <h1>General Admin Stuff</h1>
+        <mat-tab-group>
+            <mat-tab label="General Stuff">
+                <h1>General Admin Stuff</h1>
+            </mat-tab>
+            <mat-tab label="Grades">
+                <app-grades></app-grades>
+            </mat-tab>
+            <mat-tab label="School Year">
+                <h1>Change school year</h1>
+            </mat-tab>
+            <mat-tab label="Email">
+                <h1>Setup email server</h1>
+            </mat-tab>
+            <mat-tab label="Purge">
+                <h1>Purge all deleted items</h1>
+            </mat-tab>
+            <mat-tab label="Import">
+                <h1>Import new items</h1>
+            </mat-tab>
+        </mat-tab-group>
     </mat-tab>
 </mat-tab-group>

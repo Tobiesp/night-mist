@@ -48,7 +48,7 @@
             <mat-form-field class="full-field-width">
                 <mat-label>Role</mat-label>
                 <mat-select formControlName="role" placeholder="Select a role">
-                    <mat-option *ngFor="let role of roles" [value]="role.id">{{role.role}}</mat-option>
+                    <mat-option *ngFor="let role of roles" [value]="role.id">{{role.role_name}}</mat-option>
                 </mat-select>
                 <div
                     *ngIf="userForm.controls['role'].invalid && (userForm.controls['role'].dirty || userForm.controls['role'].touched)">

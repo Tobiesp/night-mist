@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
+import { first } from 'rxjs';
 
 @Component({
   selector: 'app-signup-dialog',
@@ -18,6 +19,8 @@ export class SignupDialogComponent {
 
   ngOnInit(): void {
     this.signupForm = this.fb.group({
+      firstname: ['', Validators.required],
+      lastname: ['', Validators.required],
       username: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [
@@ -44,10 +47,12 @@ export class SignupDialogComponent {
       return;
     }
     const signupData = {
+      frist_name: this.signupForm.value.firstname,
+      last_name: this.signupForm.value.lastname,
       username: this.signupForm.value.username,
       email: this.signupForm.value.email,
       password: this.signupForm.value.password,
-      confirmPassword: this.signupForm.value.confirmPassword
+      repeat_password: this.signupForm.value.confirmPassword
     };
     this.dialogRef.close(signupData);
   }

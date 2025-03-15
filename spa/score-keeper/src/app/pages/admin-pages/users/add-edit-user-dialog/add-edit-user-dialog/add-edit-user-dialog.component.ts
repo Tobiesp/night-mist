@@ -1,11 +1,10 @@
-import { Component, inject, Inject, signal } from '@angular/core';
-import { Priviledge, Role, User } from '../../../../../services/auth/auth.service';
-import { LiveAnnouncer } from '@angular/cdk/a11y';
+import { Component, Inject, signal } from '@angular/core';
 import { ENTER, COMMA } from '@angular/cdk/keycodes';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { RoleService } from '../../../../../services/admin/role.service';
 import { LoggerService } from '../../../../../services/logger.service';
+import { Priviledge, Role, User } from '../../../../../models/models';
 
 export interface userDialogData {
   type: 'add' | 'edit';
@@ -59,7 +58,7 @@ constructor(
           Validators.pattern('^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*]).*$')
           ]],
           confirmPassword: ['', Validators.required],
-        role: [this.user.role?.role, Validators.required],
+        role: [this.user.role?.role_name, Validators.required],
       });
     } else {
       this.userForm = this.fb.group({
@@ -67,7 +66,7 @@ constructor(
         firstname: [this.user.firstname, Validators.required],
         lastname: [this.user.lastname, Validators.required],
         email: [this.user.email, [Validators.required, Validators.email]],
-        role: [this.user.role?.role, Validators.required],
+        role: [this.user.role?.role_name, Validators.required],
       });
     }
   }
@@ -86,7 +85,7 @@ constructor(
       firstname: this.userForm.value.firstname,
       lastname: this.userForm.value.lastname,
       email: this.userForm.value.email,
-      role: this.roles.find(role => role.role === this.userForm.value.role),
+      role: this.roles.find(role => role.role_name === this.userForm.value.role),
     };
     if (this.type === 'edit') {
       temp_user.id = this.user.id;

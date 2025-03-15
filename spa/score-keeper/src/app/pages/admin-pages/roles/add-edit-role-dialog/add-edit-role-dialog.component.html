@@ -20,10 +20,10 @@
             <mat-form-field class="full-field-width">
                 <mat-label>Privileges</mat-label>
                 <mat-chip-grid #chipGrid aria-label="Privilege selection">
-                    @for (priv of privileges(); track $index) {
-                      <mat-chip-row (removed)="remove(priv.name)">
-                        {{priv.name}}
-                        <button matChipRemove [attr.aria-label]="'remove ' + priv.name">
+                    @for (priv of priviledges(); track $index) {
+                      <mat-chip-row (removed)="remove(priv.priviledge_name)">
+                        {{priv.priviledge_name}}
+                        <button matChipRemove [attr.aria-label]="'remove ' + priv.priviledge_name">
                           <mat-icon>cancel</mat-icon>
                         </button>
                       </mat-chip-row>
@@ -40,7 +40,7 @@
                         (matChipInputTokenEnd)="add($event)">
                 <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete"  (optionSelected)="selected($event)">
                     @for (option of filteredOptions | async; track option) {
-                    <mat-option [value]="option.name">{{option.name}}</mat-option>
+                    <mat-option [value]="option.priviledge_name">{{option.priviledge_name}}</mat-option>
                     }
                 </mat-autocomplete>
                 <div

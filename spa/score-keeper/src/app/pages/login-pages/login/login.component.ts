@@ -68,7 +68,7 @@ export class LoginComponent {
       if (result !== null) {
         const data = result;
         if (data) {
-          this.authService.signup(data['username'], data['email'], data['password']).subscribe({
+          this.authService.signup(data).subscribe({
             next: () => {
               this.snackbar!.message = 'User created';
               this.snackbar!.level = 'info';

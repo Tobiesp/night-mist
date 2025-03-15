@@ -6,6 +6,30 @@
     </mat-dialog-content>
     <mat-dialog-content>
       <mat-form-field class="full-field-width">
+        <mat-label>Firstname</mat-label>
+        <input type="text"
+               matInput 
+               placeholder="Enter your firstname" 
+               aria-label="firstname"
+               formControlName="firstname" />
+        <div *ngIf="signupForm.controls['firstname'].invalid && (signupForm.controls['firstname'].dirty || signupForm.controls['firstname'].touched)">
+          <div *ngIf="signupForm.controls['firstname'].errors?.['required']" class="bold-red-text">Firstname is required.</div>
+        </div>
+      </mat-form-field>
+
+      <mat-form-field class="full-field-width">
+        <mat-label>Lastname</mat-label>
+        <input type="text"
+               matInput 
+               placeholder="Enter your lastname" 
+               aria-label="lastname"
+               formControlName="lastname" />
+        <div *ngIf="signupForm.controls['lastname'].invalid && (signupForm.controls['lastname'].dirty || signupForm.controls['lastname'].touched)">
+          <div *ngIf="signupForm.controls['lastname'].errors?.['required']" class="bold-red-text">Lastname is required.</div>
+        </div>
+      </mat-form-field>
+
+      <mat-form-field class="full-field-width">
         <mat-label>Username</mat-label>
         <input type="text"
                matInput 

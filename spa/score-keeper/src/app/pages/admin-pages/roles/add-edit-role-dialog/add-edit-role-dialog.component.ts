@@ -7,7 +7,7 @@ import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
-import { Priviledge, Role } from '../../../../services/auth/auth.service';
+import { Priviledge, Role } from '../../../../models/models';
 
 export interface dialogData {
   type: 'add' | 'edit';
@@ -22,12 +22,12 @@ export interface dialogData {
 })
 export class AddEditRoleDialogComponent {
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
-  readonly privileges = signal<Priviledge[]>([]);
+  readonly priviledges = signal<Priviledge[]>([]);
   readonly announcer = inject(LiveAnnouncer);
   roleForm!: FormGroup;
   role: Role;
   privAutoCtrl = new FormControl('');
-  privilegesOptions: Priviledge[] = [];
+  privilegdesOptions: Priviledge[] = [];
   filteredOptions!: Observable<Priviledge[]>;
   invalidPrivileges = false;
 
@@ -40,7 +40,7 @@ constructor(
     this.role = data?.role;
     this.adminService.getAllPrivileges().subscribe({
       next: (privileges: Priviledge[]) => {
-        this.privilegesOptions = privileges;
+        this.privilegdesOptions = privileges;
       },
       error: (error: any) => {
         console.error(error);
@@ -50,30 +50,30 @@ constructor(
   
   ngOnInit(): void {
     this.roleForm = this.fb.group({
-      rolename: [this.role.role, Validators.required]
+      rolename: [this.role.role_name, Validators.required]
     });
     this.filteredOptions = this.privAutoCtrl.valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value || '')),
     );
-    this.privileges.update(privileges => this.role?.priviledges || []);
+    this.priviledges.update(privileges => this.role?.priviledges || []);
   }
 
   private _filter(value: string): Priviledge[] {
     const filterValue = value.toLowerCase();
 
-    return this.privilegesOptions
-          .filter(option => option.name.toLowerCase().includes(filterValue))
-          .filter(option => !this.privileges().includes(option));
+    return this.privilegdesOptions
+          .filter(option => option.priviledge_name.toLowerCase().includes(filterValue))
+          .filter(option => !this.priviledges().includes(option));
   }
   
   add(event: MatChipInputEvent): void {
     const value = (event.value || '').trim();
-    const p = this.privilegesOptions.find(p => p.name === value);
+    const p = this.privilegdesOptions.find(p => p.priviledge_name === value);
 
     // Add our privilege
     if (p) {
-      this.privileges.update(privileges => [...privileges, p]);
+      this.priviledges.update(privilegdes => [...privilegdes, p]);
     }
 
     // Clear the input value
@@ -81,28 +81,28 @@ constructor(
   }
 
   remove(item: string): void {
-    const p = this.privilegesOptions.find(p => p.name === item);
+    const p = this.privilegdesOptions.find(p => p.priviledge_name === item);
     if (!p) {
       return;
     }
-    this.privileges.update(privileges => {
-      const index = privileges.indexOf(p);
+    this.priviledges.update(priviledges => {
+      const index = priviledges.indexOf(p);
       if (index < 0) {
-        return privileges;
+        return priviledges;
       }
 
-      privileges.splice(index, 1);
+      priviledges.splice(index, 1);
       this.announcer.announce(`Removed ${item}`);
-      return [...privileges];
+      return [...priviledges];
     });
   }
 
   selected(event: MatAutocompleteSelectedEvent): void {
-    const p = this.privilegesOptions.find(p => p.name === event.option.viewValue);
+    const p = this.privilegdesOptions.find(p => p.priviledge_name === event.option.viewValue);
     if (!p) {
       return;
     }
-    this.privileges.update(privileges => [...privileges, p]);
+    this.priviledges.update(privileges => [...privileges, p]);
     this.privAutoCtrl.setValue('');
     event.option.deselect();
   }
@@ -116,12 +116,12 @@ constructor(
     if (this.roleForm.invalid) {
       return;
     }
-    if (this.privileges().length === 0) {
+    if (this.priviledges().length === 0) {
       this.invalidPrivileges = true;
       return;
     }
-    this.role.role = this.roleForm.value.rolename;
-    this.role.priviledges = this.privileges();
+    this.role.role_name = this.roleForm.value.rolename;
+    this.role.priviledges = this.priviledges();
     console.log(JSON.stringify(this.role));
     this.dialogRef.close(this.role);
   }

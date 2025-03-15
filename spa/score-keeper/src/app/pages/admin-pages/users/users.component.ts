@@ -2,82 +2,22 @@ import { Component, Injectable, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BaseDataSource, Row, TableComponent, TableOptions } from '../../../components/table/table.component';
 import { UserService } from '../../../services/admin/user.service';
-import { User } from '../../../services/auth/auth.service';
 import { LoggerService } from '../../../services/logger.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 import { AddEditUserDialogComponent } from './add-edit-user-dialog/add-edit-user-dialog/add-edit-user-dialog.component';
+import { User } from '../../../models/models';
+import { BaseTableDataSourceModel } from '../../../models/base_table_datasource_model';
 
 @Injectable({
   providedIn: 'root'
 })
-export class UserDataSource extends BaseDataSource<User> {
-  dataview: User[] = [];
+export class UserDataSource extends BaseTableDataSourceModel<User> {
   constructor(
-    private roleService: UserService, 
-    public logger: LoggerService
+    private userService: UserService, 
+    logger: LoggerService
   ) {
-    super();
-  }
-
-  override connect(): Observable<User[]> {
-    let pageSize = 100;
-    if (this.paginator) {
-      pageSize = this.paginator.pageSize
-    }
-    this.roleService.query('', 0, pageSize, '', '').subscribe({
-      next: (data) => {
-        this.observable.next(data);
-      },
-      error: (error) => {
-        this.logger.error(`Error loading user: ${error}`);
-      }
-    });
-    return this.observable;
-  }
-
-  override disconnect(): void {
-    this.observable.complete();
-  }
-  
-  override filter(filterValue: string): void {
-    const page = 0;
-    let pageSize = 100;
-    if (this.paginator) {
-      pageSize = this.paginator.pageSize;
-    }
-    let sortActive = '';
-    let sortDirection = '';
-    if (this.sorter) {
-      sortActive = this.sorter.active;
-      sortDirection = this.sorter.direction;
-    }
-    this.roleService.query(filterValue, page, pageSize, sortActive, sortDirection).subscribe({
-      next: (data) => {
-        this.observable.next(data);
-      },
-      error: (error) => {
-        this.logger.error(`Error filtering user: ${error}`);
-      }
-    });
-  }
-  
-  override sortAction(sort: { active: string; direction: string; }): void {
-    let page = 0;
-    let pageSize = 100;
-    if (this.paginator) {
-      page = this.paginator.pageIndex;
-      pageSize = this.paginator.pageSize;
-    }
-    this.logger.debug(`Sort user: ${sort.active} ${sort.direction}`);
-    this.roleService.query('', page, pageSize, sort.active, sort.direction).subscribe({
-      next: (data) => {
-        this.observable.next(data);
-      },
-      error: (error) => {
-        this.logger.error(`Error sort user: ${error}`);
-      }
-    });
+    super(userService, logger);
   }
 
   override fieldDisplay(row: User, field: string): string {
@@ -93,81 +33,41 @@ export class UserDataSource extends BaseDataSource<User> {
       case 'lastname':
         return row.lastname || '';
       case 'role':
-        return row.role?.role || '';
+        return row.role?.role_name || '';
+      case 'account_locked':
+        return row.account_locked ? 'Locked' : 'Active';
+      case 'last_login':
+        const date_str = row.last_login;
+        if (date_str) {
+          const date = new Date(date_str);
+          return date.toLocaleString();
+        }
+        return '';
       default:
         return '';
     }
   }
-  
-  override setPage(page: number, pageSize: number): void {
-    let sortActive = '';
-    let sortDirection = '';
-    if (this.sorter) {
-      sortActive = this.sorter.active;
-      sortDirection = this.sorter.direction;
-    }
-    this.roleService.query('', page, pageSize, sortActive, sortDirection).subscribe({
-      next: (data) => {
-        this.observable.next(data);
-      }
-    });
-  }
-  
-  override addRow(row: User): void {
-    let page = 0;
-    let pageSize = 100;
-    if (this.paginator) {
-      page = this.paginator.pageIndex;
-      pageSize = this.paginator.pageSize;
-    }
-    this.roleService.create(row).subscribe({
-      next: () => {
-        this.setPage(page, pageSize);
+
+  lockUser(user: User): void {
+    this.userService.lockUser(user).subscribe({
+      next: (data: any) => {
+        
       },
-      error: (error) => {
-        this.logger.error(`Error adding user: ${error}`);
+      error: (error: any) => {
+        throw new Error(`Error locking user: ${error}`);
       }
     });
   }
-  
-  override deleteRow(row: User): void {
-    let page = 0;
-    let pageSize = 100;
-    if (this.paginator) {
-      page = this.paginator.pageIndex;
-      pageSize = this.paginator.pageSize;
-    }
-    if (row.id) {
-      this.roleService.delete(row.id).subscribe({
-        next: () => {
-          this.setPage(page, pageSize);
-        },
-        error: (error) => {
-          this.logger.error(`Error deleting user: ${error}`);
-        }
-      });
-    }
-  }
-  
-  override updateRow(row: User): void {
-    let page = 0;
-    let pageSize = 100;
-    if (this.paginator) {
-      page = this.paginator.pageIndex;
-      pageSize = this.paginator.pageSize;
-    }
-    this.roleService.update(row).subscribe({
-      next: () => {
-        this.setPage(page, pageSize);
+
+  unlockUser(user: User): void {
+    this.userService.unlockUser(user).subscribe({
+      next: (data: any) => {
+        
       },
-      error: (error) => {
-        this.logger.error(`Error updating user: ${error}`);
+      error: (error: any) => {
+        throw new Error(`Error unlocking user: ${error}`);
       }
     });
-  }
-  
-  override async getTotalItemCount(): Promise<number> {
-    return this.roleService.getTotalItemCount();
   }
   
 }
@@ -197,8 +97,9 @@ export class UsersComponent {
     tableActions: {
       selectRow: false,
       rowActions: [
+        { icon: 'lock', event: 'lockEvent'},
         { icon: 'edit', event: 'editEvent'},
-        { icon: 'cancel', event: 'deleteEvent' }
+        { icon: 'delete', event: 'deleteEvent' }
       ],
       addRow: true,
     },
@@ -209,6 +110,8 @@ export class UsersComponent {
       { name: 'Username', field: 'username', type: 'string', width: 50, sortable: true, hidden: false },
       { name: 'Email', field: 'email', type: 'string', width: 50, sortable: true, hidden: false },
       { name: 'role', field: 'role', type: 'string', width: 50, sortable: true, hidden: false },
+      { name: 'Account Locked', field: 'account_locked', type: 'string', width: 50, sortable: true, hidden: false },
+      { name: 'Last Login', field: 'last_login', type: 'string', width: 50, sortable: true, hidden: false },
     ]
   };
 
@@ -220,6 +123,12 @@ export class UsersComponent {
       this.openDeleteDialog(event.row);
     } else if (event.action === 'addRowEvent') {
       this.openAddDialog();
+    } else if (event.action === 'lockEvent') {
+      if (event.row.account_locked) {
+        this.openUnlockDialog(event.row);
+      } else {
+        this.openLockDialog(event.row);
+      }
     } else {
       console.log('Unknown event action:', event.action);
     }
@@ -271,6 +180,38 @@ export class UsersComponent {
         const user = row as User;
         if (user) {
           this.dataSource.deleteRow(user);
+        }
+      }
+    });
+  }
+
+  openLockDialog(row: Row): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '250px',
+      data: { message: `Are you sure you want to lock the user ${row['username']}?`}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        const user = row as User;
+        if (user) {
+          this.dataSource.lockUser(user);
+        }
+      }
+    });
+  }
+
+  openUnlockDialog(row: Row): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '250px',
+      data: { message: `Are you sure you want to unlock the user ${row['username']}?`}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        const user = row as User;
+        if (user) {
+          this.dataSource.unlockUser(user);
         }
       }
     });
