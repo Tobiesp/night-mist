@@ -1,14 +1,15 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AbstractDataService } from '../abstract-data.service';
-import { Role } from '../../models/models';
-import { HttpClient } from '@angular/common/http';
+import { Event } from '../../models/models';
 import { LoggerService } from '../logger.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class RoleService extends AbstractDataService<Role> {
+export class EventsService extends AbstractDataService<Event>{
+
   constructor(private logger: LoggerService, client: HttpClient) {
-    super('roles', client);
-  }
+      super('events', client);
+    }
 }

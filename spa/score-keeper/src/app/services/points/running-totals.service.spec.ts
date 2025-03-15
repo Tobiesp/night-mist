@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { BaseDataService } from './base-data.service';
+import { RunningTotalsService } from './running-totals.service';
 
-describe('BaseDataServiceService', () => {
-  let service: BaseDataService;
+describe('RunningTotalsService', () => {
+  let service: RunningTotalsService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(BaseDataService);
+    service = TestBed.inject(RunningTotalsService);
   });
 
   it('should be created', () => {

@@ -5,6 +5,6 @@ import { LoggerService } from './logger.service';
 @Injectable({
   providedIn: 'root'
 })
-export class BaseServiceService{
+export class BaseService {
   protected baseUrl = environment.baseUrl;
 }

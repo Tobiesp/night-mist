@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
+import { Grade } from '../../models/models';
 import { AbstractDataService } from '../abstract-data.service';
-import { Role } from '../../models/models';
-import { HttpClient } from '@angular/common/http';
 import { LoggerService } from '../logger.service';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
-export class RoleService extends AbstractDataService<Role> {
+export class GradeService extends AbstractDataService<Grade>{
+
   constructor(private logger: LoggerService, client: HttpClient) {
-    super('roles', client);
-  }
+      super('grades', client);
+    }
 }
