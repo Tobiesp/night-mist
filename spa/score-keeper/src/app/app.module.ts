@@ -32,6 +32,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatListModule } from '@angular/material/list';
 import { UsersComponent } from './pages/admin-pages/users/users.component';
 import { PointsEarnedComponent } from './pages/points-earned/points-earned.component';
 import { PointsSpentComponent } from './pages/points-spent/points-spent.component';
@@ -42,6 +43,8 @@ import { PageNotFound } from './pages/page-not-found-component/page-not-found-co
 import { ForgotPasswordDialogComponent } from './pages/login-pages/forgot-password-dialog/forgot-password-dialog.component';
 import { SignupDialogComponent } from './pages/login-pages/signup-dialog/signup-dialog.component';
 import { AddEditUserDialogComponent } from './pages/admin-pages/users/add-edit-user-dialog/add-edit-user-dialog/add-edit-user-dialog.component';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { GradesComponent } from './pages/admin-pages/grades/grades.component';
 
 @NgModule({
     declarations: [
@@ -66,6 +69,7 @@ import { AddEditUserDialogComponent } from './pages/admin-pages/users/add-edit-u
         ForgotPasswordDialogComponent,
         SignupDialogComponent,
         AddEditUserDialogComponent,
+        GradesComponent,
     ],
     imports: [
         BrowserModule,
@@ -92,8 +96,9 @@ import { AddEditUserDialogComponent } from './pages/admin-pages/users/add-edit-u
         MatTableModule,
         MatSortModule,
         MatTabsModule,
+        MatListModule,
     ],
-    providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes)],
+    providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes), provideHttpClient(withInterceptorsFromDi())],
     bootstrap: [AppComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
