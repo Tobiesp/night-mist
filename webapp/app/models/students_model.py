@@ -33,9 +33,10 @@ class Grade(BaseDBModel, BASE):
     def query_fields(self):
         query_fields: list[dict[str, any]] = super().query_fields()
         query_fields.append({'field': 'grade_name', 'model': None})
-        query_fields.append({'field': 'students', 'model': Student})
-        query_fields.append({'field': 'student_groups', 'model': StudentGroup})
         return query_fields
+    
+    def restricted_fields(self):
+        return super().restricted_fields() + ['students'] + ['student_groups']
 
     def __init__(self, grade_name: str):
         self.grade_name = grade_name
@@ -61,8 +62,10 @@ class StudentGroup(BaseDBModel, BASE):
     def query_fields(self):
         query_fields: list[dict[str, any]] = super().query_fields()
         query_fields.append({'field': 'group_name', 'model': None})
-        query_fields.append({'field': 'grades', 'model': Grade})
         return query_fields
+    
+    def restricted_fields(self):
+        return super().restricted_fields() + ['grades']
 
     def __init__(self, group_name: str, grades: list[Grade] = []):
         self.group_name = group_name
@@ -91,6 +94,9 @@ class Student(BaseDBModel, BASE):
         query_fields.append({'field': 'grade', 'model': Grade})
         query_fields.append({'field': 'student_groups', 'model': StudentGroup})
         return query_fields
+    
+    def restricted_fields(self):
+        return super().restricted_fields() + ['grade_id'] + ['student_group_id']
 
     @property
     def student_name(self) -> str:

@@ -1,4 +1,5 @@
 from __future__ import annotations
+import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
@@ -117,6 +118,10 @@ class User(BaseDBModel, UserMixin, BASE):
         query_fields.append({'field': 'email', 'model': None})
         query_fields.append({'field': 'role', 'model': Role})
         return query_fields
+    
+    @staticmethod
+    def read_only_fields(self) -> list:
+        return super().read_only_fields() + ['username']
 
     def set_password(self, password):
         print(f'Setting password: {password}')
@@ -130,7 +135,7 @@ class User(BaseDBModel, UserMixin, BASE):
         return not self.account_locked
     
     def restricted_fields(self):
-        return super().restricted_fields() + ['password_hash'] + ['role_id']
+        return super().restricted_fields() + ['password_hash'] + ['role_id'] + ['login_attempts']
     
     def add_login_attempt(self):
         self.login_attempts += 1
@@ -139,6 +144,15 @@ class User(BaseDBModel, UserMixin, BASE):
     
     def reset_login_attempts(self):
         self.login_attempts = 0
+        self.account_locked = False
+
+    def set_login_date(self):
+        self.last_login = datetime.datetime.now()
+
+    def lock_account(self):
+        self.account_locked = True
+
+    def unlock_account(self):
         self.account_locked = False
     
     def __eq__(self, other):

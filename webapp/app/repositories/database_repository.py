@@ -5,7 +5,6 @@ from flask_sqlalchemy import SQLAlchemy
 
 from app.models import BASE
 from app.models.base_db_model import BaseDBModel
-from app.repositories.admin_database_repository import AdminDatabaseRepository
 from app.repositories.base_database_repository import BaseDatabaseRepository
 from app.repositories.event_database_repository import EventDatabaseRepository
 from app.repositories.point_database_repository import PointDatabaseRepository
@@ -37,7 +36,6 @@ class DatabaseRepository:
             with app.app_context():
                 BASE.metadata.create_all(self._db_.engine)
                 self._db_.session.commit()
-            self._admin_db_ = AdminDatabaseRepository(self._app_, self._db_)
             self._student_db_ = StudentDatabaseRepository(self._app_, self._db_)
             self._event_db_ = EventDatabaseRepository(self._app_, self._db_)
             self._point_db_ = PointDatabaseRepository(self._app_, self._db_)
@@ -46,9 +44,6 @@ class DatabaseRepository:
         if model.__name__ not in self._model_db_:
             self._model_db_[model.__name__] = BaseDatabaseRepository(model, self._app_, self._db_)
         return self._model_db_[model.__name__]
-
-    def get_admin_db_repository(self) -> AdminDatabaseRepository:
-        return self._admin_db_
     
     def get_student_db_repository(self) -> StudentDatabaseRepository:
         return self._student_db_

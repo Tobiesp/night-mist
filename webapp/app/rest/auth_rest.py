@@ -8,7 +8,6 @@ from app.repositories import database_repository
 from app.request_model.login_request import LoginRequest
 from app.request_model.signup_request import SignupRequest
 from app.request_model.forgot_password_request import ForgotPasswordRequest
-from app.response_model.user_response import UserResponse
 
 
 auth_api = Blueprint('auth_api', __name__, static_folder='static', static_url_path='')
@@ -37,8 +36,12 @@ def login():
     except ValueError:
         abort(400)
 
-    datastore = database_repository.DatabaseRepository.instance().get_admin_db_repository()
-    user = datastore.get_user_by_username(login_request.username)
+    datastore = database_repository.DatabaseRepository.instance().get_model_db_repository(User)
+    user_list = datastore.get_by(username=login_request.username)
+    if len(user_list) == 0:
+        abort(403)
+
+    user: User = user_list[0]
 
     if user is None:
         abort(403)
@@ -48,17 +51,32 @@ def login():
 
     if not user.check_password(login_request.password):
         user.add_login_attempt()
-        datastore.update_user(user)
+        clean_user = user.to_response()
+        if 'id' in clean_user:
+            del clean_user['id']
+        datastore.update(id=str(user.id), **clean_user)
+        if user.login_attempts >= 3:
+            user.lock_account()
+            clean_user = user.to_response()
+            if 'id' in clean_user:
+                del clean_user['id']
+            datastore.update(id=str(user.id), **clean_user)
+            return Response(status=403, response='Account Locked. Please contact support')
         abort(403)
 
     user.reset_login_attempts()
-    datastore.update_user(user)
+    user.set_login_date()
+    clean_user = user.to_response()
+    if 'id' in clean_user:
+        del clean_user['id']
+    print(f'Updating user: {clean_user}')
+    datastore.update(id=str(user.id), **clean_user)
     login_user(user)
     # Tell Flask-Principal the identity changed
     identity_changed.send(current_app._get_current_object(),
                             identity=Identity(user.id))
 
-    return UserResponse(user).get_response()
+    return user.to_response()
 
 @LIMITER.limit("4 per hour")
 @auth_api.route('/signup', methods=['POST'])
@@ -72,17 +90,17 @@ def signup():
     except ValueError as ve:
         abort(Response(status=400, response=str(ve)))
 
-    datastore = database_repository.DatabaseRepository.instance().get_admin_db_repository()
-    user = datastore.get_user_by_username(signup_request.username)
+    datastore = database_repository.DatabaseRepository.instance().get_model_db_repository(User)
+    user_list = datastore.get_by(username=signup_request.username)
 
-    if user is not None:
+    if len(user_list) == 0:
         user = User(username=signup_request.username,
-                    firstname=signup_request.firstname,
-                    lastname=signup_request.lastname,
+                    firstname=signup_request.frist_name,
+                    lastname=signup_request.last_name,
                     email=signup_request.email)
         user.role = None
         user.set_password(signup_request.password)
-        datastore.create_user(user)
+        datastore.create(**user.__dict__)
         send_email('Welcome to Score-Keeper', 'Welcome to Score-Keeper', user.email)
         return Response(status=200)
     else:
@@ -101,8 +119,8 @@ def forgot_password():
     except ValueError:
         return Response(status=200)
 
-    datastore = database_repository.DatabaseRepository.instance().get_admin_db_repository()
-    user = datastore.get_user_by_email(forgot_password_request.email)
+    datastore = database_repository.DatabaseRepository.instance().get_model_db_repository(User)
+    user = datastore.get_by(email=forgot_password_request.email)
 
     if user is None:
         return Response(status=200)
@@ -135,6 +153,6 @@ def logout():
 @auth_api.route('/current-user')
 def get_current_user():
     if current_user.is_authenticated:
-        return UserResponse(current_user).get_response()
+        return current_user.to_response()
     else:
         return Response(status=401)

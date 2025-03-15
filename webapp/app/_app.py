@@ -5,7 +5,7 @@ from app import set_limter
 from app.models.students_model import Grade
 
 from app._env import Config, parse
-from app.models.users_model import User
+from app.models.users_model import Priviledge, Role, User
 from app.repositories import database_repository
 from flask_principal import Principal, identity_loaded, UserNeed, RoleNeed
 from flask_limiter import Limiter
@@ -47,9 +47,9 @@ def create_app() -> Flask:
 
     @login_manager.user_loader
     def load_user(userid):
-        datastore = database_repository.DatabaseRepository.instance().get_admin_db_repository()
+        datastore = database_repository.DatabaseRepository.instance().get_model_db_repository(User)
         # Return an instance of the User model
-        return datastore.get_user_by_id(userid)
+        return datastore.get_by_id(userid)
     
     @identity_loaded.connect_via(app)
     def on_identity_loaded(sender, identity):
@@ -132,8 +132,9 @@ def create_db(app: Flask, config: Config) -> None:
 
 
 def create_initial_admin(password: str) -> None:
-    datastore = database_repository.DatabaseRepository.instance().get_admin_db_repository()
-    admin = datastore.get_user_by_username('skadmin')
+    user_db = database_repository.DatabaseRepository.instance().get_model_db_repository(User)
+    role_db = database_repository.DatabaseRepository.instance().get_model_db_repository(Role)
+    admin: User | None = user_db.get_by_first(username='skadmin')
     if admin is None:
         admin = User()
         admin.username = 'skadmin'
@@ -141,12 +142,12 @@ def create_initial_admin(password: str) -> None:
         admin.firstname = 'Score-Keeper'
         admin.lastname = 'Admin'
         admin.email = 'admin@user.com'
-        admin.role = datastore.get_role_by_name('admin')
-        datastore.create_user(admin)
+        admin.role = role_db.get_by_first(role_name='admin')
+        user_db.create(**admin.__dict__)
 
 
 def create_initial_grades() -> None:
-    datastore = database_repository.DatabaseRepository.instance().get_student_db_repository()
+    datastore = database_repository.DatabaseRepository.instance().get_model_db_repository(Grade)
     grades = [
         'k0',
         'k1',
@@ -169,12 +170,12 @@ def create_initial_grades() -> None:
         'graduated'
     ]
     for grade in grades:
-        if datastore.get_grade_by_name(grade) is None:
-            datastore.create_grade(Grade(grade_name=grade))
+        if datastore.get_by_first(grade_name=grade) is None:
+            datastore.create(**Grade(grade_name=grade).__dict__)
 
 
 def create_initial_roles() -> None:
-    datastore = database_repository.DatabaseRepository.instance().get_admin_db_repository()
+    priviledge_db = database_repository.DatabaseRepository.instance().get_model_db_repository(Priviledge)
     priviledges = [
         'admin',
         'student_read',
@@ -187,12 +188,13 @@ def create_initial_roles() -> None:
         'reporter_write'
         ]
     for priviledge in priviledges:
-        if datastore.get_privilege_by_name(priviledge) is None:
-            datastore.create_privilege(priviledge)
+        if priviledge_db.get_by_first(priviledge_name=priviledge) is None:
+            priviledge_db.create(**Priviledge(priviledge_name=priviledge).__dict__)
     
-    admin = datastore.get_role_by_name('admin')
+    role_db = database_repository.DatabaseRepository.instance().get_model_db_repository(Role)
+    admin: Role | None = role_db.get_by_first(role_name='admin')
     if admin is None:
-        datastore.create_role('admin', [datastore.get_privilege_by_name('admin')])
+        role_db.create(**Role(role_name='admin', priviledges=[priviledge_db.get_by_first(priviledge_name='admin')]).__dict__)
 
 
 def create_email_servant(config: Config) -> None:

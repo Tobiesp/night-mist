@@ -35,11 +35,17 @@ class GenericRestAPI(Generic[T]):
         self.blueprint.add_url_rule('/query', view_func=self.query, methods=['GET'])
         self.blueprint.add_url_rule('/count', view_func=self.count, methods=['GET'])
 
+    def _can_delete_check_(self, item_id: str) -> bool:
+        return True
+    
+    def _can_update_check_(self, instance: any) -> bool:
+        return True
 
     @login_required
     def get_all(self):
         with self._read_permissions_.require(http_exception=403):
             items = self._db_.get_all()
+            items = [item.to_response() for item in items]
             return items
         
     @login_required
@@ -48,7 +54,7 @@ class GenericRestAPI(Generic[T]):
             item = self._db_.get_by_id(id)
             if item is None:
                 return Response(status=404, response=f'{T.__class__} not found')
-            return item
+            return item.to_response()
         
     @login_required
     def create(self):
@@ -82,7 +88,7 @@ class GenericRestAPI(Generic[T]):
                         return Response(status=400, response='Invalid request type')
                     request_data.__dict__[key] = [temp_db.get_by_id(item.id) for item in value]
             item = self._db_.create(**request_data.__dict__)
-            return item
+            return item.to_response()
         
     @login_required
     def update(self, id: str):
@@ -94,6 +100,7 @@ class GenericRestAPI(Generic[T]):
                 return Response(status=200)
             except ValueError:
                 return Response(status=200)
+            self._can_update_check_(request_data)
             # find all database model classes in the request data
             for key, value in request_data.__dict__.items():
                 if key == 'id':
@@ -118,20 +125,24 @@ class GenericRestAPI(Generic[T]):
                     request_data.__dict__[key] = [temp_db.get_by_id(item.id) for item in value]
             if 'id' in request_data.__dict__:
                 del request_data.__dict__['id']
-            item = self._db_.update(id, **request_data.__dict__)
-            return item
+            for key in self._model_.read_only_fields():
+                if key in request_data.__dict__:
+                    del request_data.__dict__[key]
+            item = self._db_.update(id=id, **request_data.__dict__)
+            return item.to_response()
 
     @login_required
     def delete(self, id: str):
         with self._delete_permissions_.require(http_exception=403):
-            item = self._db_.delete(id)
-            return item
+            if self._can_delete_check_(self._db_.get_by_id(id)):
+                item = self._db_.delete(id)
+                return item.to_response()
         
     @login_required
     def purge(self):
         with self._purge_permissions_.require(http_exception=403):
-            items = self._db_.purge()
-            return items
+            self._db_.purge()
+            return Response(status=200)
         
     @login_required
     def query(self):
