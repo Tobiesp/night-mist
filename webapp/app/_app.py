@@ -76,6 +76,7 @@ def create_app() -> Flask:
     # add exception handling
     @app.errorhandler(Exception)
     def handle_exception(e):
+        app.logger.exception(e)
         return {'error': 'Internal server error occured'}, 500 # Internal Server Error
     
     @app.errorhandler(404)

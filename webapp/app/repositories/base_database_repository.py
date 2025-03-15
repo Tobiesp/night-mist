@@ -46,7 +46,7 @@ class BaseDatabaseRepository(Generic[T]):
                         if value['id'] is None or value['id'] == '':
                             value = None
                         else:
-                            tmp_uuid = uuid.UUID(value['id'])
+                            tmp_uuid = uuid.UUID(value['id']) if isinstance(value['id'], str) else value['id']
                             tmp = self._db_.session.query(related_model).filter_by(id=tmp_uuid).first()
                             if tmp is None:
                                 value = None
@@ -81,7 +81,7 @@ class BaseDatabaseRepository(Generic[T]):
                         if value['id'] is None or value['id'] == '':
                             value = None
                         else:
-                            tmp_uuid = uuid.UUID(value['id'])
+                            tmp_uuid = uuid.UUID(value['id']) if isinstance(value['id'], str) else value['id']
                             tmp = self._db_.session.query(related_model).filter_by(id=tmp_uuid).first()
                             if tmp is None:
                                 value = None

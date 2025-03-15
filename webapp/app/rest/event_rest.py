@@ -82,7 +82,7 @@ class EventInstanceRestAPI(GenericRestAPI[EventInstance]):
     def __init__(self):
         super().__init__(
             EventInstance,
-            'instances',
+            'events/instances',
             EventInstanceRequest,
             event_read_permission,
             event_write_permission,
