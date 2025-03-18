@@ -1,7 +1,8 @@
-from flask import Response
-from flask_login import login_required
+from flask import Response, request
+from flask_login import current_user, login_required
 from app.models.users_model import Role, User, admin_permission
 from app.repositories import database_repository
+from app.request_model.change_password_request import ChangePasswordRequest
 from app.request_model.user_request import UserRequest
 from app.rest.generic_rest_api import GenericRestAPI
 
@@ -18,6 +19,7 @@ class UserRestAPI(GenericRestAPI[User]):
             admin_permission)
         self.blueprint.add_url_rule('/<string:id>/lock', view_func=self.lock_user, methods=['POST'])
         self.blueprint.add_url_rule('/<string:id>/unlock', view_func=self.unlock_user, methods=['POST'])
+        self.blueprint.add_url_rule('/change_password', view_func=self.change_password, methods=['POST'])
 
     def _can_delete_check_(self, item_id: str):
         item = self._db_.get_by_id(item_id)
@@ -69,4 +71,23 @@ class UserRestAPI(GenericRestAPI[User]):
             user.is_active = True
             database.update(user.id, **user.__dict__)
             return Response(status=200)
+        
+    @login_required
+    def change_password():
+        user: User = current_user
+        try:
+            request_args = ChangePasswordRequest(request.args)
+        except TypeError:
+            return Response(status=400, response='Invalid request type')
+        except ValueError as ve:
+            return Response(status=400, response=str(ve))
+        
+        if user.check_password(request_args.password):
+            user.set_password(request_args.new_password)
+            database = database_repository.DatabaseRepository.instance().get_model_db_repository(User)
+            database.update(user.id, **user.__dict__)
+            return Response(status=200)
+        else:
+            return Response(status=400, response='Invalid password')
+        
     

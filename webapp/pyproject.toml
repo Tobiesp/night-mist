@@ -17,6 +17,7 @@ dependencies = [
     "Flask-Limiter[redis]",
     "flask-cors",
     "pytest",
+    "cryptography>=44.0.2",
 ]
 
 [dependency-groups]

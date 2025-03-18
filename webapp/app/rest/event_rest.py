@@ -19,8 +19,6 @@ class EventRestAPI(GenericRestAPI[Event]):
             event_write_permission,
             event_write_permission,
             admin_permission)
-
-
         self.blueprint.add_url_rule('/<string:event_id>/instance', view_func=self.start_event_instance, methods=['POST'])
         self.blueprint.add_url_rule('/<string:event_id>/instances', view_func=self.get_event_instances, methods=['GET'])
         self.blueprint.add_url_rule('/<string:event_id>/instances/count', view_func=self.get_event_instance_count, methods=['GET'])
@@ -41,7 +39,7 @@ class EventRestAPI(GenericRestAPI[Event]):
                         date = interval.get_next_event_date(event_instance.event_date)
                         event_instance = database.start_event_instance_for_event(event, date)
                 else:
-                    date = interval.get_next_event_date(event_instance.event_date if event_instance is not None else datetime.now())
+                    date = interval.get_next_event_date(event_instance.event_date if event_instance is not None else datetime.datetime.now())
                     event_instance = database.start_event_instance_for_event(event, date)
                 return event_instance.to_response()
             else:
@@ -55,7 +53,7 @@ class EventRestAPI(GenericRestAPI[Event]):
                     else:
                         return last_event_instance.to_response()
                 else:
-                    date = interval.get_next_event_date(last_event_instance.event_date if last_event_instance is not None else datetime.now())
+                    date = interval.get_next_event_date(last_event_instance.event_date if last_event_instance is not None else datetime.datetime.now())
                     event_instance = database.start_event_instance_for_event(event, date)
                 return Response(status=201, response=event_instance.to_json())
         

@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_login import LoginManager, current_user
 
-from app import set_limter
+from app import set_admin_secret, set_limter
 from app.models.students_model import Grade
 
 from app._env import Config, parse
@@ -23,6 +23,8 @@ def create_app() -> Flask:
     app.config['DEBUG'] = config.DEBUG
     app.config['CSRF_ENABLED'] = config.CSRF_ENABLED
     app.config['SERVER_NAME'] = f'{config.HOST}:{config.PORT}'
+
+    set_admin_secret(config.ADMIN_KEY)
 
     CORS(app, supports_credentials=True)
 
@@ -171,6 +173,7 @@ def create_initial_admin(password: str) -> None:
 def create_initial_grades() -> None:
     datastore = database_repository.DatabaseRepository.instance().get_model_db_repository(Grade)
     grades = [
+        'None',
         'k0',
         'k1',
         'k2',

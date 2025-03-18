@@ -19,6 +19,8 @@ class GenericRestAPI(Generic[T]):
         self._root_url_ = root_url
         self._db_: BaseDatabaseRepository[T] = database_repository.DatabaseRepository.instance().get_model_db_repository(model)
         self._read_permissions_ = read_permissions
+        if self._read_permissions_ is None:
+            raise Exception('Read permissions are required')
         self._write_permissions_ = write_permissions
         self._delete_permissions_ = delete_permissions
         self._purge_permissions_ = purge_permissions
@@ -27,13 +29,15 @@ class GenericRestAPI(Generic[T]):
         self.blueprint = Blueprint(f'{model.__name__}_api', __name__, url_prefix=f'/{root_url}')
         self.blueprint.add_url_rule('', view_func=self.get_all, methods=['GET'])
         self.blueprint.add_url_rule('/<string:id>', view_func=self.get_by_id, methods=['GET'])
-        self.blueprint.add_url_rule('', view_func=self.create, methods=['POST'])
-        self.blueprint.add_url_rule('/<string:id>', view_func=self.update, methods=['PUT'])
-        self.blueprint.add_url_rule('/<string:id>', view_func=self.delete, methods=['DELETE'])
-        if hasattr(self._model_, 'deleted'):
-            self.blueprint.add_url_rule('/purge', view_func=self.purge, methods=['DELETE'])
         self.blueprint.add_url_rule('/query', view_func=self.query, methods=['GET'])
         self.blueprint.add_url_rule('/count', view_func=self.count, methods=['GET'])
+        if self._write_permissions_ is not None:
+            self.blueprint.add_url_rule('', view_func=self.create, methods=['POST'])
+            self.blueprint.add_url_rule('/<string:id>', view_func=self.update, methods=['PUT'])
+        if self._delete_permissions_ is not None:
+            self.blueprint.add_url_rule('/<string:id>', view_func=self.delete, methods=['DELETE'])
+        if hasattr(self._model_, 'deleted') and self._purge_permissions_ is not None:
+            self.blueprint.add_url_rule('/purge', view_func=self.purge, methods=['DELETE'])
 
     def _can_delete_check_(self, item_id: str) -> bool:
         return True
@@ -64,9 +68,9 @@ class GenericRestAPI(Generic[T]):
             try:
                 request_data = self._request_cls_(**json_data)
             except TypeError:
-                return Response(status=200)
-            except ValueError:
-                return Response(status=200)
+                return Response(status=400, response='Invalid request type')
+            except ValueError as ve:
+                return Response(status=400, response=str(ve))
             # find all database model classes in the request data
             for key, value in request_data.__dict__.items():
                 if isinstance(value, BaseModel) and hasattr(value, 'id'):
@@ -88,7 +92,7 @@ class GenericRestAPI(Generic[T]):
                         return Response(status=400, response='Invalid request type')
                     request_data.__dict__[key] = [temp_db.get_by_id(item.id) for item in value]
             item = self._db_.create(**request_data.__dict__)
-            return item.to_response()
+            return item.to_response(), 201
         
     @login_required
     def update(self, id: str):
@@ -97,9 +101,9 @@ class GenericRestAPI(Generic[T]):
             try:
                 request_data = self._request_cls_(**json_data)
             except TypeError:
-                return Response(status=200)
-            except ValueError:
-                return Response(status=200)
+                return Response(status=400, response='Invalid request type')
+            except ValueError as ve:
+                return Response(status=400, response=str(ve))
             self._can_update_check_(request_data)
             # find all database model classes in the request data
             for key, value in request_data.__dict__.items():

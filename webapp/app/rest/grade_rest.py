@@ -14,6 +14,22 @@ class GradeRestAPI(GenericRestAPI[Grade]):
             admin_permission,
             admin_permission,
             admin_permission)
+        
+    def _can_delete_check_(self, item_id):
+        item = self._db_.get_by_id(item_id)
+        if item is None:
+            return True
+        if item.grade_name in ['none', 'graduated']:
+            raise Exception('Cannot delete the grade')
+        return super()._can_delete_check_(item_id)
+    
+    def _can_update_check_(self, instance):
+        item = self._db_.get_by_id(instance.id)
+        if item is None:
+            return True
+        if item.grade_name in ['none', 'graduated']:
+            raise Exception('Cannot update the grade')
+        return super()._can_update_check_(instance)
 
 
 

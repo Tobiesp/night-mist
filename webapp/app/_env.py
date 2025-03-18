@@ -7,6 +7,7 @@ class Config:
     TESTING = False
     CSRF_ENABLED = True
     SECRET_KEY = 'this-really-needs-to-be-changed'
+    ADMIN_KEY = 'this-really-needs-to-be-changed!'
     DATABASE_URL = ""
     ADMIN_INITIAL_PASSWORD = 'Adm1n#U$3r'
     PORT = 8081
@@ -25,6 +26,7 @@ def parse():
     parser.add_argument('--debug', action='store_true', help='Enable debug mode', default=False)
     parser.add_argument('--testing', action='store_true', help='Enable testing mode', default=False)
     parser.add_argument('--secret-key', type=str, help='Secret key')
+    parser.add_argument('--admin-key', type=str, help='Admin secret key')
     parser.add_argument('--csrf-enabled', action='store_true', help='Enable CSRF', default=False)
     parser.add_argument('--database-url', type=str, help='Connection Database URL')
     parser.add_argument('--admin-initial-password', type=str, help='Admin initial password')
@@ -66,4 +68,7 @@ def parse():
     config.LIMIT_STORAGE = args.limit_storage or os.environ.get('LIMIT_STORAGE')
     if config.LIMIT_STORAGE is None:
         config.LIMIT_STORAGE = 'memory://'  # Default value
+    config.ADMIN_KEY = args.admin_key or os.environ.get('ADMIN_KEY')
+    if config.ADMIN_KEY is None:
+        config.ADMIN_KEY = 'this-really-needs-to-be-changed!'
     return config
