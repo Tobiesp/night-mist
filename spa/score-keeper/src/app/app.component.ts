@@ -23,17 +23,17 @@ export class AppComponent {
     }
     switch (menuName) {
       case 'home':
-        return this.authService.isAuthorized(['student_read', 'student_write']);;
+        return this.authService.isAuthorized(['student_read', 'point_write']);;
       case 'admin':
         return this.authService.isAuthorized(['admin']);
       case 'points-earn':
-        return this.authService.isAuthorized(['admin', 'points']);
+        return this.authService.isAuthorized(['point_write']);
       case 'points-spend':
-        return this.authService.isAuthorized(['admin', 'points']);
+        return this.authService.isAuthorized(['point_write']);
       case 'events':
-        return this.authService.isAuthorized(['admin', 'events']);
+        return this.authService.isAuthorized(['pevent_write']);
       case 'reporter':
-        return this.authService.isAuthorized(['admin', 'reporter']);
+        return this.authService.isAuthorized(['reporter_read']);
       default:
         return false;
     }

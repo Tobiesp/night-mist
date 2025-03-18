@@ -45,6 +45,9 @@ import { SignupDialogComponent } from './pages/login-pages/signup-dialog/signup-
 import { AddEditUserDialogComponent } from './pages/admin-pages/users/add-edit-user-dialog/add-edit-user-dialog/add-edit-user-dialog.component';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { GradesComponent } from './pages/admin-pages/grades/grades.component';
+import { StudentsComponent } from './pages/home/students/students.component';
+import { RunningTotalsComponent } from './pages/home/running-totals/running-totals.component';
+import { AddEditStudentDialogComponent } from './pages/home/students/add-edit-student-dialog/add-edit-student-dialog.component';
 
 @NgModule({
     declarations: [
@@ -70,6 +73,9 @@ import { GradesComponent } from './pages/admin-pages/grades/grades.component';
         SignupDialogComponent,
         AddEditUserDialogComponent,
         GradesComponent,
+        StudentsComponent,
+        RunningTotalsComponent,
+        AddEditStudentDialogComponent,
     ],
     imports: [
         BrowserModule,

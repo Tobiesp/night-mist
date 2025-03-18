@@ -1,14 +1,14 @@
 <mat-tab-group>
-    <mat-tab label="Running Totals">
-        <h1>Student Running Totals</h1>
+    <mat-tab *ngIf='showRunningTotals' label="Running Totals">
+        <app-running-totals></app-running-totals>
     </mat-tab>
-    <mat-tab label="Students">
-        <h1>Add and Edit Students</h1>
+    <mat-tab *ngIf='showStudents' label="Students">
+        <app-students></app-students>
     </mat-tab>
-    <mat-tab label="Points Earned">
+    <mat-tab *ngIf='showPointsEarned' label="Points Earned">
         <h1>Screen to add Student points earned for an event</h1>
     </mat-tab>
-    <mat-tab label="Points Spent">
+    <mat-tab *ngIf='showPointsSpent' label="Points Spent">
         <h1>Screen to add Student Points spent for an event</h1>
     </mat-tab>
 </mat-tab-group>

@@ -122,7 +122,6 @@ constructor(
     }
     this.role.role_name = this.roleForm.value.rolename;
     this.role.priviledges = this.priviledges();
-    console.log(JSON.stringify(this.role));
     this.dialogRef.close(this.role);
   }
 }

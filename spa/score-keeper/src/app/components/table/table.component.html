@@ -42,7 +42,7 @@
                 <tr>
                     <ng-container *ngFor="let column of config.columns; let i = index">
                         <th *ngIf="!column.hidden" class="p-4 border-y table-header"
-                            [ngStyle]="{ 'width': column.width.toString() + 'px', 'text-align': 'center' }"
+                            [ngStyle]="{ 'width': column.width.toString() + 'px', 'text-align': 'center', 'justify-content': 'center' }"
                             [mat-sort-header]="column.field.toString()"
                             [sortActionDescription]="'Sort by ' + column.name">
                             <p

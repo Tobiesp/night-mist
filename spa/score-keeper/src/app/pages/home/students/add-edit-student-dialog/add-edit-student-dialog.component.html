@@ -1,0 +1,61 @@
+<div>
+    <h1 *ngIf="data.type == 'add'" mat-dialog-title>Add Student</h1>
+    <h1 *ngIf="data.type == 'edit'" mat-dialog-title>Edit Student</h1>
+    <form [formGroup]="studentForm" (ngSubmit)="onConfirm()">
+        <div style="flex: 1 1 auto;" class="p-4">
+            <mat-form-field class="full-field-width">
+                <mat-label>Student Firstname</mat-label>
+                <input type="text"
+                        matInput 
+                        #input 
+                        placeholder="Student Firstname" 
+                        aria-label="firstname"
+                        formControlName="firstname" />
+                <div
+                    *ngIf="studentForm.controls['firstname'].invalid && (studentForm.controls['firstname'].dirty || studentForm.controls['firstname'].touched)">
+                    <div *ngIf="studentForm.controls['firstname'].errors?.['required']" class="text-bold-red-500">Student firstname is required.</div>
+                </div>
+            </mat-form-field>
+
+            <mat-form-field class="full-field-width">
+                <mat-label>Student Lastname</mat-label>
+                <input type="text"
+                        matInput 
+                        #input 
+                        placeholder="Student Lastname" 
+                        aria-label="lastname"
+                        formControlName="lastname" />
+                <div
+                    *ngIf="studentForm.controls['lastname'].invalid && (studentForm.controls['lastname'].dirty || studentForm.controls['lastname'].touched)">
+                    <div *ngIf="studentForm.controls['lastname'].errors?.['required']" class="text-bold-red-500">Student lastname is required.</div>
+                </div>
+            </mat-form-field>
+
+            <mat-form-field class="full-field-width">
+                <mat-label>Student Grade</mat-label>
+                <mat-select formControlName="grade" placeholder="Select Grade">
+                    <mat-option *ngFor="let grade of grades" [value]="grade">{{ grade.grade_name }}</mat-option>
+                </mat-select>
+                <div
+                    *ngIf="studentForm.controls['grade'].invalid && (studentForm.controls['grade'].dirty || studentForm.controls['grade'].touched)">
+                    <div *ngIf="studentForm.controls['grade'].errors?.['required']" class="text-bold-red-500">Student grade is required.</div>
+                </div>
+            </mat-form-field>
+
+            <mat-form-field class="full-field-width">
+                <mat-label>Student Group</mat-label>
+                <mat-select formControlName="student_group" placeholder="Select Group">
+                    <mat-option *ngFor="let group of groups" [value]="group">{{ group.group_name }}</mat-option>
+                </mat-select>
+                <div
+                    *ngIf="studentForm.controls['student_group'].invalid && (studentForm.controls['student_group'].dirty || studentForm.controls['student_group'].touched)">
+                    <div *ngIf="studentForm.controls['student_group'].errors?.['required']" class="text-bold-red-500">Student group is required.</div>
+                </div>
+            </mat-form-field>
+        </div>
+        <div mat-dialog-actions style="position: absolute; bottom: 0; width: 100%;">
+            <button mat-button (click)="onCancel()">Cancel</button>
+            <button mat-button (click)="onConfirm()" type="submit">Confirm</button>
+        </div>
+    </form> 
+</div>
