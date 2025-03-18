@@ -67,8 +67,8 @@ class Admin(BaseDBModel, BASE):
         bytes = base64.b64decode(self.value)
         return cipher_suite.decrypt(bytes).decode()
     
-    @property.setter
-    def secret(self, value: str) -> None:  # noqa: F811
+    @secret.setter
+    def secret(self, value: str) -> None:
         cipher_suite = Fernet(self._get_secret_key())
         bytes = cipher_suite.encrypt(value.encode())
         self.value = base64.b64encode(bytes).decode()
