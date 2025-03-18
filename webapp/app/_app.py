@@ -101,8 +101,11 @@ def create_app() -> Flask:
 
 
 def import_blueprints(app: Flask) -> Flask:
-    from app.rest.admin_rest import admin_api
-    app.register_blueprint(admin_api)
+    from app.rest.admin_rest import PriviledgeRestAPI, AdminRestAPI
+    priviledge_api = PriviledgeRestAPI()
+    admin_api = AdminRestAPI()
+    app.register_blueprint(priviledge_api.blueprint)
+    app.register_blueprint(admin_api.blueprint)
 
     from app.rest.auth_rest import auth_api
     app.register_blueprint(auth_api)
