@@ -1,17 +1,28 @@
-from flask import Blueprint
-from flask_login import login_required
-
-from app.repositories import database_repository
+from app.models.admin_model import Admin
 from app.models.users_model import Priviledge, admin_permission
+from app.request_model.admin_request import AdminRequest
+from app.rest.generic_rest_api import GenericRestAPI
 
 
-admin_api = Blueprint('admin_api', __name__)
+class PriviledgeRestAPI(GenericRestAPI[Priviledge]):
+    def __init__(self):
+        super().__init__(
+            Priviledge,
+            'priviledges',
+            None,
+            admin_permission,
+            None,
+            None,
+            None)
 
 
-@admin_api.route('/priviledges', methods=['GET'])
-@login_required
-@admin_permission.require(http_exception=403)
-def get_priviledges():
-    database = database_repository.DatabaseRepository.instance().get_model_db_repository(Priviledge)
-    priviledges = database.get_all()
-    return [priviledge.to_response() for priviledge in priviledges]
+class AdminRestAPI(GenericRestAPI[Admin]):
+    def __init__(self):
+        super().__init__(
+            Admin,
+            'admin',
+            AdminRequest,
+            admin_permission,
+            admin_permission,
+            admin_permission,
+            admin_permission)
