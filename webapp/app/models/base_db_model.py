@@ -116,6 +116,8 @@ class BaseDBModel:
         return f'<{self.__class__.__name__} {self.id}>'
     
     def __eq__(self, other: BaseDBModel) -> bool:
+        if other is None:
+            return False
         for key, value in self.__dict__.items():
             if key == 'id':
                 continue

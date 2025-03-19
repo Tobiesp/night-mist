@@ -39,10 +39,10 @@ class GenericRestAPI(Generic[T]):
         if hasattr(self._model_, 'deleted') and self._purge_permissions_ is not None:
             self.blueprint.add_url_rule('/purge', view_func=self.purge, methods=['DELETE'])
 
-    def _can_delete_check_(self, item_id: str) -> bool:
+    def _can_delete_check_(self, item: T) -> bool:
         return True
     
-    def _can_update_check_(self, instance: any) -> bool:
+    def _can_update_check_(self, instance: T) -> bool:
         return True
 
     @login_required
@@ -138,7 +138,10 @@ class GenericRestAPI(Generic[T]):
     @login_required
     def delete(self, id: str):
         with self._delete_permissions_.require(http_exception=403):
-            if self._can_delete_check_(self._db_.get_by_id(id)):
+            item = self._db_.get_by_id(id)
+            if item is None:
+                return Response(status=404)
+            if self._can_delete_check_(item):
                 item = self._db_.delete(id)
                 return item.to_response()
         

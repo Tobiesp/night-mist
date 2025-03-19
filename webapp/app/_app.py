@@ -79,7 +79,7 @@ def create_app() -> Flask:
     @app.errorhandler(Exception)
     def handle_exception(e):
         app.logger.exception(e)
-        return {'error': 'Internal server error occured'}, 500 # Internal Server Error
+        return {'error': str(e)}, 500 # Internal Server Error
     
     @app.errorhandler(404)
     def page_not_found(e):
