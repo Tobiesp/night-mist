@@ -51,7 +51,7 @@ export class StudentsComponent {
 
   constructor(
     public dialog: MatDialog,
-    logger: LoggerService,
+    private logger: LoggerService,
     studentsService: StudentsService) {
       this.dataSource = new StudentDataSource(studentsService, logger);
   }
@@ -87,7 +87,7 @@ export class StudentsComponent {
     } else if (event.action === 'addRowEvent') {
       this.openAddDialog();
     } else {
-      console.log('Unknown event action:', event.action);
+      this.logger.error(`Unknown event action: ${event.action}`);
     }
   }
 

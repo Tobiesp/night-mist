@@ -1,9 +1,29 @@
-<section>
-    <h3>Grades</h3>
-    <mat-chip-listbox class="mat-mdc-chip-set-stacked" aria-label="Cutest dog breeds">
-        @for (grade of grades(); track grade) {
-        <mat-chip-option>{{grade.grade_name}}</mat-chip-option>
-        }
-  </mat-chip-listbox>
-</section>
+<h3>Grades</h3>
+<mat-list>
+    <mat-list-item *ngFor="let grade of grades; let i = index">
+    {{ grade.grade_name }}
+    <button mat-icon-button (click)="removeGrade(grade)">
+        <mat-icon>delete</mat-icon>
+    </button>
+    </mat-list-item>
+</mat-list>
+
+<form [formGroup]="gradeForm" (ngSubmit)="addGrade()">
+    <div style="flex: 1 1 auto;" class="p-4">
+        <mat-form-field class="full-field-width">
+            <mat-label>Grade</mat-label>
+            <input type="text"
+                    matInput 
+                    #input 
+                    placeholder="grade" 
+                    aria-label="grade"
+                    formControlName="grade_name" />
+            <div
+                *ngIf="gradeForm.controls['grade_name'].invalid && (gradeForm.controls['grade_name'].dirty || gradeForm.controls['grade_name'].touched)">
+                <div *ngIf="gradeForm.controls['grade_name'].errors?.['required']" class="text-bold-red-500">Grade is required.</div>
+            </div>
+        </mat-form-field>
+    </div>
+    <button mat-raised-button color="primary" type="submit">Add</button>
+</form>
   

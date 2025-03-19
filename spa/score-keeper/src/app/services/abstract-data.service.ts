@@ -34,7 +34,7 @@ export abstract class AbstractDataService<T extends BaseModel> extends BaseServi
    * Return an observable of the data.
    */
   create(item: T): Observable<T> {
-    return this.client.post<T>(this.baseUrl + '/' + this.root_api + '/', item, { withCredentials: true });
+    return this.client.post<T>(this.baseUrl + '/' + this.root_api, item, { withCredentials: true });
   }
   
   /*
