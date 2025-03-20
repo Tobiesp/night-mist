@@ -26,10 +26,12 @@ export interface User extends BaseModel {
 
 export interface Grade extends BaseModel {
     grade_name: string;
+    grade_value: number;
 }
 
 export interface StudentGroup extends BaseModel {
     group_name: string;
+    grades: Grade[];
 }
 
 export interface Student extends BaseModel {

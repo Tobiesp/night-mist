@@ -48,6 +48,11 @@ import { GradesComponent } from './pages/admin-pages/grades/grades.component';
 import { StudentsComponent } from './pages/home/students/students.component';
 import { RunningTotalsComponent } from './pages/home/running-totals/running-totals.component';
 import { AddEditStudentDialogComponent } from './pages/home/students/add-edit-student-dialog/add-edit-student-dialog.component';
+import { StudentGroupsComponent } from './pages/admin-pages/student-groups/student-groups.component';
+import { PointsEarnedHomeComponent } from './pages/home/points-earned/points-earned.component';
+import { PointsSpentHomeComponent } from './pages/home/points-spent/points-spent.component';
+import { ErrorDialogComponent } from './components/error-dialog/error-dialog/error-dialog.component';
+import { EditStudentGroupDialogComponent } from './pages/admin-pages/student-groups/edit-student-group-dialog/edit-student-group-dialog.component';
 
 @NgModule({
     declarations: [
@@ -76,6 +81,11 @@ import { AddEditStudentDialogComponent } from './pages/home/students/add-edit-st
         StudentsComponent,
         RunningTotalsComponent,
         AddEditStudentDialogComponent,
+        StudentGroupsComponent,
+        PointsEarnedHomeComponent,
+        PointsSpentHomeComponent,
+        ErrorDialogComponent,
+        EditStudentGroupDialogComponent,
     ],
     imports: [
         BrowserModule,
@@ -103,6 +113,7 @@ import { AddEditStudentDialogComponent } from './pages/home/students/add-edit-st
         MatSortModule,
         MatTabsModule,
         MatListModule,
+        MatLabel,
     ],
     providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes), provideHttpClient(withInterceptorsFromDi())],
     bootstrap: [AppComponent],

@@ -1,15 +1,15 @@
 <div>
-  <h1 mat-dialog-title style="font-size: 2em;">An Error Has Occurred!</h1>
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h1 mat-dialog-title style="font-size: 2em; margin: 0;">An Error Has Occurred!</h1>
+    <button mat-raised-button mat-dialog-close (click)="onClose()" style="margin: 0;">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
   <div mat-dialog-content>
-    <p *ngIf="data.status">
-      <b>Status Code: {{ data.status }}</b>
-    </p>
     <p>Something went wrong!</p>
     <p class="error-message">
       {{ data.message }}
     </p>
   </div>
-  <div mat-dialog-actions style="position: absolute; right: 10px; width: 100%; text-align: right;">
-    <button mat-raised-button mat-dialog-close color="primary" (click)="onClose()">Close</button>
-  </div>
+  
 </div>

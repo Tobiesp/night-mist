@@ -11,10 +11,9 @@
                         placeholder="Student Firstname" 
                         aria-label="firstname"
                         formControlName="firstname" />
-                <div
-                    *ngIf="studentForm.controls['firstname'].invalid && (studentForm.controls['firstname'].dirty || studentForm.controls['firstname'].touched)">
-                    <div *ngIf="studentForm.controls['firstname'].errors?.['required']" class="text-bold-red-500">Student firstname is required.</div>
-                </div>
+                <mat-error *ngIf="studentForm.controls['firstname'].hasError('required')">
+                    Student firstname is required.
+                </mat-error>
             </mat-form-field>
 
             <mat-form-field class="full-field-width">
@@ -25,10 +24,9 @@
                         placeholder="Student Lastname" 
                         aria-label="lastname"
                         formControlName="lastname" />
-                <div
-                    *ngIf="studentForm.controls['lastname'].invalid && (studentForm.controls['lastname'].dirty || studentForm.controls['lastname'].touched)">
-                    <div *ngIf="studentForm.controls['lastname'].errors?.['required']" class="text-bold-red-500">Student lastname is required.</div>
-                </div>
+                <mat-error *ngIf="studentForm.controls['lastname'].hasError('required')">
+                    Student lastname is required.
+                </mat-error>
             </mat-form-field>
 
             <mat-form-field class="full-field-width">
@@ -36,10 +34,9 @@
                 <mat-select formControlName="grade" placeholder="Select Grade">
                     <mat-option *ngFor="let grade of grades" [value]="grade">{{ grade.grade_name }}</mat-option>
                 </mat-select>
-                <div
-                    *ngIf="studentForm.controls['grade'].invalid && (studentForm.controls['grade'].dirty || studentForm.controls['grade'].touched)">
-                    <div *ngIf="studentForm.controls['grade'].errors?.['required']" class="text-bold-red-500">Student grade is required.</div>
-                </div>
+                <mat-error *ngIf="studentForm.controls['grade'].hasError('required')">
+                    Student grade is required.
+                </mat-error>
             </mat-form-field>
 
             <mat-form-field class="full-field-width">
@@ -47,10 +44,9 @@
                 <mat-select formControlName="student_group" placeholder="Select Group">
                     <mat-option *ngFor="let group of groups" [value]="group">{{ group.group_name }}</mat-option>
                 </mat-select>
-                <div
-                    *ngIf="studentForm.controls['student_group'].invalid && (studentForm.controls['student_group'].dirty || studentForm.controls['student_group'].touched)">
-                    <div *ngIf="studentForm.controls['student_group'].errors?.['required']" class="text-bold-red-500">Student group is required.</div>
-                </div>
+                <mat-error *ngIf="studentForm.controls['student_group'].hasError('required')">
+                    Student group is required.
+                </mat-error>
             </mat-form-field>
         </div>
         <div mat-dialog-actions style="position: absolute; bottom: 0; width: 100%;">

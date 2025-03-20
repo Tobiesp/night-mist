@@ -12,9 +12,9 @@
                placeholder="Enter your firstname" 
                aria-label="firstname"
                formControlName="firstname" />
-        <div *ngIf="signupForm.controls['firstname'].invalid && (signupForm.controls['firstname'].dirty || signupForm.controls['firstname'].touched)">
-          <div *ngIf="signupForm.controls['firstname'].errors?.['required']" class="bold-red-text">Firstname is required.</div>
-        </div>
+        <mat-error *ngIf="signupForm.controls['firstname'].hasError('required')">
+          Firstname is required.
+        </mat-error>
       </mat-form-field>
 
       <mat-form-field class="full-field-width">
@@ -24,9 +24,9 @@
                placeholder="Enter your lastname" 
                aria-label="lastname"
                formControlName="lastname" />
-        <div *ngIf="signupForm.controls['lastname'].invalid && (signupForm.controls['lastname'].dirty || signupForm.controls['lastname'].touched)">
-          <div *ngIf="signupForm.controls['lastname'].errors?.['required']" class="bold-red-text">Lastname is required.</div>
-        </div>
+        <mat-error *ngIf="signupForm.controls['lastname'].hasError('required')">
+          Lastname is required.
+        </mat-error>
       </mat-form-field>
 
       <mat-form-field class="full-field-width">
@@ -36,9 +36,9 @@
                placeholder="Enter your username" 
                aria-label="username"
                formControlName="username" />
-        <div *ngIf="signupForm.controls['username'].invalid && (signupForm.controls['username'].dirty || signupForm.controls['username'].touched)">
-          <div *ngIf="signupForm.controls['username'].errors?.['required']" class="bold-red-text">Username is required.</div>
-        </div>
+        <mat-error *ngIf="signupForm.controls['username'].hasError('required')">
+          Username is required.
+        </mat-error>
       </mat-form-field>
       
       <mat-form-field class="full-field-width">
@@ -48,10 +48,12 @@
                placeholder="Enter your email" 
                aria-label="email"
                formControlName="email" />
-        <div *ngIf="signupForm.controls['email'].invalid && (signupForm.controls['email'].dirty || signupForm.controls['email'].touched)">
-          <div *ngIf="signupForm.controls['email'].errors?.['required']" class="bold-red-text">Email is required.</div>
-          <div *ngIf="signupForm.controls['email'].errors?.['email']" class="bold-red-text">Email format invalid.</div>
-        </div>
+        <mat-error *ngIf="signupForm.controls['email'].hasError('required')">
+          Email is required.
+        </mat-error>
+        <mat-error *ngIf="signupForm.controls['email'].hasError('email')">
+          Email format invalid.
+        </mat-error>
       </mat-form-field>
 
       <mat-form-field class="full-field-width">
@@ -61,11 +63,15 @@
                placeholder="Enter your password" 
                aria-label="password"
                formControlName="password" />
-        <div *ngIf="signupForm.controls['password'].invalid && (signupForm.controls['password'].dirty || signupForm.controls['password'].touched)">
-          <div *ngIf="signupForm.controls['password'].errors?.['required']" class="bold-red-text">Password is required.</div>
-          <div *ngIf="signupForm.controls['password'].errors?.['minlength'] || signupForm.controls['password'].errors?.['maxlength']" class="bold-red-text">Password must be at least 8 characters long and shorter then 30.</div>
-          <div *ngIf="signupForm.controls['password'].errors?.['pattern']" class="bold-red-text">Password must contain at least one uppercase letter, one lowercase letter, one number, and one of these symbols [!&#64;#$%^&*].</div>
-        </div>
+        <mat-error *ngIf="signupForm.controls['confirmPassword'].hasError('required')">
+          Password is required.
+        </mat-error>
+        <mat-error *ngIf="signupForm.controls['confirmPassword'].hasError('minlength')">
+          Password must be at least 8 characters long and shorter then 30.
+        </mat-error>
+        <mat-error *ngIf="signupForm.controls['confirmPassword'].hasError('pattern')">
+          Password must contain at least one uppercase letter, one lowercase letter, one number, and one of these symbols [!&#64;#$%^&*].
+        </mat-error>
       </mat-form-field>
 
       <mat-form-field class="full-field-width">
@@ -75,10 +81,12 @@
                placeholder="Confirm your password" 
                aria-label="confirmPassword"
                formControlName="confirmPassword" />
-        <div *ngIf="signupForm.controls['confirmPassword'].invalid && (signupForm.controls['confirmPassword'].dirty || signupForm.controls['confirmPassword'].touched)">
-          <div *ngIf="signupForm.controls['confirmPassword'].errors?.['required']" class="bold-red-text">Confirm Password is required.</div>
-        </div>
-        <div *ngIf="confirmPasswordValid" class="bold-red-text">Confirm Password must match Password.</div>
+        <mat-error *ngIf="signupForm.controls['confirmPassword'].hasError('required')">
+          Confirm Password is required.
+        </mat-error>
+        <mat-error *ngIf="confirmPasswordValid">
+          Confirm Password must match Password.
+        </mat-error>
       </mat-form-field>
     </mat-dialog-content>
     <mat-dialog-actions class="dialog-actions">

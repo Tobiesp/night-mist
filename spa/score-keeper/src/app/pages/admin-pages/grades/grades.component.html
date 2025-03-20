@@ -1,29 +1,46 @@
-<h3>Grades</h3>
-<mat-list>
-    <mat-list-item *ngFor="let grade of grades; let i = index">
-    {{ grade.grade_name }}
-    <button mat-icon-button (click)="removeGrade(grade)">
-        <mat-icon>delete</mat-icon>
-    </button>
-    </mat-list-item>
-</mat-list>
-
-<form [formGroup]="gradeForm" (ngSubmit)="addGrade()">
-    <div style="flex: 1 1 auto;" class="p-4">
-        <mat-form-field class="full-field-width">
-            <mat-label>Grade</mat-label>
-            <input type="text"
-                    matInput 
-                    #input 
-                    placeholder="grade" 
-                    aria-label="grade"
-                    formControlName="grade_name" />
-            <div
-                *ngIf="gradeForm.controls['grade_name'].invalid && (gradeForm.controls['grade_name'].dirty || gradeForm.controls['grade_name'].touched)">
-                <div *ngIf="gradeForm.controls['grade_name'].errors?.['required']" class="text-bold-red-500">Grade is required.</div>
-            </div>
-        </mat-form-field>
+<h1 style="font-size: 1.5em;">Grades</h1>
+<div style="display: flex; flex-wrap: wrap;">
+    <div style="flex: 1 1 30%; max-width: 100%; box-sizing: border-box;" class="column">
+        <mat-list>
+            <mat-list-item *ngFor="let grade of grades; let i = index">
+                {{ grade.grade_value }}: {{ grade.grade_name }}
+                <button mat-icon-button (click)="removeGrade(grade)">
+                    <mat-icon>delete</mat-icon>
+                </button>
+            </mat-list-item>
+        </mat-list>
     </div>
-    <button mat-raised-button color="primary" type="submit">Add</button>
-</form>
+    <div style="flex: 1 1 70%; max-width: 100%; box-sizing: border-box;" class="column">
+        <h1 style="font-size: 1.5em;">Add Grade</h1>
+        <form [formGroup]="gradeForm" (ngSubmit)="addGrade()">
+            <div style="flex: 1 1 auto;" class="p-4">
+                <mat-form-field class="full-field-width">
+                    <mat-label>Grade</mat-label>
+                    <input type="text"
+                           matInput 
+                           #input 
+                           placeholder="grade" 
+                           aria-label="grade"
+                           formControlName="grade_name" />
+                    <mat-error *ngIf="gradeForm.controls['grade_name'].hasError('required')">
+                        Grade name is required.
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field class="full-field-width">
+                    <mat-label>Grade Value</mat-label>
+                    <input type="number"
+                           matInput 
+                           #input 
+                           placeholder="grade value" 
+                           aria-label="grade value"
+                           formControlName="grade_value" />
+                    <mat-error *ngIf="gradeForm.controls['grade_value'].hasError('required')">
+                        Grade value is required.
+                    </mat-error>
+                </mat-form-field>
+            </div>
+            <button mat-raised-button color="primary" type="submit">Add</button>
+        </form>
+    </div>
+</div>
   

@@ -1,11 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { GradeService } from '../../../services/admin/grade.service';
 import { Grade } from '../../../models/models';
-import { MatChipGrid, MatChipInputEvent } from '@angular/material/chips';
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ErrorDialogService } from '../../../services/error-dialog.service';
-import { Form, FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-grades',
@@ -25,6 +22,7 @@ export class GradesComponent {
     this.gradeService.getAll().subscribe({
       next: (grades: Grade[]) => {
         this.grades = grades;
+        this.grades.sort((a, b) => a.grade_value - b.grade_value);
       },
       error: (error: any) => {
         this.errorService.showErrorDialog('Error getting grades', error.status);
@@ -34,14 +32,16 @@ export class GradesComponent {
 
   ngOnInit() {
     this.gradeForm = new FormGroup({
-      grade_name: new FormControl('')
+      grade_name: new FormControl('', [Validators.required]),
+      grade_value: new FormControl('', [Validators.required])
     });
   }
   
   addGrade() {
-    if (this.gradeForm.valid && this.gradeForm.get('grade_name')?.value !== '') {
+    if (this.gradeForm.valid) {
       const  tmp = {
-        grade_name: this.gradeForm.get('grade_name')?.value
+        grade_name: this.gradeForm.get('grade_name')?.value,
+        grade_value: this.gradeForm.get('grade_value')?.value
       }
       this.gradeService.create(tmp).subscribe({
         next: (grade: Grade) => {
@@ -49,7 +49,7 @@ export class GradesComponent {
           this.gradeForm.reset();
         },
         error: (error: any) => {
-          this.errorService.showErrorDialog(`Error creating grade: ${JSON.stringify(error.error.error)}`, error.status);
+          this.errorService.showErrorDialog(`Error creating grade: ${JSON.stringify(error.error)}`, error.status);
         }
       });
     }
@@ -63,7 +63,7 @@ export class GradesComponent {
           this.grades = this.grades.filter(g => g.id !== id);
         },
         error: (error: any) => {
-          this.errorService.showErrorDialog(`Error deleting grade: ${JSON.stringify(error.error.error)}`, error.status);
+          this.errorService.showErrorDialog(`Error deleting grade: ${JSON.stringify(error.error)}`, error.status);
         }
       });
     }

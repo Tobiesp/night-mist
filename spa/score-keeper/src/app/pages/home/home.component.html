@@ -6,9 +6,9 @@
         <app-students></app-students>
     </mat-tab>
     <mat-tab *ngIf='showPointsEarned' label="Points Earned">
-        <h1>Screen to add Student points earned for an event</h1>
+        <app-points-earned-home></app-points-earned-home>
     </mat-tab>
     <mat-tab *ngIf='showPointsSpent' label="Points Spent">
-        <h1>Screen to add Student Points spent for an event</h1>
+        <app-points-spent-home></app-points-spent-home>
     </mat-tab>
 </mat-tab-group>

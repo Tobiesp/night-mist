@@ -1,0 +1,60 @@
+<div style="display: flex; flex-wrap: wrap;">
+    <div style="flex: 1 1 30%; max-width: 100%; box-sizing: border-box;" class="column">
+        <h1 style="font-size: 1.5em;">Student Groups</h1>
+        <mat-list>
+            <mat-list-item *ngFor="let group of groups; let i = index">
+                <mat-card style="padding-top: 10px; padding-bottom: 5px; width: 100%;">
+                    <mat-card-header>
+                        <mat-card-title>{{ group.group_name }}</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div style="display: flex; align-items: center;">
+                            <span> grades: {{ displayGrades(group.grades) }}</span>
+                            <button mat-icon-button (click)="removeGroup(group)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                            <button mat-icon-button (click)="editGroup(group)">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            </mat-list-item>
+        </mat-list>
+    </div>
+    <div style="flex: 1 1 70%; max-width: 100%; box-sizing: border-box;" class="column">
+        <form [formGroup]="groupsForm" (ngSubmit)="addGroup()">
+            <h1 style="font-size: 1.5em;">Add Group</h1>
+            <mat-card>
+                <mat-card-content>
+                    <mat-form-field appearance="fill" class="full-field-width">
+                        <mat-label>Group name</mat-label>
+                        <input type="text"
+                               matInput 
+                               #input 
+                               placeholder="group name" 
+                               aria-label="group name"
+                               formControlName="group_name" />
+                        <mat-error *ngIf="groupsForm.controls['group_name'].hasError('required')">
+                            Group name is required.
+                        </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill" class="full-field-width">
+                        <mat-label>Grades</mat-label>
+                        <mat-select formControlName="grades" multiple>
+                            <mat-option *ngFor="let grade of grades" [value]="grade">{{ grade.grade_name }}</mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="groupsForm.controls['grades'].hasError('required')">
+                            Grades are required.
+                        </mat-error>
+                    </mat-form-field>
+                </mat-card-content>
+                <mat-card-actions>
+                    <button mat-raised-button color="primary" type="submit">Add</button>
+                </mat-card-actions>
+            </mat-card>
+        </form>
+    </div>
+</div>
+  

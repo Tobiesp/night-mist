@@ -241,7 +241,6 @@ export class TableComponent<T extends Row> implements AfterViewInit {
         this.dataSource.setSort(this.sorter);
         this.dataSource.connect().subscribe({
             next: (data: T[]) => {
-                console.log('Table Data:', data);
                 this.data = data;
             }
         });
@@ -253,7 +252,6 @@ export class TableComponent<T extends Row> implements AfterViewInit {
     }
 
     applyFilter() {
-        console.log('Filter:', this.filterValue);
         this.dataSource.filter(this.filterValue);
     }
 

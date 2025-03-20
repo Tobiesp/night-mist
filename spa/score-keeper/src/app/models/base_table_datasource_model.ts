@@ -26,7 +26,7 @@ export abstract class BaseTableDataSourceModel<T extends BaseModel> extends Base
             this.observable.next(data);
           },
           error: (error) => {
-            throw new Error(`Error loading ${this.service.root_api}: ${error}`);
+            throw new Error(`Error loading ${this.service.root_api}: ${error.error.error}`, error.status);
           }
         });
         return this.observable;
@@ -53,7 +53,7 @@ export abstract class BaseTableDataSourceModel<T extends BaseModel> extends Base
             this.observable.next(data);
           },
           error: (error) => {
-            throw new Error(`Error filtering ${this.service.root_api}: ${error}`);
+            throw new Error(`Error filtering ${this.service.root_api}: ${error.error.error}`, error.status);
           }
         });
       }
@@ -71,7 +71,7 @@ export abstract class BaseTableDataSourceModel<T extends BaseModel> extends Base
             this.observable.next(data);
           },
           error: (error) => {
-            throw new Error(`Error sorting ${this.service.root_api}: ${error}`);
+            throw new Error(`Error sorting ${this.service.root_api}: ${error.error.error}`, error.status);
           }
         });
       }
@@ -88,7 +88,7 @@ export abstract class BaseTableDataSourceModel<T extends BaseModel> extends Base
             this.observable.next(data);
           },
           error: (error) => {
-            throw new Error(`Error getting page ${page} for ${this.service.root_api}: ${error}`);
+            throw new Error(`Error getting page ${page} for ${this.service.root_api}: ${error.error.error}`, error.status);
           }
         });
       }
@@ -105,7 +105,7 @@ export abstract class BaseTableDataSourceModel<T extends BaseModel> extends Base
             this.setPage(page, pageSize);
           },
           error: (error) => {
-            throw new Error(`Error adding role: ${error}`);
+            throw new Error(`Error adding role: ${error.error.error}`, error.status);
           }
         });
       }
@@ -125,7 +125,7 @@ export abstract class BaseTableDataSourceModel<T extends BaseModel> extends Base
             this.setPage(page, pageSize);
           },
           error: (error) => {
-            throw new Error(`Error deleting role: ${error}`);
+            throw new Error(`Error deleting role: ${error.error.error}`, error.status);
           }
         });
       }
@@ -142,7 +142,7 @@ export abstract class BaseTableDataSourceModel<T extends BaseModel> extends Base
             this.setPage(page, pageSize);
           },
           error: (error) => {
-            throw new Error(`Error updating role: ${error}`);
+            throw new Error(`Error updating role: ${error.error.error}`, error.status);
           }
         });
       }

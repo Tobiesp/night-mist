@@ -1,11 +1,12 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { Grade, Student, StudentGroup } from '../../../../models/models';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { StudentsService } from '../../../../services/students/students.service';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { AddEditRoleDialogComponent } from '../../../admin-pages/roles/add-edit-role-dialog/add-edit-role-dialog.component';
 import { StudentGroupsService } from '../../../../services/admin/student-groups.service';
 import { GradeService } from '../../../../services/admin/grade.service';
+import { MatSelectChange } from '@angular/material/select';
 
 export interface dialogData {
   type: 'add' | 'edit';
@@ -18,17 +19,7 @@ export interface dialogData {
   styleUrl: './add-edit-student-dialog.component.css',
   standalone: false
 })
-export class AddEditStudentDialogComponent {
-
-  // export interface Student extends BaseModel {
-  //     id: string
-  //     firstname: string;
-  //     lastname: string;
-  //     grade: Grade;
-  //     student_group: StudentGroup;
-  //     created_at: string
-  //     updated_at: string
-  // }
+export class AddEditStudentDialogComponent implements OnInit {
 
   studentForm!: FormGroup;
   dialog_type: 'edit' | 'add';
@@ -69,11 +60,16 @@ export class AddEditStudentDialogComponent {
 
   ngOnInit(): void {
     this.studentForm = this.fb.group({
-      firstname: [this.student?.firstname || ''],
-      lastname: [this.student?.lastname || ''],
-      grade: [this.student?.grade || ''],
-      student_group: [this.student?.student_group || '']
+      firstname: [this.student?.firstname || '', Validators.required],
+      lastname: [this.student?.lastname || '', Validators.required],
+      grade: [this.student?.grade || '', Validators.required],
+      student_group: [this.student?.student_group || '', Validators.required]
     });
+
+    // Select all grades passed in the group data object
+    if (this.data.student?.grade) {
+      this.studentForm.controls['grade'].setValue(this.data.student.grade);
+    }
   }
 
 

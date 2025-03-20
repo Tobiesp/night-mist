@@ -8,6 +8,7 @@ import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confi
 import { AddEditUserDialogComponent } from './add-edit-user-dialog/add-edit-user-dialog/add-edit-user-dialog.component';
 import { User } from '../../../models/models';
 import { BaseTableDataSourceModel } from '../../../models/base_table_datasource_model';
+import { ErrorDialogService } from '../../../services/error-dialog.service';
 
 @Injectable({
   providedIn: 'root'
@@ -54,7 +55,7 @@ export class UserDataSource extends BaseTableDataSourceModel<User> {
         
       },
       error: (error: any) => {
-        throw new Error(`Error locking user: ${error}`);
+        this.userService.logger.showErrorDialog(`Error locking user: ${error.error.error}`, error.status);
       }
     });
   }
@@ -65,7 +66,7 @@ export class UserDataSource extends BaseTableDataSourceModel<User> {
         
       },
       error: (error: any) => {
-        throw new Error(`Error unlocking user: ${error}`);
+        this.userService.logger.showErrorDialog(`Error unlocking user: ${error.error.error}`, error.status);
       }
     });
   }
@@ -84,6 +85,7 @@ export class UsersComponent {
 
   constructor(
     public dialog: MatDialog,
+    private errorLogger: ErrorDialogService,
     logger: LoggerService,
     service: UserService) {
       this.dataSource = new UserDataSource(service, logger);
@@ -145,7 +147,13 @@ export class UsersComponent {
       if (result !== null) {
         const user = result as User;
         if (user) {
-          this.dataSource.updateRow(user);
+          try {
+            this.dataSource.updateRow(user);
+          }
+          catch (error: any) {
+            const err = error as Error;
+            this.errorLogger.showErrorDialog(`Error updating user: ${err.message}`, 400);
+          }
         }
       }
     });
@@ -162,8 +170,14 @@ export class UsersComponent {
       if (result !== null) {
         const user = result as User;
         if (user) {
-          console.log('Adding user:', user);
-          this.dataSource.addRow(user);
+          this.errorLogger.logger.debug(`Adding user:${user}`);
+          try {
+            this.dataSource.addRow(user);
+          }
+          catch (error: any) {
+            const err = error as Error;
+            this.errorLogger.showErrorDialog(`Error creating user: ${err.message}`, 400);
+          }
         }
       }
     });
@@ -179,7 +193,13 @@ export class UsersComponent {
       if (result === true) {
         const user = row as User;
         if (user) {
-          this.dataSource.deleteRow(user);
+          try {
+            this.dataSource.deleteRow(user);
+          }
+          catch (error: any) {
+            const err = error as Error;
+            this.errorLogger.showErrorDialog(`Error deleteing user: ${err.message}`, 400);
+          }
         }
       }
     });
@@ -195,7 +215,13 @@ export class UsersComponent {
       if (result === true) {
         const user = row as User;
         if (user) {
-          this.dataSource.lockUser(user);
+            try {
+              this.dataSource.lockUser(user);
+            } catch (error: any) {
+              this.errorLogger.logger.debug(`Error locking user: ${JSON.stringify(error)}`);
+              const err = error as Error;
+              this.errorLogger.showErrorDialog(`Error locking user: ${err.message}`, 400);
+            }
         }
       }
     });
@@ -211,7 +237,13 @@ export class UsersComponent {
       if (result === true) {
         const user = row as User;
         if (user) {
-          this.dataSource.unlockUser(user);
+          try {
+            this.dataSource.unlockUser(user);
+          }
+          catch (error: any) {
+            const err = error as Error;
+            this.errorLogger.showErrorDialog(`Error unlocking user: ${err.message}`, 400);
+          }
         }
       }
     });

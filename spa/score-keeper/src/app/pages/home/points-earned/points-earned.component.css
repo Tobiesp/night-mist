@@ -12,10 +12,3 @@ form {
     color: red;
     font-weight: bold;
   }
-  
-  @media (min-width: 400px) {
-      .column {
-          flex: 1 1 50%;
-          max-width: 50%;
-      }
-  }
