@@ -24,9 +24,11 @@ class GradeRestAPI(GenericRestAPI[Grade]):
     
     def _can_update_check_(self, instance: Grade):
         item = self._db_.get_by_id(instance.id)
+        if item is not None and item.grade_value > 50 or item.grade_value < 0:
+            raise Exception('Cannot update the grade. Grade value must be between 0 and 50: ' + item.grade_name)
         if item is None:
             return True
-        if item.grade_name in ['none', 'graduated']:
+        if item.grade_name.lower() in ['none', 'graduated']:
             raise Exception('Cannot update the grade: ' + item.grade_name)
         return super()._can_update_check_(instance)
 

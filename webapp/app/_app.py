@@ -12,6 +12,8 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_cors import CORS
 
+from app.servant.error_processor_servant import process_error
+
 
 def create_app() -> Flask:
     app = Flask(__name__)
@@ -73,13 +75,14 @@ def create_app() -> Flask:
                 return
             for privilege in role.priviledges:
                 identity.provides.add(RoleNeed(privilege.priviledge_name))
-                print(f'Identity: {identity.provides}')
 
     # add exception handling
     @app.errorhandler(Exception)
     def handle_exception(e):
         app.logger.exception(e)
-        return {'error': str(e)}, 500 # Internal Server Error
+        err = process_error(str(e))
+        print(f'Error: {err}')
+        return {'error': err}, 500 # Internal Server Error
     
     @app.errorhandler(404)
     def page_not_found(e):
@@ -197,9 +200,14 @@ def create_initial_grades() -> None:
         '12th',
         'graduated'
     ]
+    value = 0
     for grade in grades:
+        gv = value if grade != 'None' else -1
+        if grade == 'graduated':
+            gv = 100
+        value += 1
         if datastore.get_by_first(grade_name=grade) is None:
-            datastore.create(**Grade(grade_name=grade).__dict__)
+            datastore.create(**Grade(grade_name=grade, grade_value=gv).__dict__)
 
 
 def create_initial_roles() -> None:

@@ -60,6 +60,21 @@ class GenericRestAPI(Generic[T]):
                 return Response(status=404, response=f'{T.__class__} not found')
             return item.to_response()
         
+    def _get_model_(self, model_name: str):
+        model_list = [
+            'admin_model',
+            'event_model',
+            'point_model',
+            'students_model',
+            'users_model'
+        ]
+        model = None
+        while model is None and len(model_list) > 0:
+            model = getattr(__import__(f'app.models.{model_list.pop(0)}', fromlist=[model_name]), model_name, None)
+        if model is None:
+            raise TypeError(f'Model {model_name} not found in any model file: {', '.join(model_list)}')
+        return model
+        
     @login_required
     def create(self):
         with self._write_permissions_.require(http_exception=403):
@@ -75,7 +90,7 @@ class GenericRestAPI(Generic[T]):
             for key, value in request_data.__dict__.items():
                 if isinstance(value, BaseModel) and hasattr(value, 'id'):
                     model_name = value.__class__.__name__.replace('Request', '')
-                    model = getattr(__import__('app.models', fromlist=[model_name]), model_name)
+                    model = self._get_model_(model_name)
                     temp_db = database_repository.DatabaseRepository.instance().get_model_db_repository(model)
                     request_data.__dict__[key] = temp_db.get_by_id(value.id)
                 if isinstance(value, list):
@@ -85,7 +100,7 @@ class GenericRestAPI(Generic[T]):
                         if not hasattr(item, 'id'):
                             continue
                         model_name = item.__class__.__name__.replace('Request', '')
-                        model = getattr(__import__('app.models', fromlist=[model_name]), model_name)
+                        model = self._get_model_(model_name)
                         temp_db = database_repository.DatabaseRepository.instance().get_model_db_repository(model)
                         break
                     if temp_db is None:
@@ -111,7 +126,7 @@ class GenericRestAPI(Generic[T]):
                     continue
                 if isinstance(value, BaseModel) and hasattr(value, 'id'):
                     model_name = value.__class__.__name__.replace('Request', '')
-                    model = getattr(__import__('app.models', fromlist=[model_name]), model_name)
+                    model = self._get_model_(model_name)
                     temp_db = database_repository.DatabaseRepository.instance().get_model_db_repository(model)
                     request_data.__dict__[key] = temp_db.get_by_id(value.id)
                 if isinstance(value, list):
@@ -121,7 +136,7 @@ class GenericRestAPI(Generic[T]):
                         if not hasattr(item, 'id'):
                             continue
                         model_name = item.__class__.__name__.replace('Request', '')
-                        model = getattr(__import__('app.models', fromlist=[model_name]), model_name)
+                        model = self._get_model_(model_name)
                         temp_db = database_repository.DatabaseRepository.instance().get_model_db_repository(model)
                         break
                     if temp_db is None:

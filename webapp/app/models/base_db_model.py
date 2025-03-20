@@ -133,11 +133,11 @@ class BaseDBModel:
         return []
     
     @staticmethod
-    def read_only_fields(self) -> list:
+    def read_only_fields() -> list:
         return []
     
     @staticmethod
-    def query_fields(self) -> list[dict[str, any]]:
+    def query_fields() -> list[dict[str, any]]:
         return []
     
     def to_json(self) -> str:

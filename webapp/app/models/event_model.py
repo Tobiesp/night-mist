@@ -46,7 +46,7 @@ class Point(BaseDBModel, BASE):
         self.points_interval = value.to_json()
 
     @staticmethod
-    def query_fields(self):
+    def query_fields():
         query_fields: list[dict[str, any]] = super().query_fields()
         query_fields.append({'field': 'point_category', 'model': PointCategory})
         query_fields.append({'field': 'student_group', 'model': StudentGroup})

@@ -47,7 +47,7 @@ class Priviledge(BaseDBModel, BASE):
     )
 
     @staticmethod
-    def query_fields(self):
+    def query_fields():
         query_fields: list[dict[str, any]] = super().query_fields()
         query_fields.append({'field': 'priviledge_name', 'model': None})
         return query_fields
@@ -78,14 +78,11 @@ class Role(BaseDBModel, BASE):
     )
 
     @staticmethod
-    def query_fields(self):
+    def query_fields():
         query_fields: list[dict[str, any]] = super().query_fields()
         query_fields.append({'field': 'role_name', 'model': None})
         query_fields.append({'field': 'priviledges', 'model': Priviledge})
         return query_fields
-
-    def __init__(self, role_name: str):
-        self.role_name = role_name
 
     def __repr__(self):
         return f'<Role {self.role_name}>'
@@ -110,7 +107,7 @@ class User(BaseDBModel, UserMixin, BASE):
     login_attempts = mapped_column(Integer, default=0)
 
     @staticmethod
-    def query_fields(self):
+    def query_fields():
         query_fields: list[dict[str, any]] = super().query_fields()
         query_fields.append({'field': 'username', 'model': None})
         query_fields.append({'field': 'firstname', 'model': None})
@@ -120,7 +117,7 @@ class User(BaseDBModel, UserMixin, BASE):
         return query_fields
     
     @staticmethod
-    def read_only_fields(self) -> list:
+    def read_only_fields() -> list:
         return super().read_only_fields() + ['username']
 
     def set_password(self, password):

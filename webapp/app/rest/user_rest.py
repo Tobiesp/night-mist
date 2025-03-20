@@ -45,39 +45,49 @@ class UserRestAPI(GenericRestAPI[User]):
         return super()._can_update_check_(instance)
 
     @login_required
-    def lock_user(user_id: str):
+    def lock_user(self, id: str):
+        print(f"lock_user: {id}")
         with admin_permission.require(http_exception=403):
             database = database_repository.DatabaseRepository.instance().get_model_db_repository(User)
-            user: User | None = database.get_by_id(user_id)
+            user: User | None = database.get_by_id(id)
             if user is None:
                 return Response(status=404)
+            print(f"role: {user.role.role_name}")
             if user.role.role_name == 'admin':
                 role_db = database_repository.DatabaseRepository.instance().get_model_db_repository(Role)
-                admin_role = role_db.get_by(role_name='admin')
+                admin_role = role_db.get_by_first(role_name='admin')
                 role_users: list[User] = database.get_by(role=admin_role)
+                print(f"admin user count: {len(role_users)}")
                 if len(role_users) == 1:
                     return Response(status=400, response='Cannot lock the only admin user')
                 else:
                     accounts_locked_count = sum([1 for user in role_users if user.is_active is False])
+                    print(f"accounts_locked_count: {accounts_locked_count}")
                     if accounts_locked_count == len(role_users) - 1:
                         return Response(status=400, response='Cannot lock the last active admin user')
             user.is_active = False
-            database.update(user.id, **user.__dict__)
+            user_dict = user.__dict__
+            if 'id' in user_dict:
+                del user_dict['id']
+            database.update(user.id, **user_dict)
             return Response(status=200)
 
     @login_required
-    def unlock_user(user_id: str):
+    def unlock_user(self, id: str):
         with admin_permission.require(http_exception=403):
             database = database_repository.DatabaseRepository.instance().get_model_db_repository(User)
-            user: User = database.get_by_id(user_id)
+            user: User = database.get_by_id(id)
             if user is None:
                 return Response(status=404)
             user.is_active = True
-            database.update(user.id, **user.__dict__)
+            user_dict = user.__dict__
+            if 'id' in user_dict:
+                del user_dict['id']
+            database.update(user.id, **user_dict)
             return Response(status=200)
         
     @login_required
-    def change_password():
+    def change_password(self):
         user: User = current_user
         try:
             request_args = ChangePasswordRequest(request.args)
@@ -89,7 +99,10 @@ class UserRestAPI(GenericRestAPI[User]):
         if user.check_password(request_args.password):
             user.set_password(request_args.new_password)
             database = database_repository.DatabaseRepository.instance().get_model_db_repository(User)
-            database.update(user.id, **user.__dict__)
+            user_dict = user.__dict__
+            if 'id' in user_dict:
+                del user_dict['id']
+            database.update(user.id, **user_dict)
             return Response(status=200)
         else:
             return Response(status=400, response='Invalid password')

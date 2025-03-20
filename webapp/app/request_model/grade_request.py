@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 class GradeRequest(BaseModel):
     id: Optional[str] = Field(default=None)
     grade_name: str = Field(min_length=1, max_length=30)
+    grade_value: int = Field(ge=0, le=50)
 
     def __post_init__(self):
         if self.id:

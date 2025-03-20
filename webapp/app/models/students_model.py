@@ -1,10 +1,13 @@
 from __future__ import annotations
 from typing import List
 from app.models import BASE
-from sqlalchemy import UUID, Column, ForeignKey, String, Table, UniqueConstraint
+from sqlalchemy import UUID, Column, ForeignKey, Integer, String, Table, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base_db_model import BaseDBModel
+from sqlalchemy import event
+
+from app.repositories import database_repository
 
     
 
@@ -18,8 +21,14 @@ grade_student_group_table = Table(
 
 class Grade(BaseDBModel, BASE):
     __tablename__ = 'grades_table'
+    __table_args__ = (
+        UniqueConstraint('grade_name', name='unique_grade_name'),
+        UniqueConstraint('grade_value', name='unique_grade_value'),
+        {'sqlite_autoincrement': True}
+    )
 
     grade_name = mapped_column(String(100), unique=True, nullable=False)
+    grade_value = mapped_column(Integer, nullable=False, unique=True)
     students: Mapped[list] = relationship('Student', back_populates='grade')
     student_groups: Mapped[List[StudentGroup]] = relationship(
         "StudentGroup",
@@ -30,6 +39,17 @@ class Grade(BaseDBModel, BASE):
     )
 
     @staticmethod
+    def before_insert(mapper, connection, target):
+        max_rows = 50  # Set the maximum number of rows allowed
+        count = database_repository.DatabaseRepository.instance().get_model_db_repository(Grade).get_count()
+        if count >= max_rows:
+            raise ValueError(f"Cannot have more than {max_rows} grades.")
+
+    @classmethod
+    def __declare_last__(cls):
+        event.listen(cls, 'before_insert', cls.before_insert)
+
+    @staticmethod
     def query_fields(self):
         query_fields: list[dict[str, any]] = super().query_fields()
         query_fields.append({'field': 'grade_name', 'model': None})
@@ -37,9 +57,6 @@ class Grade(BaseDBModel, BASE):
     
     def restricted_fields(self):
         return super().restricted_fields() + ['students'] + ['student_groups']
-
-    def __init__(self, grade_name: str):
-        self.grade_name = grade_name
 
     def __repr__(self):
         return f'<Grade {self.grade_name}>'
@@ -59,13 +76,24 @@ class StudentGroup(BaseDBModel, BASE):
     )
 
     @staticmethod
-    def query_fields(self):
+    def before_insert(mapper, connection, target):
+        max_rows = 50  # Set the maximum number of rows allowed
+        count = database_repository.DatabaseRepository.instance().get_model_db_repository(StudentGroup).get_count()
+        if count >= max_rows:
+            raise ValueError(f"Cannot have more than {max_rows} student groups.")
+
+    @classmethod
+    def __declare_last__(cls):
+        event.listen(cls, 'before_insert', cls.before_insert)
+
+    @staticmethod
+    def query_fields():
         query_fields: list[dict[str, any]] = super().query_fields()
         query_fields.append({'field': 'group_name', 'model': None})
         return query_fields
     
     def restricted_fields(self):
-        return super().restricted_fields() + ['grades']
+        return super().restricted_fields()
 
     def __init__(self, group_name: str, grades: list[Grade] = []):
         self.group_name = group_name
@@ -87,7 +115,7 @@ class Student(BaseDBModel, BASE):
     student_group = relationship('StudentGroup', lazy='immediate')
 
     @staticmethod
-    def query_fields(self):
+    def query_fields():
         query_fields: list[dict[str, any]] = super().query_fields()
         query_fields.append({'field': 'firstname', 'model': None})
         query_fields.append({'field': 'lastname', 'model': None})

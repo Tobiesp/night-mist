@@ -19,7 +19,7 @@ class PointEarned(BaseDBModel, BASE):
     deleted: Mapped[bool] = mapped_column(Boolean, default=False)
 
     @staticmethod
-    def query_fields(self):
+    def query_fields():
         query_fields: list[dict[str, any]] = super().query_fields()
         query_fields.append({'field': 'student', 'model': Student})
         query_fields.append({'field': 'event_instance', 'model': EventInstance})
@@ -38,7 +38,7 @@ class PointSpent(BaseDBModel, BASE):
     deleted: Mapped[bool] = mapped_column(Boolean, default=False)
 
     @staticmethod
-    def query_fields(self):
+    def query_fields():
         query_fields: list[dict[str, any]] = super().query_fields()
         query_fields.append({'field': 'student', 'model': Student})
         query_fields.append({'field': 'event_instance', 'model': EventInstance})
@@ -53,7 +53,7 @@ class RunningTotal(BaseDBModel, BASE):
     total_points: Mapped[int] = mapped_column(Integer, default=0)
 
     @staticmethod
-    def query_fields(self):
+    def query_fields():
         query_fields: list[dict[str, any]] = super().query_fields()
         query_fields.append({'field': 'student', 'model': Student})
         return query_fields
