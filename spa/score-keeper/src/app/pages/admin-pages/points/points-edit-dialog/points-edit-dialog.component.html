@@ -1,0 +1,65 @@
+<form [formGroup]="pointForm" (ngSubmit)="onSave()">
+    <h1 style="font-size: 1.5em;">Add Point</h1>
+    <mat-card>
+        <mat-card-content>
+            <mat-form-field appearance="fill" class="full-field-width">
+                <mat-label>Groups</mat-label>
+                <mat-select formControlName="group">
+                    <mat-option *ngFor="let group of groups" [value]="group">{{ group.group_name }}</mat-option>
+                </mat-select>
+                <mat-error *ngIf="pointForm.controls['group'].hasError('required')">
+                    Student group is required.
+                </mat-error>
+            </mat-form-field>
+
+            <br/>
+
+            <mat-form-field appearance="fill" class="full-field-width">
+                <mat-label>Categories</mat-label>
+                <mat-select formControlName="category">
+                    <mat-option *ngFor="let category of categories" [value]="category">{{ category.category_name }}</mat-option>
+                </mat-select>
+                <mat-error *ngIf="pointForm.controls['category'].hasError('required')">
+                    Point category is required.
+                </mat-error>
+            </mat-form-field>
+            
+            <br/>
+
+            <mat-form-field appearance="fill" class="full-field-width">
+                <mat-label>Interval</mat-label>
+                <mat-select formControlName="interval" placeholder="Select Interval">
+                    <mat-option value="none">none</mat-option>
+                    <mat-option value="daily">daily</mat-option>
+                    <mat-option value="weekly">weekly</mat-option>
+                    <mat-option value="monthly">monthly</mat-option>
+                </mat-select>
+                <mat-error *ngIf="pointForm.controls['interval'].hasError('required')">
+                    Must supply when the interval will repeat.
+                </mat-error>
+            </mat-form-field>
+            
+            <br/>
+
+            <mat-form-field appearance="fill" class="full-field-width">
+                <mat-label>Points</mat-label>
+                <input type="number"
+                       matInput
+                       #input
+                       placeholder="points"
+                       aria-label="points"
+                       formControlName="points" />
+                <mat-error *ngIf="pointForm.controls['points'].hasError('required')">
+                    Points are required.
+                </mat-error>
+                <mat-error *ngIf="pointForm.controls['points'].hasError('min')">
+                    Points must be zero or greater.
+                </mat-error>
+            </mat-form-field>
+        </mat-card-content>
+        <mat-card-actions>
+            <button mat-raised-button color="primary" type="submit">Add</button>
+            <button mat-raised-button color="warn" (click)="onCancel()">Cancel</button>
+        </mat-card-actions>
+    </mat-card>
+</form>

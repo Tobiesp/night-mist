@@ -256,6 +256,9 @@ export class TableComponent<T extends Row> implements AfterViewInit {
     }
 
     rowAction(action: string, row: Row): void {
+        if (action === 'selectRowEvent' && !this.config.tableActions.selectRow) {
+            return;
+        }
         const eventData = {
             action: action,
             row: row

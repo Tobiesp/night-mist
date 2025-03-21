@@ -5,10 +5,6 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { GradeService } from '../../../../services/admin/grade.service';
 import { ErrorDialogService } from '../../../../services/error-dialog.service';
 
-export interface userDialogData {
-  group: StudentGroup;
-}
-
 @Component({
   selector: 'app-edit-student-group-dialog',
   templateUrl: './edit-student-group-dialog.component.html',
@@ -23,15 +19,15 @@ export class EditStudentGroupDialogComponent {
 
 constructor(
     public dialogRef: MatDialogRef<EditStudentGroupDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: userDialogData,
+    @Inject(MAT_DIALOG_DATA) public data: StudentGroup,
     private fb: FormBuilder,
     private gradeService: GradeService,
     private errorService: ErrorDialogService,
   ) {
-    this.group = data?.group;
+    this.group = data;
     this.gradeService.getAll().subscribe({
-      next: (data) => {
-        this.grades = data;
+      next: (grades) => {
+        this.grades = grades;
       },
       error: (error) => {
         this.errorService.showErrorDialog(`Error loading grades: ${error.error.error}`, error.status);

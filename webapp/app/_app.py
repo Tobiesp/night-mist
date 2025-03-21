@@ -113,11 +113,9 @@ def import_blueprints(app: Flask) -> Flask:
     from app.rest.auth_rest import auth_api
     app.register_blueprint(auth_api)
 
-    from app.rest.event_rest import EventRestAPI, EventInstanceRestAPI
+    from app.rest.event_rest import EventRestAPI
     event_api = EventRestAPI()
-    event_instance_api = EventInstanceRestAPI()
     app.register_blueprint(event_api.blueprint)
-    app.register_blueprint(event_instance_api.blueprint)
 
     from app.rest.grade_rest import GradeRestAPI
     grade_api = GradeRestAPI()

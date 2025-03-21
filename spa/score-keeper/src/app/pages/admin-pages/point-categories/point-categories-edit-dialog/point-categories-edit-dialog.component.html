@@ -1,0 +1,36 @@
+<form [formGroup]="categoryForm" (ngSubmit)="onSave()">
+    <h1 style="font-size: 1.5em;">Add Point Category</h1>
+    <mat-card>
+        <mat-card-content>
+            <mat-form-field appearance="fill" class="full-field-width">
+                <mat-label>Point category name</mat-label>
+                <input type="text"
+                       matInput 
+                       #input 
+                       placeholder="Point category name" 
+                       aria-label="Point category name"
+                       formControlName="category_name" />
+                <mat-error *ngIf="categoryForm.controls['category_name'].hasError('required')">
+                    Point category name is required.
+                </mat-error>
+            </mat-form-field>
+            <br/>
+            <mat-form-field appearance="fill" class="full-field-width">
+                <mat-label>Description</mat-label>
+                <input type="text"
+                       matInput 
+                       #input 
+                       placeholder="Point category description" 
+                       aria-label="Point category description"
+                       formControlName="category_description" />
+                <mat-error *ngIf="categoryForm.controls['category_description'].hasError('required')">
+                    Point category description is required.
+                </mat-error>
+            </mat-form-field>
+        </mat-card-content>
+        <mat-card-actions>
+            <button mat-raised-button color="primary" type="submit">Save</button>
+            <button mat-raised-button color="warn" (click)="onCancel()">Cancel</button>
+        </mat-card-actions>
+    </mat-card>
+</form>

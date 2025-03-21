@@ -36,15 +36,6 @@ class Point(BaseDBModel, BASE):
     point_category: Mapped[PointCategory] = relationship('PointCategory', primaryjoin='Point.point_category_id == PointCategory.id', lazy='immediate')
     deleted: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    @property
-    def interval(self) -> Interval:
-        interval = Interval()
-        return interval.from_json(self.points_interval)
-    
-    @interval.setter
-    def interval(self, value: Interval):
-        self.points_interval = value.to_json()
-
     @staticmethod
     def query_fields():
         query_fields: list[dict[str, any]] = super().query_fields()
@@ -76,6 +67,7 @@ class Event(BaseDBModel, BASE):
     event_name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False, index=True)
     event_interval: Mapped[str] = mapped_column(String(100), nullable=True)
     deleted: Mapped[bool] = mapped_column(Boolean, default=False)
+    completed: Mapped[bool] = mapped_column(Boolean, default=False)
     student_groups: Mapped[List[StudentGroup]] = relationship(
         "StudentGroup",
         secondary=event_student_group_table,

@@ -1,1 +1,3 @@
-<p>events works!</p>
+<div>
+    <app-table #EventTable [dataSource]="dataSource" [config]="tableOptions" [title]="'Events'" (tableEvent)="handleTableEvent($event)"></app-table>
+</div>

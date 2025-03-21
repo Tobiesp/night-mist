@@ -111,19 +111,31 @@ class BaseDatabaseRepository(Generic[T]):
             self._db_.session.commit
         return instance
     
-    def purge(self) -> None:
+    def purge(self, **kwargs) -> None:
         with self._app_.app_context():
-            if hasattr(self.model, 'deleted'):
-                instances = self._db_.session.query(self.model).filter(self.model.deleted is True).all()
-                for instance in instances:
-                    self._db_.session.delete(instance)
-                self._db_.session.commit()
+            if kwargs is not None:
+                if hasattr(self.model, 'deleted'):
+                    instances = self._db_.session.query(self.model).filter_by(deleted=False, **kwargs).all()
+                    for instance in instances:
+                        self._db_.session.delete(instance)
+                    self._db_.session.commit()
+            else:
+                if hasattr(self.model, 'deleted'):
+                    instances = self._db_.session.query(self.model).filter_by(deleted=True).all()
+                    for instance in instances:
+                        self._db_.session.delete(instance)
+                    self._db_.session.commit()
 
-    def get_count(self) -> int:
+    def get_count(self, **kwargs) -> int:
         with self._app_.app_context():
-            if hasattr(self.model, 'deleted'):
-                return self._db_.session.query(self.model).filter(self.model.deleted is False).count()
-            return self._db_.session.query(self.model).count()
+            if kwargs is not None:
+                if hasattr(self.model, 'deleted'):
+                    return self._db_.session.query(self.model).filter_by(deleted=False, **kwargs).count()
+                return self._db_.session.query(self.model).filter_by(**kwargs).count()
+            else:
+                if hasattr(self.model, 'deleted'):
+                    return self._db_.session.query(self.model).filter_by(deleted=False).count()
+                return self._db_.session.query(self.model).count()
         
     def get_by(self, **kwargs) -> list[T]:
         with self._app_.app_context():

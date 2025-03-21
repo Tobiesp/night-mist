@@ -43,10 +43,10 @@ export interface Student extends BaseModel {
 
 export interface Interval {
     repeat: 'daily' | 'weekly' | 'monthly' | 'none';
-    month_day: number;
-    week_day: number;
-    hour: number;
-    minute: number;
+    month_day?: number;
+    week_day?: number;
+    hour?: number;
+    minute?: number;
 }
 
 export interface PointCategory extends BaseModel {
@@ -58,7 +58,7 @@ export interface PointCategory extends BaseModel {
 export interface Point extends BaseModel {
     points: number;
     student_group: StudentGroup;
-    interval: Interval;
+    points_interval: String;
     point_category: PointCategory;
     deleted: boolean;
 }
@@ -67,6 +67,7 @@ export interface Event extends BaseModel {
     event_name: string;
     interval: Interval;
     deleted: boolean;
+    completed: boolean;
     student_groups: StudentGroup[];
     point_categories: PointCategory[];
 }

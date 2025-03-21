@@ -2,8 +2,8 @@
     <div style="flex: 1 1 30%; max-width: 100%; box-sizing: border-box;" class="column">
         <h1 style="font-size: 1.5em;">Student Groups</h1>
         <mat-list>
-            <mat-list-item *ngFor="let group of groups; let i = index">
-                <mat-card style="padding-top: 10px; padding-bottom: 5px; width: 100%;">
+            <mat-list-item *ngFor="let group of groups; let i = index" style="height: 80px;">
+                <mat-card style="width: 100%; height: 100%;">
                     <mat-card-header>
                         <mat-card-title>{{ group.group_name }}</mat-card-title>
                     </mat-card-header>

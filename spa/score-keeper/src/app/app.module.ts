@@ -53,6 +53,10 @@ import { PointsEarnedHomeComponent } from './pages/home/points-earned/points-ear
 import { PointsSpentHomeComponent } from './pages/home/points-spent/points-spent.component';
 import { ErrorDialogComponent } from './components/error-dialog/error-dialog/error-dialog.component';
 import { EditStudentGroupDialogComponent } from './pages/admin-pages/student-groups/edit-student-group-dialog/edit-student-group-dialog.component';
+import { PointCategoriesComponent } from './pages/admin-pages/point-categories/point-categories.component';
+import { PointCategoriesEditDialogComponent } from './pages/admin-pages/point-categories/point-categories-edit-dialog/point-categories-edit-dialog.component';
+import { PointsComponent } from './pages/admin-pages/points/points.component';
+import { PointsEditDialogComponent } from './pages/admin-pages/points/points-edit-dialog/points-edit-dialog.component';
 
 @NgModule({
     declarations: [
@@ -86,6 +90,10 @@ import { EditStudentGroupDialogComponent } from './pages/admin-pages/student-gro
         PointsSpentHomeComponent,
         ErrorDialogComponent,
         EditStudentGroupDialogComponent,
+        PointCategoriesComponent,
+        PointCategoriesEditDialogComponent,
+        PointsComponent,
+        PointsEditDialogComponent,
     ],
     imports: [
         BrowserModule,
