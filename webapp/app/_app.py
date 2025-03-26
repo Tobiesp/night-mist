@@ -162,7 +162,7 @@ def create_db(app: Flask, config: Config) -> None:
 def create_initial_admin(password: str) -> None:
     user_db = database_repository.DatabaseRepository.instance().get_model_db_repository(User)
     role_db = database_repository.DatabaseRepository.instance().get_model_db_repository(Role)
-    admin: User | None = user_db.get_by_first(username='skadmin')
+    admin: User | None = user_db.get_by_and_first(username='skadmin')
     if admin is None:
         admin = User()
         admin.username = 'skadmin'
@@ -170,7 +170,7 @@ def create_initial_admin(password: str) -> None:
         admin.firstname = 'Score-Keeper'
         admin.lastname = 'Admin'
         admin.email = 'admin@user.com'
-        admin.role = role_db.get_by_first(role_name='admin')
+        admin.role = role_db.get_by_and_first(role_name='admin')
         user_db.create(**admin.__dict__)
 
 
@@ -204,7 +204,7 @@ def create_initial_grades() -> None:
         if grade == 'graduated':
             gv = 100
         value += 1
-        if datastore.get_by_first(grade_name=grade) is None:
+        if datastore.get_by_and_first(grade_name=grade) is None:
             datastore.create(**Grade(grade_name=grade, grade_value=gv).__dict__)
 
 
@@ -222,13 +222,13 @@ def create_initial_roles() -> None:
         'reporter_write'
         ]
     for priviledge in priviledges:
-        if priviledge_db.get_by_first(priviledge_name=priviledge) is None:
+        if priviledge_db.get_by_and_first(priviledge_name=priviledge) is None:
             priviledge_db.create(**Priviledge(priviledge_name=priviledge).__dict__)
     
     role_db = database_repository.DatabaseRepository.instance().get_model_db_repository(Role)
-    admin: Role | None = role_db.get_by_first(role_name='admin')
+    admin: Role | None = role_db.get_by_and_first(role_name='admin')
     if admin is None:
-        role_db.create(**Role(role_name='admin', priviledges=[priviledge_db.get_by_first(priviledge_name='admin')]).__dict__)
+        role_db.create(**Role(role_name='admin', priviledges=[priviledge_db.get_by_and_first(priviledge_name='admin')]).__dict__)
 
 
 def create_email_servant(config: Config) -> None:

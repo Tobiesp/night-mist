@@ -4,6 +4,7 @@ from flask_login import login_required
 from flask_principal import Permission
 from pydantic import BaseModel
 
+from app import LIMITER
 from app.models.base_db_model import BaseDBModel
 from app.repositories import database_repository
 from app.repositories.base_database_repository import BaseDatabaseRepository
@@ -46,6 +47,7 @@ class GenericRestAPI(Generic[T]):
         return True
 
     @login_required
+    @LIMITER.limit('30 per minute')
     def get_all(self):
         with self._read_permissions_.require(http_exception=403):
             items = self._db_.get_all()
@@ -53,6 +55,7 @@ class GenericRestAPI(Generic[T]):
             return items
         
     @login_required
+    @LIMITER.limit('30 per minute')
     def get_by_id(self, id: str):
         with self._read_permissions_.require(http_exception=403):
             item = self._db_.get_by_id(id)
@@ -166,7 +169,15 @@ class GenericRestAPI(Generic[T]):
             self._db_.purge()
             return Response(status=200)
         
+    def _get_query_fields_(self) -> list[dict[str, any]]:
+        model = self._get_model_(self._model_.__name__)
+        model_dict = model.__dict__
+        if 'query_fields' not in model_dict:
+            return []
+        return model_dict["query_fields"]()
+        
     @login_required
+    @LIMITER.limit('30 per minute')
     def query(self):
         with self._read_permissions_.require(http_exception=403):
             try:
@@ -176,24 +187,24 @@ class GenericRestAPI(Generic[T]):
             except ValueError as ve:
                 return Response(status=400, response=str(ve))
             
-            results = set()
+            results: list[T] = list()
 
             if request_args.filter_value == '':
-                results = self._db_.get_all()
+                results = self._db_.get_all(page=request_args.page_num, pageSize=request_args.page_size)
             else:
-                fields = self._model_.query_fields()
+                fields = self._get_query_fields_()
                 if len(fields) > 0:
+                    queryObject = {}
                     for f in fields:
                         if f['model'] is None:
-                            results.update(self._db_.get_by(**{f['field']: request_args.filter_value}))
+                            queryObject[f['field']] = request_args.filter_value
+                    print(f"Query Object: {queryObject}")
+                    results.extend(self._db_.get_by_or(page=request_args.page_num, pageSize=request_args.page_size, **queryObject))
             if request_args.sort_active != '':
                 if request_args.sort_direction == 'asc':
                     results = sorted(results, key=lambda x: getattr(x, request_args.sort_active))
                 else:
                     results = sorted(results, key=lambda x: getattr(x, request_args.sort_active), reverse=True)
-            start_index = (request_args.page_num) * request_args.page_size
-            end_index = start_index + request_args.page_size
-            results = results[start_index:end_index]
             results = [item.to_response() for item in results]
             return results
 

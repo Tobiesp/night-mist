@@ -38,7 +38,7 @@ class Point(BaseDBModel, BASE):
 
     @staticmethod
     def query_fields():
-        query_fields: list[dict[str, any]] = super().query_fields()
+        query_fields: list[dict[str, any]] = BaseDBModel.query_fields()
         query_fields.append({'field': 'point_category', 'model': PointCategory})
         query_fields.append({'field': 'student_group', 'model': StudentGroup})
         return query_fields
@@ -56,7 +56,7 @@ class PointCategory(BaseDBModel, BASE):
 
     @staticmethod
     def query_fields(self):
-        query_fields: list[dict[str, any]] = super().query_fields()
+        query_fields: list[dict[str, any]] = BaseDBModel.query_fields()
         query_fields.append({'field': 'category_name', 'model': None})
         return query_fields
 
@@ -82,10 +82,16 @@ class Event(BaseDBModel, BASE):
         secondaryjoin="PointCategory.id == event_point_category_table.c.point_category_id", 
         lazy='immediate'
     )
+    _event_instances: Mapped[List[EventInstance]] = relationship(
+        'EventInstance', 
+        back_populates='event', 
+        lazy='dynamic',
+        order_by="desc(EventInstance.event_date)"
+    )
 
     @staticmethod
     def query_fields(self):
-        query_fields: list[dict[str, any]] = super().query_fields()
+        query_fields: list[dict[str, any]] = BaseDBModel.query_fields()
         query_fields.append({'field': 'event_name', 'model': None})
         query_fields.append({'field': 'student_groups', 'model': StudentGroup})
         query_fields.append({'field': 'point_categories', 'model': PointCategory})
@@ -99,6 +105,17 @@ class Event(BaseDBModel, BASE):
     @interval.setter
     def interval(self, value: Interval):
         self.event_interval = value.to_json()
+
+    @property
+    def latest_instance(self) -> EventInstance:
+        sorted_instances = sorted(self._event_instances.limit(1), key=lambda x: x.event_date)
+        if sorted_instances:
+            return sorted_instances[0]
+        return None
+    
+    @property
+    def event_instances_count(self) -> int:
+        return len(self._event_instances)
 
     def __repr__(self):
         return f'<Event {self.event_name}>'
@@ -115,6 +132,6 @@ class EventInstance(BaseDBModel, BASE):
 
     @staticmethod
     def query_fields(self):
-        query_fields: list[dict[str, any]] = super().query_fields()
+        query_fields: list[dict[str, any]] = BaseDBModel.query_fields()
         query_fields.append({'field': 'event', 'model': Event})
         return query_fields

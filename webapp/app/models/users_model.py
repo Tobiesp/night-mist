@@ -48,7 +48,7 @@ class Priviledge(BaseDBModel, BASE):
 
     @staticmethod
     def query_fields():
-        query_fields: list[dict[str, any]] = super().query_fields()
+        query_fields: list[dict[str, any]] = BaseDBModel.query_fields()
         query_fields.append({'field': 'priviledge_name', 'model': None})
         return query_fields
 
@@ -79,7 +79,7 @@ class Role(BaseDBModel, BASE):
 
     @staticmethod
     def query_fields():
-        query_fields: list[dict[str, any]] = super().query_fields()
+        query_fields: list[dict[str, any]] = BaseDBModel.query_fields()
         query_fields.append({'field': 'role_name', 'model': None})
         query_fields.append({'field': 'priviledges', 'model': Priviledge})
         return query_fields
@@ -108,7 +108,7 @@ class User(BaseDBModel, UserMixin, BASE):
 
     @staticmethod
     def query_fields():
-        query_fields: list[dict[str, any]] = super().query_fields()
+        query_fields: list[dict[str, any]] = BaseDBModel.query_fields()
         query_fields.append({'field': 'username', 'model': None})
         query_fields.append({'field': 'firstname', 'model': None})
         query_fields.append({'field': 'lastname', 'model': None})

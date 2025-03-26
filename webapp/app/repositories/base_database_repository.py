@@ -1,8 +1,9 @@
-from typing import Generic, TypeVar
+from typing import Generic, Optional, TypeVar
 import uuid
 
 from flask import Flask, Response
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import or_
 
 from app.models.base_db_model import BaseDBModel
 
@@ -21,13 +22,28 @@ class BaseDatabaseRepository(Generic[T]):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._db_.session.close()
 
-    def get_all(self) -> list[T]:
-        with self._app_.app_context():
-            items = []
-            if hasattr(self.model, 'deleted'):
-                items = self._db_.session.query(self.model).filter_by(deleted=False).all()
+    def _paginate(self, query, page=0, pageSize=100):
+        if page < 0:
+            page = 0
+        if pageSize < 0:
+            pageSize = 100
+        return query.offset(page * pageSize).limit(pageSize)
+    
+    def sort(self, query, sort_field: Optional[str] = None, sort_direction='desc'):
+        if sort_field is not None and self.model.__dict__.get(sort_field) is not None:
+            if sort_direction == 'desc':
+                query = query.order_by(getattr(self.model, sort_field).desc())
             else:
-                items = self._db_.session.query(self.model).all()
+                query = query.order_by(getattr(self.model, sort_field).asc())
+        return query
+
+    def get_all(self, page=0, pageSize=100, sort_field: Optional[str] = None, sort_direction='desc') -> list[T]:
+        with self._app_.app_context():
+            query = self._db_.session.query(self.model)
+            if hasattr(self.model, 'deleted'):
+                query = query.filter_by(deleted=False)
+            query = self.sort(query=query, sort_field=sort_field, sort_direction=sort_direction)
+            items = self._paginate(query=query, page=page, pageSize=pageSize).all()
             return items
 
     def get_by_id(self, id: str) -> T:
@@ -137,14 +153,42 @@ class BaseDatabaseRepository(Generic[T]):
                     return self._db_.session.query(self.model).filter_by(deleted=False).count()
                 return self._db_.session.query(self.model).count()
         
-    def get_by(self, **kwargs) -> list[T]:
+    def get_by_and(self, page=0, pageSize=0, sort_field: Optional[str] = None, sort_direction='desc', **kwargs) -> list[T]:
         with self._app_.app_context():
+            query  = self._db_.session.query(self.model)
             if hasattr(self.model, 'deleted'):
-                return self._db_.session.query(self.model).filter_by(deleted=False, **kwargs).all()
-            return self._db_.session.query(self.model).filter_by(**kwargs).all()
+                query = query.filter_by(deleted=False, **kwargs)
+            else:
+                query = query.filter_by(**kwargs)
+            query = self.sort(query=query, sort_field=sort_field, sort_direction=sort_direction)
+            query = self._paginate(query=query, page=page, pageSize=pageSize)
+            return query.all()
         
-    def get_by_first(self, **kwargs) -> T:
+    def get_by_or(self, page=0, pageSize=0, sort_field: Optional[str] = None, sort_direction='desc', **kwargs) -> list[T]:
         with self._app_.app_context():
+            filters = [getattr(self.model, key).ilike(f"%{value}%") for key, value in kwargs.items()]
+            query  = self._db_.session.query(self.model)
             if hasattr(self.model, 'deleted'):
-                return self._db_.session.query(self.model).filter_by(deleted=False, **kwargs).first()
-            return self._db_.session.query(self.model).filter_by(**kwargs).first()
+                query = query.filter_by(deleted=False).filter(or_(*filters))
+            else:
+                query = query.filter(or_(*filters))
+            query = self.sort(query=query, sort_field=sort_field, sort_direction=sort_direction)
+            query = self._paginate(query=query, page=page, pageSize=pageSize)
+            return query.all()
+        
+    def get_by_and_first(self, **kwargs) -> T:
+        with self._app_.app_context():
+            query  = self._db_.session.query(self.model)
+            if hasattr(self.model, 'deleted'):
+                return query.filter_by(deleted=False, **kwargs).first()
+            else:
+                return query.filter_by(**kwargs).first()
+        
+    def get_by_or_first(self, **kwargs) -> list[T]:
+        with self._app_.app_context():
+            filters = [getattr(self.model, key).ilike(f"%{value}%") for key, value in kwargs.items()]
+            query  = self._db_.session.query(self.model)
+            if hasattr(self.model, 'deleted'):
+                return query.filter_by(deleted=False).filter(or_(*filters)).first()
+            else:
+                return query.filter(or_(*filters)).first()

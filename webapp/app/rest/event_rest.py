@@ -34,7 +34,7 @@ class EventRestAPI(GenericRestAPI[Event]):
 
     def _get_latest_event_instance_(self, event: Event) -> EventInstance | None:
         database = database_repository.DatabaseRepository.instance().get_model_db_repository(EventInstance)
-        eventInstances: list[EventInstance] = database.get_by(event=event)
+        eventInstances: list[EventInstance] = database.get_by_and(event=event)
         if len(eventInstances) == 0:
             return None
         eventInstances.sort(key=lambda x: x.event_date, reverse=True)
@@ -108,7 +108,7 @@ class EventRestAPI(GenericRestAPI[Event]):
             if event is None:
                 return Response(status=404, response='Event not found')
             instance_db = database_repository.DatabaseRepository.instance().get_model_db_repository(EventInstance)
-            event_instances: list[EventInstance] = instance_db.get_by(event=event)
+            event_instances: list[EventInstance] = instance_db.get_by_and(event=event)
             if len(event_instances) == 0:
                 return Response(status=404, response="No event instances found")
             event_instances = [event_instance.to_response() for event_instance in event_instances]

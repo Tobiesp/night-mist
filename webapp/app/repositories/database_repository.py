@@ -32,7 +32,7 @@ class DatabaseRepository:
             self._app_ = app
             with app.app_context():
                 # Import all the dbase models
-                from app.models import admin_model, event_model, point_model, students_model, users_model
+                from app.models import admin_model, event_model, point_model, students_model, users_model  # noqa: F401
                 BASE.metadata.create_all(self._db_.engine)
                 self._db_.session.commit()
 

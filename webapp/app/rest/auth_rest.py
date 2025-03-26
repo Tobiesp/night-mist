@@ -37,7 +37,7 @@ def login():
         abort(400)
 
     datastore = database_repository.DatabaseRepository.instance().get_model_db_repository(User)
-    user_list = datastore.get_by(username=login_request.username)
+    user_list = datastore.get_by_and(username=login_request.username)
     if len(user_list) == 0:
         abort(403)
 
@@ -91,7 +91,7 @@ def signup():
         abort(Response(status=400, response=str(ve)))
 
     datastore = database_repository.DatabaseRepository.instance().get_model_db_repository(User)
-    user_list = datastore.get_by(username=signup_request.username)
+    user_list = datastore.get_by_and(username=signup_request.username)
 
     if len(user_list) == 0:
         user = User(username=signup_request.username,
@@ -120,7 +120,7 @@ def forgot_password():
         return Response(status=200)
 
     datastore = database_repository.DatabaseRepository.instance().get_model_db_repository(User)
-    user = datastore.get_by(email=forgot_password_request.email)
+    user = datastore.get_by_and(email=forgot_password_request.email)
 
     if user is None:
         return Response(status=200)

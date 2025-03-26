@@ -47,7 +47,7 @@ class PointEarnedRestAPI(GenericRestAPI[PointEarned]):
                 student = student_db.get_by_id(student)
                 if student is not None:
                     runningTotal_db = database_repository.DatabaseRepository.instance().get_model_db_repository(RunningTotal)
-                    runningTotal = runningTotal_db.get_by_first(student=student)
+                    runningTotal = runningTotal_db.get_by_and_first(student=student)
                     if runningTotal is None:
                         runningTotal.total_points += response['point']['points']
                         clean_total = runningTotal.to_response()
@@ -71,7 +71,7 @@ class PointEarnedRestAPI(GenericRestAPI[PointEarned]):
         student = student_db.get_by_id(point.student.id)
         if student is not None:
             runningTotal_db = database_repository.DatabaseRepository.instance().get_model_db_repository(RunningTotal)
-            runningTotal = runningTotal_db.get_by_first(student=student)
+            runningTotal = runningTotal_db.get_by_and_first(student=student)
             if runningTotal is not None:
                 runningTotal.total_points -= prev_point.point.points
                 runningTotal.total_points += point.point.points
@@ -91,7 +91,7 @@ class PointEarnedRestAPI(GenericRestAPI[PointEarned]):
             student = student_db.get_by_id(point_earned.student.id)
             if student is not None:
                 runningTotal_db = database_repository.DatabaseRepository.instance().get_model_db_repository(RunningTotal)
-                runningTotal = runningTotal_db.get_by_first(student=student)
+                runningTotal = runningTotal_db.get_by_and_first(student=student)
                 if runningTotal is not None:
                     runningTotal.total_points -= point_earned.point.points
                     clean_total = runningTotal.to_response()
@@ -125,7 +125,7 @@ class PointSpentRestAPI(GenericRestAPI[PointSpent]):
                 student = student_db.get_by_id(student)
                 if student is not None:
                     runningTotal_db = database_repository.DatabaseRepository.instance().get_model_db_repository(RunningTotal)
-                    runningTotal = runningTotal_db.get_by_first(student=student)
+                    runningTotal = runningTotal_db.get_by_and_first(student=student)
                     if runningTotal is not None:
                         runningTotal.total_points -= response['points']
                         clean_total = runningTotal.to_response()
@@ -146,7 +146,7 @@ class PointSpentRestAPI(GenericRestAPI[PointSpent]):
         student = student_db.get_by_id(point.student.id)
         if student is not None:
             runningTotal_db = database_repository.DatabaseRepository.instance().get_model_db_repository(RunningTotal)
-            runningTotal = runningTotal_db.get_by_first(student=student)
+            runningTotal = runningTotal_db.get_by_and_first(student=student)
             if runningTotal is not None:
                 runningTotal.total_points += prev_point.points
                 runningTotal.total_points -= point.points
@@ -166,7 +166,7 @@ class PointSpentRestAPI(GenericRestAPI[PointSpent]):
             student = student_db.get_by_id(point_spent.student.id)
             if student is not None:
                 runningTotal_db = database_repository.DatabaseRepository.instance().get_model_db_repository(RunningTotal)
-                runningTotal = runningTotal_db.get_by_first(student=student)
+                runningTotal = runningTotal_db.get_by_and_first(student=student)
                 if runningTotal is not None:
                     runningTotal.total_points += point_spent.points
                     clean_total = runningTotal.to_response()

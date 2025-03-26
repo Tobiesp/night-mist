@@ -51,7 +51,7 @@ class Grade(BaseDBModel, BASE):
 
     @staticmethod
     def query_fields(self):
-        query_fields: list[dict[str, any]] = super().query_fields()
+        query_fields: list[dict[str, any]] = BaseDBModel.query_fields()
         query_fields.append({'field': 'grade_name', 'model': None})
         return query_fields
     
@@ -88,7 +88,7 @@ class StudentGroup(BaseDBModel, BASE):
 
     @staticmethod
     def query_fields():
-        query_fields: list[dict[str, any]] = super().query_fields()
+        query_fields: list[dict[str, any]] = BaseDBModel.query_fields()
         query_fields.append({'field': 'group_name', 'model': None})
         return query_fields
     
@@ -116,7 +116,7 @@ class Student(BaseDBModel, BASE):
 
     @staticmethod
     def query_fields():
-        query_fields: list[dict[str, any]] = super().query_fields()
+        query_fields: list[dict[str, any]] = BaseDBModel.query_fields()
         query_fields.append({'field': 'firstname', 'model': None})
         query_fields.append({'field': 'lastname', 'model': None})
         query_fields.append({'field': 'grade', 'model': Grade})

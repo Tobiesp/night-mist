@@ -25,9 +25,9 @@ class UserRestAPI(GenericRestAPI[User]):
         if item is None:
             return True
         role_db = database_repository.DatabaseRepository.instance().get_model_db_repository(Role)
-        admin_role = role_db.get_by(role_name='admin')
+        admin_role = role_db.get_by_and(role_name='admin')
         if item.role == admin_role:
-            admin_users = self._db_.get_by(role=admin_role)
+            admin_users = self._db_.get_by_and(role=admin_role)
             if len(admin_users) == 1:
                 raise Exception('Cannot delete the only admin user')
             active_admin_users = [user for user in admin_users if user.is_active]
@@ -36,7 +36,7 @@ class UserRestAPI(GenericRestAPI[User]):
         return super()._can_delete_check_(item)
     
     def _can_update_check_(self, instance: User):
-        admins = self._db_.get_by(role=instance.role)
+        admins = self._db_.get_by_and(role=instance.role)
         if len(admins) == 1:
             raise Exception('Cannot update the only admin user')
         admins = [admin for admin in admins if admin.is_active]
@@ -55,8 +55,8 @@ class UserRestAPI(GenericRestAPI[User]):
             print(f"role: {user.role.role_name}")
             if user.role.role_name == 'admin':
                 role_db = database_repository.DatabaseRepository.instance().get_model_db_repository(Role)
-                admin_role = role_db.get_by_first(role_name='admin')
-                role_users: list[User] = database.get_by(role=admin_role)
+                admin_role = role_db.get_by_and_first(role_name='admin')
+                role_users: list[User] = database.get_by_and(role=admin_role)
                 print(f"admin user count: {len(role_users)}")
                 if len(role_users) == 1:
                     return Response(status=400, response='Cannot lock the only admin user')

@@ -20,7 +20,7 @@ class PointEarned(BaseDBModel, BASE):
 
     @staticmethod
     def query_fields():
-        query_fields: list[dict[str, any]] = super().query_fields()
+        query_fields: list[dict[str, any]] = BaseDBModel.query_fields()
         query_fields.append({'field': 'student', 'model': Student})
         query_fields.append({'field': 'event_instance', 'model': EventInstance})
         query_fields.append({'field': 'point', 'model': Point})
@@ -39,7 +39,7 @@ class PointSpent(BaseDBModel, BASE):
 
     @staticmethod
     def query_fields():
-        query_fields: list[dict[str, any]] = super().query_fields()
+        query_fields: list[dict[str, any]] = BaseDBModel.query_fields()
         query_fields.append({'field': 'student', 'model': Student})
         query_fields.append({'field': 'event_instance', 'model': EventInstance})
         return query_fields
@@ -54,6 +54,6 @@ class RunningTotal(BaseDBModel, BASE):
 
     @staticmethod
     def query_fields():
-        query_fields: list[dict[str, any]] = super().query_fields()
+        query_fields: list[dict[str, any]] = BaseDBModel.query_fields()
         query_fields.append({'field': 'student', 'model': Student})
         return query_fields
