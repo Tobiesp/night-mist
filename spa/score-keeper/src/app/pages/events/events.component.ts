@@ -2,7 +2,7 @@ import { Component, Injectable, ViewChild } from '@angular/core';
 import { EventsService } from '../../services/event/events.service';
 import { BaseTableDataSourceModel } from '../../models/base_table_datasource_model';
 import { LoggerService } from '../../services/logger.service';
-import { Event } from '../../models/models';
+import { Event, EventInstance } from '../../models/models';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { TableComponent, TableOptions, Row } from '../../components/table/table.component';
@@ -51,6 +51,24 @@ export class EventDataSource extends BaseTableDataSourceModel<Event> {
     return result || '';
   }
 
+  private displayLastInstance(instance: EventInstance | undefined): string {
+    if (!instance) {
+      return 'No Instances';
+    }
+    let result = '';
+    const date_str = instance.event_date;
+    if (date_str) {
+      const date = new Date(date_str);
+      result = date.toLocaleString();
+    }
+    if (instance.completed) {
+      result += ' - Completed';
+    } else {
+      result += ' - Not Completed';
+    }
+    return result;
+  }
+
   override fieldDisplay(row: Event, field: string): string {
     switch (field) {
       case 'id':
@@ -65,20 +83,10 @@ export class EventDataSource extends BaseTableDataSourceModel<Event> {
         return this.displayPointCategories(row);
       case 'completed':
         return row.completed ? 'Completed' : 'Not Completed';
-      // TODO: Add fileds for the event instances
-      // case 'lastname':
-      //   return row.lastname || '';
-      // case 'role':
-      //   return row.role?.role_name || '';
-      // case 'account_locked':
-      //   return row.account_locked ? 'Locked' : 'Active';
-      // case 'last_login':
-      //   const date_str = row.last_login;
-      //   if (date_str) {
-      //     const date = new Date(date_str);
-      //     return date.toLocaleString();
-      //   }
-      //   return '';
+      case 'latest_instance':
+        return this.displayLastInstance(row.latest_instance);
+      case 'event_instances_count':
+        return row.event_instances_count?.toString() || '';
       default:
         return '';
     }
@@ -112,6 +120,7 @@ export class EventsComponent {
     tableActions: {
       selectRow: false,
       rowActions: [
+        { icon: 'list', event: 'listEvent'},
         { icon: 'edit', event: 'editEvent'},
         { icon: 'delete', event: 'deleteEvent' }
       ],
@@ -124,6 +133,8 @@ export class EventsComponent {
       { name: 'Groups', field: 'student_groups', type: 'string', width: 50, sortable: true, hidden: false },
       { name: 'Point Categories', field: 'point_categories', type: 'string', width: 50, sortable: true, hidden: false },
       { name: 'Completed', field: 'completed', type: 'string', width: 50, sortable: true, hidden: false },
+      { name: 'Last Instance', field: 'latest_instance', type: 'string', width: 50, sortable: true, hidden: false },
+      { name: 'Event Count', field: 'event_instances_count', type: 'string', width: 50, sortable: true, hidden: false },
     ]
   };
 
@@ -135,6 +146,8 @@ export class EventsComponent {
       this.openDeleteDialog(event.row);
     } else if (event.action === 'addRowEvent') {
       this.openAddDialog();
+    } else if (event.action === 'listEvent') {
+      console.log('List event:', event.row);
     } else {
       console.log('Unknown event action:', event.action);
     }

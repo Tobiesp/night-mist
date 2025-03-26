@@ -70,6 +70,8 @@ export interface Event extends BaseModel {
     completed: boolean;
     student_groups: StudentGroup[];
     point_categories: PointCategory[];
+    latest_instance?: EventInstance;
+    event_instances_count?: number;
 }
 
 export interface EventInstance extends BaseModel {

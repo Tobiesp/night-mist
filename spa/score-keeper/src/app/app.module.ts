@@ -57,6 +57,8 @@ import { PointCategoriesComponent } from './pages/admin-pages/point-categories/p
 import { PointCategoriesEditDialogComponent } from './pages/admin-pages/point-categories/point-categories-edit-dialog/point-categories-edit-dialog.component';
 import { PointsComponent } from './pages/admin-pages/points/points.component';
 import { PointsEditDialogComponent } from './pages/admin-pages/points/points-edit-dialog/points-edit-dialog.component';
+import { ListInstancesDialogComponent } from './pages/events/list-instances-dialog/list-instances-dialog.component';
+import { AddEditEventDialogComponent } from './pages/events/add-edit-event-dialog/add-edit-event-dialog.component';
 
 @NgModule({
     declarations: [
@@ -94,6 +96,8 @@ import { PointsEditDialogComponent } from './pages/admin-pages/points/points-edi
         PointCategoriesEditDialogComponent,
         PointsComponent,
         PointsEditDialogComponent,
+        ListInstancesDialogComponent,
+        AddEditEventDialogComponent,
     ],
     imports: [
         BrowserModule,
