@@ -49,8 +49,8 @@ constructor(
     if (this.groupsForm.valid) {
       this.group.group_name = this.groupsForm.get('group_name')?.value;
       this.group.grades = this.groupsForm.get('grades')?.value;
+      this.dialogRef.close(this.group);
     }
-    this.dialogRef.close(this.group);
   }
 
   onCancel(): void {

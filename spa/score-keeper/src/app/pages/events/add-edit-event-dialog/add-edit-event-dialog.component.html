@@ -1,0 +1,123 @@
+<div>
+    <h1 *ngIf="event == undefined" mat-dialog-title>Add Role</h1>
+    <h1 *ngIf="event !== undefined" mat-dialog-title>Edit Role</h1>
+    <form [formGroup]="eventForm" (ngSubmit)="onSave()">
+        <div style="flex: 1 1 auto;" class="p-4">
+            <mat-form-field class="full-field-width">
+                <mat-label>Event Name</mat-label>
+                <input type="text"
+                        matInput 
+                        #input 
+                        placeholder="Event Name" 
+                        aria-label="event-name"
+                        formControlName="event_name" />
+                <div *ngIf="eventForm.controls['event_name'].invalid && (eventForm.controls['event_name'].dirty || eventForm.controls['event_name'].touched)">
+                    <div *ngIf="eventForm.controls['event_name'].errors?.['required']" class="text-bold-red">Event name is required.</div>
+                </div>
+            </mat-form-field>
+            
+            <mat-form-field class="full-field-width">
+                <mat-label>Groups</mat-label>
+                <mat-select formControlName="event_groups" placeholder="Select Groups" multiple>
+                    <mat-option *ngFor="let group of groups" [value]="group">{{ group.group_name }}</mat-option>
+                </mat-select>
+                <div *ngIf="eventForm.controls['event_groups'].invalid && (eventForm.controls['event_groups'].dirty || eventForm.controls['event_groups'].touched)">
+                    <div *ngIf="eventForm.controls['event_groups'].errors?.['required']" class="text-bold-red">Groups are required.</div>
+                </div>
+            </mat-form-field>
+            
+            <mat-form-field class="full-field-width">
+                <mat-label>Point Categories</mat-label>
+                <mat-select formControlName="event_categories" placeholder="Select Point Categories" multiple>
+                    <mat-option *ngFor="let category of categories" [value]="category" matTooltip="{{ category.description }}">{{ category.category_name }}</mat-option>
+                </mat-select>
+                <div *ngIf="eventForm.controls['event_categories'].invalid && (eventForm.controls['event_categories'].dirty || eventForm.controls['event_categories'].touched)">
+                    <div *ngIf="eventForm.controls['event_categories'].errors?.['required']" class="text-bold-red">Point Categories are required.</div>
+                </div>
+            </mat-form-field>
+
+            <mat-form-field class="full-field-width">
+                <mat-label>Repeat Interval</mat-label>
+                <mat-select formControlName="event_interval_repeat" placeholder="Select Repeat Interval" (selectionChange)="repeatChange($event)">
+                    <mat-option value="none">none</mat-option>
+                    <mat-option value="daily">daily</mat-option>
+                    <mat-option value="weekly">weekly</mat-option>
+                    <mat-option value="monthly">monthly</mat-option>
+                </mat-select>
+                <div *ngIf="eventForm.controls['event_interval_repeat'].invalid && (eventForm.controls['event_interval_repeat'].dirty || eventForm.controls['event_interval_repeat'].touched)">
+                    <div *ngIf="eventForm.controls['event_interval_repeat'].errors?.['required']" class="text-bold-red">Event date is required.</div>
+                </div>
+            </mat-form-field>
+
+            <div style="display: flex; gap: 16px;">
+                <mat-form-field style="flex: 1;" class="full-field-width">
+                    <mat-label>Week Day</mat-label>
+                    <mat-select formControlName="event_interval_week_day" placeholder="Select Week Day">
+                        <mat-option value="0">Sunday</mat-option>
+                        <mat-option value="1">Monday</mat-option>
+                        <mat-option value="2">Tuesday</mat-option>
+                        <mat-option value="3">Wednesday</mat-option>
+                        <mat-option value="4">Thursday</mat-option>
+                        <mat-option value="5">Friday</mat-option>
+                        <mat-option value="6">Saturday</mat-option>
+                    </mat-select>
+                    <div *ngIf="eventForm.controls['event_interval_week_day'].invalid && (eventForm.controls['event_interval_week_day'].dirty || eventForm.controls['event_interval_week_day'].touched)">
+                        <div *ngIf="eventForm.controls['event_interval_week_day'].value == '' && eventForm.controls['event_interval_repeat'].value == 'weekly'" class="text-bold-red">Week day is required.</div>
+                        <div *ngIf="eventForm.controls['event_interval_week_day'].errors?.['min'] || eventForm.controls['event_interval_week_day'].errors?.['max']" class="text-bold-red">Week day must be between 0 and 6.</div>
+                    </div>
+                </mat-form-field>
+
+                <mat-form-field style="flex: 1;" class="full-field-width">
+                    <mat-label>Month Day</mat-label>
+                    <input type="number"
+                            matInput 
+                            #input 
+                            placeholder="Month Day"
+                            aria-label="event-month-day"
+                            formControlName="event_interval_month_day" /> 
+                    <div *ngIf="eventForm.controls['event_interval_month_day'].invalid && (eventForm.controls['event_interval_month_day'].dirty || eventForm.controls['event_interval_month_day'].touched)">
+                        <div *ngIf="eventForm.controls['event_interval_month_day'].value == '' && eventForm.controls['event_interval_repeat'].value == 'monthly'" class="text-bold-red">Month day is required.</div>
+                        <div *ngIf="eventForm.controls['event_interval_month_day'].errors?.['min'] || eventForm.controls['event_interval_month_day'].errors?.['max']" class="text-bold-red">Month day must be between 1 and 31.</div>
+                    </div>
+                </mat-form-field>
+            </div>
+
+            <div style="display: flex; gap: 16px;">
+                <mat-form-field style="flex: 1;" class="full-field-width">
+                    <mat-label>Hour</mat-label>
+                    <input type="number"
+                           matInput
+                           placeholder="Hour"
+                           aria-label="event-hour"
+                           formControlName="event_interval_hour"
+                           min="0"
+                           max="23" />
+                    <div *ngIf="eventForm.controls['event_interval_hour'].invalid && (eventForm.controls['event_interval_hour'].dirty || eventForm.controls['event_interval_hour'].touched)">
+                        <div *ngIf="eventForm.controls['event_interval_hour'].value == '' && (eventForm.controls['event_interval_repeat'].value == 'monthly' ||  eventForm.controls['event_interval_repeat'].value == 'weekly' ||  eventForm.controls['event_interval_repeat'].value == 'daily')" class="text-bold-red">Hour is required.</div>
+                        <div *ngIf="eventForm.controls['event_interval_hour'].errors?.['min'] || eventForm.controls['event_interval_hour'].errors?.['max']" class="text-bold-red">Hour must be between 0 and 23.</div>
+                    </div>
+                </mat-form-field>
+
+                <mat-form-field style="flex: 1;" class="full-field-width">
+                    <mat-label>Minutes</mat-label>
+                    <input type="number"
+                           matInput
+                           placeholder="Minutes"
+                           aria-label="event-minutes"
+                           formControlName="event_interval_minute"
+                           min="0"
+                           max="59" />
+                    <div *ngIf="eventForm.controls['event_interval_minute'].invalid && (eventForm.controls['event_interval_minute'].dirty || eventForm.controls['event_interval_minute'].touched)">
+                        <div *ngIf="eventForm.controls['event_interval_hour'].value == '' && (eventForm.controls['event_interval_repeat'].value == 'monthly' ||  eventForm.controls['event_interval_repeat'].value == 'weekly' ||  eventForm.controls['event_interval_repeat'].value == 'daily')" class="text-bold-red">Minutes are required.</div>
+                        <div *ngIf="eventForm.controls['event_interval_minute'].errors?.['min'] || eventForm.controls['event_interval_minute'].errors?.['max']" class="text-bold-red">Minutes must be between 0 and 59.</div>
+                    </div>
+                </mat-form-field>
+            </div>
+
+        </div>
+        <div mat-dialog-actions style="display: flex; justify-content: flex-end;">
+            <button mat-button (click)="onCancel()">Cancel</button>
+            <button mat-button color="primary" type="submit">Save</button>
+        </div>
+    </form> 
+</div>

@@ -2,17 +2,17 @@ import { Component, Injectable, ViewChild } from '@angular/core';
 import { EventsService } from '../../services/event/events.service';
 import { BaseTableDataSourceModel } from '../../models/base_table_datasource_model';
 import { LoggerService } from '../../services/logger.service';
-import { Event, EventInstance } from '../../models/models';
+import { PointEvent, EventInstance } from '../../models/models';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { TableComponent, TableOptions, Row } from '../../components/table/table.component';
 import { ErrorDialogService } from '../../services/error-dialog.service';
-import { AddEditUserDialogComponent } from '../admin-pages/users/add-edit-user-dialog/add-edit-user-dialog/add-edit-user-dialog.component';
+import { AddEditEventDialogComponent } from './add-edit-event-dialog/add-edit-event-dialog.component';
 
 @Injectable({
   providedIn: 'root'
 })
-export class EventDataSource extends BaseTableDataSourceModel<Event> {
+export class EventDataSource extends BaseTableDataSourceModel<PointEvent> {
   constructor(
     private eventsService: EventsService,
     logger: LoggerService
@@ -20,7 +20,7 @@ export class EventDataSource extends BaseTableDataSourceModel<Event> {
     super(eventsService, logger);
   }
 
-  private displayStudentGroups(event: Event): string {
+  private displayStudentGroups(event: PointEvent): string {
     let groups = '';
     for (const group of event.student_groups) {
       groups += group.group_name + ', ';
@@ -28,7 +28,7 @@ export class EventDataSource extends BaseTableDataSourceModel<Event> {
     return groups;
   }
 
-  private displayPointCategories(event: Event): string {
+  private displayPointCategories(event: PointEvent): string {
     let categories = '';
     for (const category of event.point_categories) {
       categories += category.category_name + ', ';
@@ -36,7 +36,7 @@ export class EventDataSource extends BaseTableDataSourceModel<Event> {
     return categories;
   }
 
-  private displayInterval(event: Event): string {
+  private displayInterval(event: PointEvent): string {
     const result = event.interval?.repeat;
     if (result === "none") {
       return "None";
@@ -69,7 +69,7 @@ export class EventDataSource extends BaseTableDataSourceModel<Event> {
     return result;
   }
 
-  override fieldDisplay(row: Event, field: string): string {
+  override fieldDisplay(row: PointEvent, field: string): string {
     switch (field) {
       case 'id':
         return row.id?.toString() || '';
@@ -101,7 +101,7 @@ export class EventDataSource extends BaseTableDataSourceModel<Event> {
   standalone: false
 })
 export class EventsComponent {
-@ViewChild ('EventTable') table!: TableComponent<Event>;
+@ViewChild ('EventTable') table!: TableComponent<PointEvent>;
   dataSource: EventDataSource
 
   constructor(
@@ -154,15 +154,15 @@ export class EventsComponent {
   }
 
   openEditDialog(row: Row): void {
-    const dialogRef = this.dialog.open(AddEditUserDialogComponent, {
+    const dialogRef = this.dialog.open(AddEditEventDialogComponent, {
       width: '300px',
       height: '600px',
-      data: { type: 'edit', user: row }
+      data: { row }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result !== null) {
-        const event = result as Event;
+        const event = result as PointEvent;
         if (event) {
           try {
             this.dataSource.updateRow(event);
@@ -177,15 +177,16 @@ export class EventsComponent {
   }
 
   openAddDialog(): void {
-    const dialogRef = this.dialog.open(AddEditUserDialogComponent, {
+    const event = {} as PointEvent;
+    const dialogRef = this.dialog.open(AddEditEventDialogComponent, {
       width: '300px',
-      height: '675px',
-      data: { type: 'add', user: {} }
+      height: '650px',
+      data: { event }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result !== null) {
-        const event = result as Event;
+        const event = result as PointEvent;
         if (event) {
           this.errorLogger.logger.debug(`Adding event:${event}`);
           try {
@@ -208,7 +209,7 @@ export class EventsComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === true) {
-        const event = row as Event;
+        const event = row as PointEvent;
         if (event) {
           try {
             this.dataSource.deleteRow(event);

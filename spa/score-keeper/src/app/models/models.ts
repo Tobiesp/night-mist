@@ -63,7 +63,7 @@ export interface Point extends BaseModel {
     deleted: boolean;
 }
 
-export interface Event extends BaseModel {
+export interface PointEvent extends BaseModel {
     event_name: string;
     interval: Interval;
     deleted: boolean;
@@ -75,7 +75,7 @@ export interface Event extends BaseModel {
 }
 
 export interface EventInstance extends BaseModel {
-    event: Event;
+    event: PointEvent;
     event_date: string;
     completed: boolean;
     deleted: boolean;
